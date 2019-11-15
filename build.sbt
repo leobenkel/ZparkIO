@@ -31,6 +31,7 @@ lazy val library = (project in file("Library"))
 lazy val testProject = (project in file("ProjectExample"))
   .settings(
     commonSettings,
-    name := s"${projectName}_testProject"
+    name           := s"${projectName}_testProject",
+    publish / skip := true
   )
   .dependsOn(library)

@@ -6,8 +6,8 @@ import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
 import zio.console.Console
 import zio.{Task, ZIO}
 
-trait CommandLineArguments {
-  def cli: CommandLineArguments.Service
+trait CommandLineArguments[C <: CommandLineArguments.Service] {
+  def cli: C
 }
 
 object CommandLineArguments {
@@ -67,37 +67,40 @@ object CommandLineArguments {
 
   private[zparkio] object ErrorParser {
     def unapply(e: Throwable): Option[Int] = e match {
-      case h: Help                 => Some(0)
-      case h: HelpHandlerException => Some(0)
+      case _: Help                 => Some(0)
+      case _: HelpHandlerException => Some(0)
       case _ => None
     }
   }
 
-  def apply(): ZIO[Any with CommandLineArguments, Nothing, CommandLineArguments.Service] = {
-    ZIO.access[CommandLineArguments](_.cli)
+  def apply[C <: CommandLineArguments.Service](
+  ): ZIO[Any with CommandLineArguments[C], Nothing, C] = {
+    ZIO.access[CommandLineArguments[C]](_.cli)
   }
 
   type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service] =
-    ZIO[Any with CommandLineArguments, Throwable, YourConfigWrapper[A]]
+    ZIO[Any with CommandLineArguments[A], Throwable, YourConfigWrapper[A]]
 
-  def get[A <: CommandLineArguments.Service]: ZIO_CONFIG_SERVICE[A] = {
-    apply().map(c => YourConfigWrapper(c.asInstanceOf[A]))
+  def get[C <: CommandLineArguments.Service]: ZIO_CONFIG_SERVICE[C] = {
+    apply[C]().map(c => YourConfigWrapper(c))
   }
 
   implicit class Shortcut[C <: CommandLineArguments.Service](z: ZIO_CONFIG_SERVICE[C]) {
-    def apply[A](f: C => A): ZIO[CommandLineArguments, Throwable, A] = z.map(_.apply(f))
+    def apply[A](f: C => A): ZIO[CommandLineArguments[C], Throwable, A] = z.map(_.apply(f))
   }
 
   case class YourConfigWrapper[C <: CommandLineArguments.Service](config: C) {
     def apply[A](f: C => A): A = f(config)
   }
 
-  val DisplayCommandLines: ZIO[Any with CommandLineArguments with Logger, Nothing, Unit] = {
+  def displayCommandLines[C <: CommandLineArguments.Service](
+  ): ZIO[Any with CommandLineArguments[C] with Logger with Console, Nothing, Unit] = {
     for {
-      conf <- apply()
-      _    <- Logger.info("----------------------------")
+      conf <- apply[C]()
+      _    <- Logger.info("--------------Command Lines--------------")
       _    <- ZIO.foreach(conf.filteredSummary(Set.empty).split('\n').toSeq)(s => Logger.info(s))
-      _    <- Logger.info("----------------------------")
+      _    <- Logger.info("-----------------------------------------")
+      _    <- Logger.info("")
     } yield {}
   }
 }

@@ -21,13 +21,15 @@ class CommandLineArgumentsTest extends FreeSpec {
     }
 
     object Arguments {
-      def apply[A](f: ArgumentsService => A): ZIO[CommandLineArguments, Throwable, A] = {
+      def apply[A](
+        f: ArgumentsService => A
+      ): ZIO[CommandLineArguments[ArgumentsService], Throwable, A] = {
         CommandLineArguments.get[ArgumentsService](f)
       }
     }
 
-    case class Arguments(input: Seq[String]) extends CommandLineArguments {
-      override def cli: CommandLineArguments.Service = ArgumentsService(input)
+    case class Arguments(input: Seq[String]) extends CommandLineArguments[ArgumentsService] {
+      override def cli: ArgumentsService = ArgumentsService(input)
     }
 
     val runtime = TestRuntime()

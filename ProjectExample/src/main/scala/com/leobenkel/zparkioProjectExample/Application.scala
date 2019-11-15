@@ -22,7 +22,7 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
   }
 
   override def makeEnvironment(
-    cliService:   CommandLineArguments.Service,
+    cliService:   Arguments,
     sparkService: SparkModule.Service
   ): RuntimeEnv = {
     RuntimeEnv(cliService, sparkService)
