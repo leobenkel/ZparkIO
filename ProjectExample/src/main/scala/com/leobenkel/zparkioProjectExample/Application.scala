@@ -15,10 +15,10 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
     } yield { s }
   }
 
-  override def processErrors(f: Throwable): Int = {
+  override def processErrors(f: Throwable): Option[Int] = {
     println(f)
     f.printStackTrace()
-    1
+    Some(1)
   }
 
   override def makeEnvironment(

@@ -1,5 +1,6 @@
 package com.leobenkel.zparkio.TestUtils
 import com.leobenkel.zparkio.Services.Logger
+import zio.console.Console
 import zio.internal.{Platform, PlatformLive}
 import zio.{Runtime, UIO, ZIO}
 
@@ -13,7 +14,10 @@ case class TestEnvironment() extends Logger {
 }
 
 case class LoggerTest() extends Logger.Service {
-  override def info[E](txt:  String): ZIO[E, Nothing, Unit] = UIO(println(s"INFO: $txt"))
-  override def error[E](txt: String): ZIO[E, Nothing, Unit] = UIO(println(s"ERROR: $txt"))
-  override def debug[E](txt: String): ZIO[E, Nothing, Unit] = UIO(println(s"DEBUG: $txt"))
+  override def info(txt: String): ZIO[Any with Console, Nothing, Unit] =
+    UIO(println(s"INFO: $txt"))
+  override def error(txt: String): ZIO[Any with Console, Nothing, Unit] =
+    UIO(println(s"ERROR: $txt"))
+  override def debug(txt: String): ZIO[Any with Console, Nothing, Unit] =
+    UIO(println(s"DEBUG: $txt"))
 }
