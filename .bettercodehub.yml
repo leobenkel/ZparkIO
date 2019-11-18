@@ -6,6 +6,6 @@ languages:
       - .*/Library/src/main/.*\.scala
       - .*/ProjectExample/src/main/.*\.scala
   test:
-      include:
-        - .*/Library/src/test/.*\.scala
-        - .*/ProjectExample/src/test/.*\.scala
+    include:
+      - .*/Library/src/test/.*\.scala
+      - .*/ProjectExample/src/test/.*\.scala
