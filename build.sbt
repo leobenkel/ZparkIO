@@ -1,10 +1,8 @@
-val v = IO.readLines(new File("VERSION")).head
 val projectName = IO.readLines(new File("PROJECT_NAME")).head
 
 val sparkVersion = "2.3.1"
 
 lazy val commonSettings = Seq(
-  version      := v,
   organization := "com.leobenkel",
   homepage     := Some(url("https://github.com/leobenkel/Sparkio")),
   licenses     := List("MIT" -> url("https://opensource.org/licenses/MIT")),
@@ -32,7 +30,6 @@ lazy val commonSettings = Seq(
   ),
   logLevel in stryker     := Level.Debug,
   updateOptions           := updateOptions.value.withGigahorse(false),
-  publishMavenStyle       := true,
   publishArtifact in Test := false,
   pomIncludeRepository    := (_ => false)
 )
