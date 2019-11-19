@@ -30,19 +30,17 @@ lazy val commonSettings = Seq(
     "com.holdenkarau"  %% "spark-testing-base" % s"${sparkVersion}_0.10.0" % Test,
     "org.apache.spark" %% "spark-hive"         % sparkVersion              % Test
   ),
-  logLevel in stryker := Level.Debug
+  logLevel in stryker     := Level.Debug,
+  updateOptions           := updateOptions.value.withGigahorse(false),
+  publishMavenStyle       := true,
+  publishArtifact in Test := false,
+  pomIncludeRepository    := (_ => false)
 )
 
 lazy val library = (project in file("Library"))
   .settings(
     commonSettings,
-    name := projectName,
-    libraryDependencies ++= Seq(),
-    updateOptions           := updateOptions.value.withGigahorse(false),
-    publishMavenStyle       := true,
-    publishArtifact in Test := false,
-    pomIncludeRepository    := (_ => false),
-    updateOptions           := updateOptions.value.withGigahorse(false)
+    name := projectName
   )
 
 lazy val testProject = (project in file("ProjectExample"))
