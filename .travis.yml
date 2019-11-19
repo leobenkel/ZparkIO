@@ -36,9 +36,6 @@ jobs:
       script: make mutator_test
       if: branch = master AND type = push AND NOT fork
     -
-      name: plugin-test
-      script: make test_plugin
-    -
       name: unit-test
       script:
         - make test_coverage test_coverage_report
