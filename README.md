@@ -4,9 +4,9 @@
 [![maven-central-badge][]][maven-central-link]
 
 [![Build Status](https://travis-ci.com/leobenkel/zparkio.svg?branch=master)](https://travis-ci.com/leobenkel/zparkio)
-[![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/zparkio?branch=master)](https://bettercodehub.com/)
-[![Coverage Status](https://coveralls.io/repos/github/leobenkel/zparkio/badge.svg?branch=master)](https://coveralls.io/github/leobenkel/zparkio?branch=master)
-[![Mutation testing badge](https://badge.stryker-mutator.io/github.com/leobenkel/zparkio/master)](https://stryker-mutator.github.io)
+[![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/Zparkio?branch=master)](https://bettercodehub.com/)
+[![Coverage Status](https://coveralls.io/repos/github/leobenkel/Zparkio/badge.svg?branch=master)](https://coveralls.io/github/leobenkel/zparkio?branch=master)
+[![Mutation testing badge](https://badge.stryker-mutator.io/github.com/leobenkel/Zparkio/master)](https://stryker-mutator.github.io)
 
 
 [release]:              https://github.com/leobenkel/zparkio/releases

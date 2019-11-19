@@ -17,6 +17,7 @@ lazy val commonSettings = Seq(
     )
   ),
   scalaVersion := "2.11.12",
+  resolvers += Resolver.sonatypeRepo("releases"),
   libraryDependencies ++= Seq(
     // https://zio.dev/docs/getting_started.html
     "dev.zio" %% "zio" % "1.0.0-RC16",
@@ -28,7 +29,8 @@ lazy val commonSettings = Seq(
     "org.apache.spark" %% "spark-sql"          % sparkVersion              % Provided,
     "com.holdenkarau"  %% "spark-testing-base" % s"${sparkVersion}_0.10.0" % Test,
     "org.apache.spark" %% "spark-hive"         % sparkVersion              % Test
-  )
+  ),
+  logLevel in stryker := Level.Debug
 )
 
 lazy val library = (project in file("Library"))
@@ -39,7 +41,8 @@ lazy val library = (project in file("Library"))
     updateOptions           := updateOptions.value.withGigahorse(false),
     publishMavenStyle       := true,
     publishArtifact in Test := false,
-    pomIncludeRepository    := (_ => false)
+    pomIncludeRepository    := (_ => false),
+    updateOptions           := updateOptions.value.withGigahorse(false)
   )
 
 lazy val testProject = (project in file("ProjectExample"))
