@@ -18,9 +18,7 @@ stages:
   - name: clean
   - name: test
   - name: release
-    if: ((branch = master AND type = push) AND (tag IS present)) AND NOT fork
-  - name: release-snapshot
-    if: ((branch = master AND type = push) AND (tag IS NOT present)) AND NOT fork
+    if: (branch = master AND type = push) AND NOT fork
 
 jobs:
   include:
@@ -43,11 +41,13 @@ jobs:
         - make test_coverage test_coverage_report
         - sbt coveralls
     - stage: release
-      name: release
-      script: sbt "; project library ; ci-release"
-    - stage: release-snapshot
       name: release-snapshot
       script: sbt 'set isSnapshot := true' "; project library ; ci-release"
+      if: tag IS NOT present
+    -
+      name: release
+      script: sbt "; project library ; ci-release"
+      if: tag IS present
 
 # https://github.com/olafurpg/sbt-ci-release/blob/master/.travis.yml
 
