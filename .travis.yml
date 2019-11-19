@@ -25,27 +25,29 @@ jobs:
     - stage: clean
       name: clean
       script: make deep_clean
+
     - stage: test
       name: compile
       script: sbt compile
-    -
+    - stage: test
       name: scalafmt
       script: ./bin/scalafmt --test
-    -
+    - stage: test
       name: mutators-test
       script: make mutator_test
       if: branch = master AND type = push AND NOT fork
-    -
+    - stage: test
       name: unit-test
       script:
         - make test_coverage test_coverage_report
         - sbt coveralls
+
     - stage: release
-      name: release-snapshot
+      name: release-staging
       script: sbt 'set isSnapshot := true' "; project library ; ci-release"
       if: tag IS NOT present
-    -
-      name: release
+    - stage: release
+      name: release-production
       script: sbt "; project library ; ci-release"
       if: tag IS present
 
