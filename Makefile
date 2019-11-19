@@ -36,6 +36,9 @@ check_style:
 unit_test:
 	sbt clean test
 
+help:
+	sbt "; project testProject ; run --help"
+
 test: deep_clean check_style unit_test
 
 mutator_test:

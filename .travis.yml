@@ -44,10 +44,10 @@ jobs:
         - sbt coveralls
     - stage: release
       name: release
-      script: sbt ci-release
+      script: sbt "; project library ; ci-release"
     - stage: release-snapshot
       name: release-snapshot
-      script: sbt 'set isSnapshot := true' ci-release
+      script: sbt 'set isSnapshot := true' "; project library ; ci-release"
 
 # https://github.com/olafurpg/sbt-ci-release/blob/master/.travis.yml
 
