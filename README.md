@@ -24,11 +24,74 @@
 
 
 # Zparkio
-Boiler plate framework to use Spark and ZIO together.
+Boiler plate framework to use [Spark](https://github.com/apache/spark) and [ZIO](https://github.com/zio/zio) together.
 
 The goal of this framework is to blend Spark and ZIO in an easy to use system for data engineers.
 
 Allowing them to use Spark is a new, faster, more reliable way, leveraging ZIO power.
+
+## What is this library for ?
+
+This library will implement all the boiler plate for you to be able to include Spark and ZIO in your ML project.
+
+It can be tricky to use ZIO to save an instance of Spark to reuse in your code and this library solve all the boilerplate problem for you.
+
+## Why would you want to use ZIO and Spark together?
+
+From my experience, using ZIO/Future in combination with Spark can speed up drastically the performance of your job. The reason being that sources (BigQuery, Postgresql, S3 files, etc...) can be fetch in parallel while the computation are not on hold. Obviously ZIO is much better than Future but it is harder to set up. Not anymore!
+
+Some other nice aspect of ZIO is the error/exception handling as well as the build-in retry helpers. Which make retrying failed task a breath within Spark.
+
+## How to use?
+
+I hope that you are now convinced that ZIO and Spark are a perfect match. Let's see how to use this Zparkio.
+
+### Include dependencies
+
+First include the library in your project:
+
+```sbt
+libraryDependencies += "com.leobenkel" %% "zparkio" % "[VERSION]"
+```
+With version being: [![maven-central-badge][]][maven-search] .
+
+This library depends on [Spark](https://github.com/apache/spark), [ZIO](https://github.com/zio/zio) and [Scallop](https://github.com/scallop/scallop). 
+
+### How to use in your code?
+
+There is a [project example](https://github.com/leobenkel/Zparkio/tree/master/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample) you can look at. But here are the details.
+
+#### Main
+
+The first thing you have to do is extends the `ZparkioApp` trait. For an example you can look at the [ProjectExample](https://github.com/leobenkel/Zparkio/tree/master/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample): [Application](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala).
+
+#### Spark
+
+By using this architecture, you will have access to `SparkSesion` anywhere in your `ZIO` code, via 
+```scala
+import com.leobenkel.zparkio.Services._
+
+for {
+  spark <- SparkModule()
+} yield {
+  ???
+}
+```
+
+for instance you can see its use [here](https://github.com/leobenkel/Zparkio/blob/9e83fbec32f067c75a7fdb083220fbfc848d1eb9/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala#L12).
+
+#### Command lines
+
+You will also have access to all your command lines automatically parsed, generated and accessible to you via: 
+
+[CommandLineArguments](https://github.com/leobenkel/Zparkio/blob/0575d24d4989c0838880a2b7c8d7e3011fa79e0a/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Arguments.scala#L25-L27) ;
+it is recommended to make this helper function to make the rest of your code easier to use.
+
+Then using it, [like here](https://github.com/leobenkel/Zparkio/blob/0575d24d4989c0838880a2b7c8d7e3011fa79e0a/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala#L12), is easy.
+
+#### Unit test
+
+Using this architecture will literally allow you to [run your main as a unit test](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample/ApplicationTest.scala).
 
 ## Authors
 
