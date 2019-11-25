@@ -2,11 +2,12 @@ package com.leobenkel.zparkioProjectExample
 
 import com.leobenkel.zparkio.Services.CommandLineArguments
 import org.rogach.scallop.{ScallopConf, ScallopOption}
+import zio.ZIO
 
 case class Arguments(input: List[String])
     extends ScallopConf(input) with CommandLineArguments.Service {
   val inputId: ScallopOption[Int] = opt[Int](
-    default = None,
+    default = Some(10),
     required = false,
     noshort = true
   )
@@ -18,4 +19,10 @@ case class Arguments(input: List[String])
   )
 
   verify()
+}
+
+object Arguments {
+  def apply[A](f: Arguments => A): ZIO[CommandLineArguments[Arguments], Throwable, A] = {
+    CommandLineArguments.get[Arguments](f)
+  }
 }

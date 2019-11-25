@@ -9,8 +9,9 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
     for {
       s     <- UIO("hello")
       _     <- Logger.info(s"Got: $s")
+      a     <- Arguments(_.inputId())
       spark <- SparkModule()
-      df    <- Task(spark.sparkContext.parallelize(Seq(1, 2, 5)))
+      df    <- Task(spark.sparkContext.parallelize((0 until a).toSeq))
       _     <- Logger.info(s"Count: ${df.count()}")
     } yield { s }
   }
