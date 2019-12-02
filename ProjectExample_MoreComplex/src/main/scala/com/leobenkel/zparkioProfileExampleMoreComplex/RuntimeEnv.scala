@@ -28,9 +28,9 @@ case class RuntimeEnv(
 }
 
 object RuntimeEnv {
-  type APP_ENV = Any with System with Console with Clock with Random with Blocking
-    with CommandLineArguments[Arguments] with Logger with FileIO with SparkModule
-    with Database
+  type APP_ENV = Any
+    with System with Console with Clock with Random with Blocking
+    with CommandLineArguments[Arguments] with Logger with FileIO with SparkModule with Database
 }
 
 class Log extends Logger.Service {
