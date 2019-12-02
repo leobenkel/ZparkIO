@@ -25,10 +25,10 @@ test_coverage_run:
 	open ./target/scala-2.12/sbt-1.0/scoverage-report/index.html
 
 test_coverage:
-	sbt clean coverage test
+	sbt "; project library ; clean ; coverage ; test"
 
 test_coverage_report:
-	sbt coverageReport && sbt coverageAggregate
+	sbt "; project library ; coverageReport" && sbt "; project library ; coverageAggregate"
 
 check_style:
 	sbt safetyCheckScalaFmt
@@ -36,14 +36,11 @@ check_style:
 unit_test:
 	sbt clean test
 
-help:
-	sbt "; project testProject ; run --help"
-
 test: deep_clean check_style unit_test
 
 mutator_test:
 	export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx4G"
-	sbt 'set logLevel in Test := Level.Error' 'set parallelExecution in Test := true' 'set safetySoftOnCompilerWarning := true' stryker
+	sbt 'set logLevel in Test := Level.Error' 'set parallelExecution in Test := true' 'set safetySoftOnCompilerWarning := true' "; project library ; stryker"
 
 mutator_open_results:
 	open `find ./target/stryker4s* -type f -iname "*index.html"`
