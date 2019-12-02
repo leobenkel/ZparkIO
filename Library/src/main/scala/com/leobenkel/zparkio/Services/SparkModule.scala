@@ -26,7 +26,7 @@ object SparkModule {
     lazy private val sparkBuilder:         SparkSession.Builder = SparkSession.builder
     lazy private val sparkBuilderWithName: SparkSession.Builder = sparkBuilder.appName(appName)
     protected def appName: String
-    protected def updateConfig[R](
+    protected def updateConfig(
       sparkBuilder: SparkSession.Builder,
       arguments:    C
     ): SparkSession.Builder

@@ -29,7 +29,7 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
     RuntimeEnv(cliService, sparkService)
   }
 
-  override def makeSparkBuilder: SparkModule.Builder[Arguments] = new SparkBuilder {}
+  override def makeSparkBuilder: SparkModule.Builder[Arguments] = SparkBuilder
 
   override def makeCliBuilder: CommandLineArguments.Builder[Arguments] =
     new CommandLineArguments.Builder[Arguments] {
