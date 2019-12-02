@@ -1,6 +1,7 @@
-package com.leobenkel.zparkioProjectExample
+package com.leobenkel.zparkioProfileExampleMoreComplex.Services
 
 import com.leobenkel.zparkio.Services.SparkModule
+import com.leobenkel.zparkioProfileExampleMoreComplex.Arguments
 import org.apache.spark.sql.SparkSession
 
 object SparkBuilder extends SparkModule.Builder[Arguments] {
@@ -11,7 +12,7 @@ object SparkBuilder extends SparkModule.Builder[Arguments] {
     arguments:    Arguments
   ): SparkSession.Builder = {
     sparkBuilder
-      .config("spark.foo.bar", arguments.sparkFoo())
+      .config("spark.foo.bar", arguments.sparkConfig())
   }
 
   override protected def makeSparkService(sparkBuilder: SparkSession.Builder): SparkModule.Service =

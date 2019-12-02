@@ -47,3 +47,11 @@ lazy val testProject = (project in file("ProjectExample"))
     publish / skip := true
   )
   .dependsOn(library)
+
+lazy val testProjectTwo = (project in file("ProjectExample_MoreComplex"))
+  .settings(
+    commonSettings,
+    name           := s"${projectName}_testProject_moreComplex",
+    publish / skip := true
+  )
+  .dependsOn(library)
