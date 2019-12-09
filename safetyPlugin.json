@@ -73,6 +73,11 @@
         "version": "1.1.10"
       }
     },
+    "commons-codec": {
+      "commons-codec": {
+        "version": "1.10"
+      }
+    },
     "commons-beanutils": {
       "commons-beanutils": {
         "overrideIsEnough": false,
@@ -141,6 +146,7 @@
           "com.google.guava | guava",
           "commons-beanutils | commons-beanutils",
           "commons-beanutils | commons-beanutils-core",
+          "commons-codec | commons-codec",
           "io.netty | netty-all",
           "org.apache.commons | commons-compress",
           "org.apache.hadoop | hadoop-hdfs",

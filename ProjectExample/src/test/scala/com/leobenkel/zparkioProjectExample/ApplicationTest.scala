@@ -1,9 +1,10 @@
 package com.leobenkel.zparkioProjectExample
 
-import com.leobenkel.zparkioProjectExample.TestUtils.TestWithSpark
+import com.leobenkel.zparkiotest.TestWithSpark
+import org.scalatest.FreeSpec
 import zio.Exit.{Failure, Success}
 
-class ApplicationTest extends TestWithSpark {
+class ApplicationTest extends FreeSpec with TestWithSpark {
   "Full application" - {
     "Run" in {
       TestApp.unsafeRunSync(TestApp.run("--spark-foo" :: "abc" :: Nil)) match {
