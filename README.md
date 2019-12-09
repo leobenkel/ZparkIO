@@ -77,6 +77,17 @@ With version being: [![maven-central-badge][]][maven-search] .
 
 This library depends on [Spark](https://github.com/apache/spark), [ZIO](https://github.com/zio/zio) and [Scallop](https://github.com/scallop/scallop). 
 
+#### Unit-test
+
+You can also add 
+
+```sbt
+libraryDependencies += "com.leobenkel" %% "zparkio-test" % "[VERSION]"
+```
+With version being: [![maven-central-badge][]][maven-search] .
+
+To get access to helper function to help you write unit tests.
+
 ### How to use in your code?
 
 There is a [project example](https://github.com/leobenkel/Zparkio/tree/master/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample) you can look at. But here are the details.
