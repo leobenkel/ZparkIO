@@ -40,13 +40,24 @@ lazy val library = (project in file("Library"))
     name := projectName
   )
 
+lazy val testHelper = (project in file("TestHelper"))
+  .settings(
+    commonSettings,
+    name := s"$projectName-test",
+    libraryDependencies ++= Seq(
+      "com.holdenkarau"  %% "spark-testing-base" % s"${sparkVersion}_0.10.0",
+      "org.apache.spark" %% "spark-hive"         % sparkVersion % Provided
+    )
+  )
+  .dependsOn(library)
+
 lazy val testProject = (project in file("ProjectExample"))
   .settings(
     commonSettings,
     name           := s"${projectName}_testProject",
     publish / skip := true
   )
-  .dependsOn(library)
+  .dependsOn(library, testHelper)
 
 lazy val testProjectTwo = (project in file("ProjectExample_MoreComplex"))
   .settings(
@@ -54,4 +65,4 @@ lazy val testProjectTwo = (project in file("ProjectExample_MoreComplex"))
     name           := s"${projectName}_testProject_moreComplex",
     publish / skip := true
   )
-  .dependsOn(library)
+  .dependsOn(library, testHelper)

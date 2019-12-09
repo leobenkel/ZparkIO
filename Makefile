@@ -11,7 +11,7 @@ clean:
 fmt:
 	sbt safetyCheckScalaFmtRun
 
-publishLocal:
+publishLocal: test
 	 sbt 'set isSnapshot := true' publishLocal
 
 publish: test publish_only

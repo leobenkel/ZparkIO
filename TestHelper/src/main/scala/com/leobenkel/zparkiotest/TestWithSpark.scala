@@ -1,10 +1,10 @@
-package com.leobenkel.zparkioProjectExample.TestUtils
+package com.leobenkel.zparkiotest
 
 import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import org.apache.spark.SparkConf
-import org.scalatest.FreeSpec
+import org.scalatest.Suite
 
-trait TestWithSpark extends FreeSpec with DataFrameSuiteBase {
+trait TestWithSpark extends DataFrameSuiteBase { self: Suite =>
   override protected val reuseContextIfPossible: Boolean = true
   override protected val enableHiveSupport:      Boolean = false
 

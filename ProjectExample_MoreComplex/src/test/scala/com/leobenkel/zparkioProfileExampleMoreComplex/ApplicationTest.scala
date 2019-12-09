@@ -3,8 +3,9 @@ package com.leobenkel.zparkioProfileExampleMoreComplex
 import com.leobenkel.zparkio.Services.{CommandLineArguments, Logger, SparkModule}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Items.{Post, User}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Services.{Database, FileIO}
-import com.leobenkel.zparkioProfileExampleMoreComplex.TestUtils.TestWithSpark
+import com.leobenkel.zparkiotest.TestWithSpark
 import org.apache.spark.sql.{Dataset, Encoder, SparkSession}
+import org.scalatest.FreeSpec
 import zio.Exit.{Failure, Success}
 import zio.blocking.Blocking
 import zio.clock.Clock
@@ -12,7 +13,7 @@ import zio.console.Console
 import zio.random.Random
 import zio.system.System
 
-class ApplicationTest extends TestWithSpark {
+class ApplicationTest extends FreeSpec with TestWithSpark {
   "Full application" - {
     "Run" in {
       TestApp.unsafeRunSync(TestApp.run(Nil)) match {
