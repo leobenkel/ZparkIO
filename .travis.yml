@@ -43,16 +43,20 @@ jobs:
         - sbt "; project library ; coveralls"
 
     - stage: release
-      name: release-staging
-      script:
-        - sbt 'set isSnapshot := true' "; project library ; ci-release"
-        - sbt 'set isSnapshot := true' "; project testHelper ; ci-release"
+      name: release-staging-lib
+      script: sbt 'set isSnapshot := true' "; project library ; ci-release"
       if: tag IS NOT present
     - stage: release
-      name: release-production
-      script:
-        - sbt "; project library ; ci-release"
-        - sbt "; project testHelper ; ci-release"
+      name: release-staging-test
+      script: sbt 'set isSnapshot := true' "; project testHelper ; ci-release"
+      if: tag IS NOT present
+    - stage: release
+      name: release-production-lib
+      script: sbt "; project library ; ci-release"
+      if: tag IS present
+    - stage: release
+      name: release-production-test
+      script: sbt "; project testHelper ; ci-release"
       if: tag IS present
 
 # https://github.com/olafurpg/sbt-ci-release/blob/master/.travis.yml
