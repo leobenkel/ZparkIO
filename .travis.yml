@@ -50,6 +50,7 @@ jobs:
       name: release-staging-test
       script: sbt 'set isSnapshot := true' "; project testHelper ; ci-release"
       if: tag IS NOT present
+
     - stage: release
       name: release-production-lib
       script: sbt "; project library ; ci-release"
