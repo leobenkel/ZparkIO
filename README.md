@@ -27,7 +27,7 @@
 [maven-central-badge-test]:          https://maven-badges.herokuapp.com/maven-central/com.leobenkel/zparkio-test_2.11/badge.svg
 
 
-# Zparkio
+# ZparkIO
 Boiler plate framework to use [Spark](https://github.com/apache/spark) and [ZIO](https://github.com/zio/zio) together.
 
 The goal of this framework is to blend Spark and ZIO in an easy to use system for data engineers.
