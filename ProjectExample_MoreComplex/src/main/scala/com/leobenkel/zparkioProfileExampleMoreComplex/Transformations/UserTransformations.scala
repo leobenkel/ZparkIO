@@ -4,7 +4,6 @@ import com.leobenkel.zparkio.implicits.{ZDS, ZDS_R}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Items.User
 import com.leobenkel.zparkioProfileExampleMoreComplex.Services.Database
 import com.leobenkel.zparkioProfileExampleMoreComplex.Sources.DatabaseSource
-import org.apache.spark.broadcast.Broadcast
 
 object UserTransformations {
 
@@ -19,10 +18,11 @@ object UserTransformations {
       postsF <- DatabaseSource.getPosts.fork
       users  <- usersF.join
       posts  <- postsF.join
-      authors <- ZDS { spark =>
+      authorIds <- ZDS.broadcast { spark =>
         import spark.implicits._
-        val authorIds: Broadcast[Array[Int]] =
-          spark.sparkContext.broadcast(posts.map(_.authorId).distinct.collect)
+        posts.map(_.authorId).distinct.collect
+      }
+      authors <- ZDS { _ =>
         users.filter(u => authorIds.value.contains(u.userId))
       }
     } yield {
