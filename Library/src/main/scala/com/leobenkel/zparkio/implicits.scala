@@ -20,7 +20,11 @@ object implicits {
   type ZBC[A] = ZBC_R[Any, A]
 
   object ZDS {
-    def apply[A](f: SparkSession => Dataset[A]): ZDS[A] = SparkModule().map(spark => f(spark))
+    def map[A](f: SparkSession => Dataset[A]): ZDS[A] = SparkModule().map(spark => f(spark))
+
+    def flatMap[A](f: SparkSession => ZDS[A]): ZDS[A] = SparkModule().flatMap(spark => f(spark))
+
+    def apply[A](f: SparkSession => Dataset[A]): ZDS[A] = ZDS.map(f)
 
     def apply[A: Encoder](data: Seq[A]): ZDS[A] = {
       apply { spark =>
