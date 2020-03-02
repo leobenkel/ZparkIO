@@ -7,6 +7,7 @@ import org.apache.spark.sql._
 import zio.ZIO
 
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 // scalastyle:off object.name
 object implicits {
@@ -25,6 +26,13 @@ object implicits {
     def flatMap[A](f: SparkSession => ZDS[A]): ZDS[A] = SparkModule().flatMap(spark => f(spark))
 
     def apply[A](f: SparkSession => Dataset[A]): ZDS[A] = ZDS.map(f)
+
+    def apply[A <: Product: TypeTag: ClassTag](data: Seq[A]): ZDS[A] = {
+      apply { spark =>
+        import spark.implicits._
+        data.toDS()
+      }
+    }
 
     def apply[A: Encoder](data: Seq[A]): ZDS[A] = {
       apply { spark =>
