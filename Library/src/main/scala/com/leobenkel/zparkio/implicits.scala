@@ -4,7 +4,7 @@ import com.leobenkel.zparkio.Services.SparkModule
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
-import zio.ZIO
+import zio.{DefaultRuntime, ZIO}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -23,11 +23,13 @@ object implicits {
   object ZDS {
     def map[A](f: SparkSession => Dataset[A]): ZDS[A] = SparkModule().map(spark => f(spark))
 
-    def flatMap[A](f: SparkSession => ZDS[A]): ZDS[A] = SparkModule().flatMap(spark => f(spark))
+    def flatMap[A](f:     SparkSession => ZDS[A]): ZDS[A] = SparkModule().flatMap(spark => f(spark))
+    def flatMapR[R, A](f: SparkSession => ZDS_R[R, A]): ZDS_R[R, A] =
+      SparkModule().flatMap(spark => f(spark))
 
     def apply[A](f: SparkSession => Dataset[A]): ZDS[A] = ZDS.map(f)
 
-    def apply[A <: Product: TypeTag: ClassTag](data: Seq[A]): ZDS[A] = {
+    def apply[A <: Product: TypeTag: ClassTag](data: A*): ZDS[A] = {
       apply { spark =>
         import spark.implicits._
         data.toDS()
@@ -43,6 +45,21 @@ object implicits {
 
     def broadcast[A: ClassTag](f: SparkSession => A): ZBC[A] = {
       SparkModule().map(spark => spark.sparkContext.broadcast(f(spark)))
+    }
+  }
+
+  implicit class DatasetZ[R, A](zds: => ZIO[R, Throwable, Dataset[A]]) extends Serializable {
+    def zMap[B <: Product: TypeTag: ClassTag](f: A => ZIO[Any, Throwable, B]): ZDS_R[R, B] = {
+      ZDS.flatMapR[R, B] { spark =>
+        import spark.implicits._
+        zds.map { ds =>
+          ds.map { a =>
+            val zB = f(a)
+            val runtime = new DefaultRuntime {}
+            runtime.unsafeRun(zB)
+          }
+        }
+      }
     }
   }
 }

@@ -51,7 +51,18 @@ lazy val testHelper = (project in file("TestHelper"))
   )
   .dependsOn(library)
 
-lazy val testProject = (project in file("ProjectExample"))
+lazy val tests = (project in file("tests"))
+  .settings(
+    commonSettings,
+    name           := s"${projectName}_tests",
+    publish / skip := true
+  )
+  .dependsOn(
+    library    % Test,
+    testHelper % Test
+  )
+
+lazy val projectExample = (project in file("ProjectExample"))
   .settings(
     commonSettings,
     name           := s"${projectName}_testProject",
@@ -59,7 +70,7 @@ lazy val testProject = (project in file("ProjectExample"))
   )
   .dependsOn(library, testHelper)
 
-lazy val testProjectTwo = (project in file("ProjectExample_MoreComplex"))
+lazy val projectExampleMoreComplex = (project in file("ProjectExample_MoreComplex"))
   .settings(
     commonSettings,
     name           := s"${projectName}_testProject_moreComplex",
