@@ -3,10 +3,10 @@ package com.leobenkel.zparkio
 import com.leobenkel.zparkio.Services.CommandLineArguments.HelpHandlerException
 import com.leobenkel.zparkio.Services._
 import zio.duration.Duration
-import zio.{App, Task, UIO, ZIO}
+import zio.{DefaultRuntime, IO, Task, UIO, ZIO}
 
 trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
-    extends App {
+    extends DefaultRuntime {
 
   def makeSparkBuilder: SparkModule.Builder[C]
   def makeCliBuilder:   CommandLineArguments.Builder[C]
@@ -50,7 +50,7 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
     } yield { output }
   }
 
-  final override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
+  private def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
     app(args)
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(
@@ -62,6 +62,25 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
         _ => 0
       )
   }
+
+  private def wrappedRun(args0: Array[String]): ZIO[zio.ZEnv, Nothing, Int] = {
+    for {
+      fiber <- run(args0.toList).fork
+      _ <- IO.effectTotal(java.lang.Runtime.getRuntime.addShutdownHook(new Thread {
+        override def run(): Unit = {
+          val _ = unsafeRunSync(fiber.interrupt)
+        }
+      }))
+      result <- fiber.join
+    } yield result
+  }
+
+  // $COVERAGE-OFF$ Bootstrap to `Unit`
+  final def main(args0: Array[String]): Unit = {
+    val exitCode = unsafeRun(wrappedRun(args0))
+    println(s"ExitCode: $exitCode")
+  }
+  // $COVERAGE-ON$
 }
 
 object ZparkioApp {
