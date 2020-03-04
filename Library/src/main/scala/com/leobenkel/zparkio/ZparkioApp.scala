@@ -76,7 +76,10 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
   }
 
   // $COVERAGE-OFF$ Bootstrap to `Unit`
-  final def main(args0: Array[String]): Unit = unsafeRun(wrappedRun(args0))
+  final def main(args0: Array[String]): Unit = {
+    val exitCode = unsafeRun(wrappedRun(args0))
+    println(s"ExitCode: $exitCode")
+  }
   // $COVERAGE-ON$
 }
 
