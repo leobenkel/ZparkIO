@@ -26,10 +26,11 @@ object SparkModule {
     lazy private val sparkBuilder:         SparkSession.Builder = SparkSession.builder
     lazy private val sparkBuilderWithName: SparkSession.Builder = sparkBuilder.appName(appName)
     protected def appName: String
+
     protected def updateConfig(
       sparkBuilder: SparkSession.Builder,
       arguments:    C
-    ): SparkSession.Builder
+    ): SparkSession.Builder = sparkBuilder
 
     protected def setMaster(sparkBuilder: SparkSession.Builder): SparkSession.Builder =
       sparkBuilder.master("local[*]")
@@ -38,7 +39,11 @@ object SparkModule {
       updateConfig(setMaster(sparkBuilderWithName), arguments)
     }
 
-    protected def makeSparkService(sparkBuilder: SparkSession.Builder): SparkModule.Service
+    protected def makeSparkService(sparkBuilder: SparkSession.Builder): SparkModule.Service = {
+      new SparkModule.Service {
+        override def spark: SparkSession = sparkBuilder.getOrCreate()
+      }
+    }
 
     final def createSpark[R](arguments: C): ZIO[R, Throwable, SparkModule.Service] = {
       Task(makeSparkService(readyToBuildSparkBuilder(arguments)))
