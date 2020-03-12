@@ -27,7 +27,7 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
     }
   }
 
-  private def buildEnv(args: List[String]): ZIO[zio.ZEnv, Throwable, ENV] = {
+  protected def buildEnv(args: List[String]): ZIO[zio.ZEnv, Throwable, ENV] = {
     for {
       cliBuilder   <- Task(makeCliBuilder)
       cliService   <- cliBuilder.createCliSafely(args)
@@ -36,7 +36,7 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
     } yield { makeEnvironment(cliService, sparkService) }
   }
 
-  private def app(args: List[String]): ZIO[zio.ZEnv, Throwable, OUTPUT] = {
+  protected def app(args: List[String]): ZIO[zio.ZEnv, Throwable, OUTPUT] = {
     for {
       env <- buildEnv(args)
       _ <- if (displayCommandLines) {
@@ -50,7 +50,7 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
     } yield { output }
   }
 
-  private def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
+  protected def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
     app(args)
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(
@@ -63,7 +63,7 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
       )
   }
 
-  private def wrappedRun(args0: Array[String]): ZIO[zio.ZEnv, Nothing, Int] = {
+  protected def wrappedRun(args0: Array[String]): ZIO[zio.ZEnv, Nothing, Int] = {
     for {
       fiber <- run(args0.toList).fork
       _ <- IO.effectTotal(java.lang.Runtime.getRuntime.addShutdownHook(new Thread {

@@ -34,6 +34,12 @@ lazy val commonSettings = Seq(
   pomIncludeRepository    := (_ => false)
 )
 
+lazy val root = (project in file("."))
+  .aggregate(library, testHelper, tests, projectExample, projectExampleMoreComplex)
+  .settings(
+    name := s"$projectName-root"
+  )
+
 lazy val library = (project in file("Library"))
   .settings(
     commonSettings,

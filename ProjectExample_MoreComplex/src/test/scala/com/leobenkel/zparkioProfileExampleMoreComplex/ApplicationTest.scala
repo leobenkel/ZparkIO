@@ -1,12 +1,13 @@
 package com.leobenkel.zparkioProfileExampleMoreComplex
 
-import com.leobenkel.zparkio.Services.{CommandLineArguments, Logger, SparkModule}
+import com.leobenkel.zparkio.Services._
 import com.leobenkel.zparkioProfileExampleMoreComplex.Items.{Post, User}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Services.{Database, FileIO}
 import com.leobenkel.zparkiotest.TestWithSpark
-import org.apache.spark.sql.{Dataset, Encoder, SparkSession}
+import org.apache.spark.sql._
 import org.scalatest.FreeSpec
 import zio.Exit.{Failure, Success}
+import zio.ZIO
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.console.Console
@@ -16,7 +17,8 @@ import zio.system.System
 class ApplicationTest extends FreeSpec with TestWithSpark {
   "Full application" - {
     "Run" in {
-      TestApp.unsafeRunSync(TestApp.run(Nil)) match {
+      val testApp = TestApp(spark)
+      testApp.unsafeRunSync(testApp.runTest(Nil)) match {
         case Success(value) =>
           println(s"Read exit code: $value")
           assertResult(0)(value)
@@ -25,7 +27,8 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
     }
 
     "Help" in {
-      TestApp.unsafeRunSync(TestApp.run("--help" :: Nil)) match {
+      val testApp = TestApp(spark)
+      testApp.unsafeRunSync(testApp.runTest("--help" :: Nil)) match {
         case Success(value) =>
           println(s"Read exit code: $value")
           assertResult(0)(value)
@@ -35,12 +38,18 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
   }
 }
 
-object TestApp extends Application {
+case class TestApp(s: SparkSession) extends Application {
   override def makeEnvironment(
     cliService:   Arguments,
     sparkService: SparkModule.Service
   ): RuntimeEnv.APP_ENV = {
-    TestEnv(cliService, sparkService)
+    TestEnv(cliService, new SparkModule.Service {
+      lazy final override val spark: SparkSession = s
+    })
+  }
+
+  def runTest(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
+    super.run(args)
   }
 }
 
