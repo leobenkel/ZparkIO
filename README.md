@@ -1,8 +1,9 @@
+![ZparkIO logo](https://repository-images.githubusercontent.com/221801743/f914b980-6660-11ea-9573-a8f5377112f1)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Gitter](https://badges.gitter.im/zparkio/community.svg)](https://gitter.im/zparkio/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![release-badge][]][release]
 [![maven-central-badge][]][maven-search]
-
 [![Build Status](https://travis-ci.com/leobenkel/zparkio.svg?branch=master)](https://travis-ci.com/leobenkel/zparkio)
 [![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/Zparkio?branch=master)](https://bettercodehub.com/)
 [![Coverage Status](https://coveralls.io/repos/github/leobenkel/Zparkio/badge.svg?branch=master)](https://coveralls.io/github/leobenkel/zparkio?branch=master)
