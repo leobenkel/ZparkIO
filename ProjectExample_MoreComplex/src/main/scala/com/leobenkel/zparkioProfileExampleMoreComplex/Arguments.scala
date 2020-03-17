@@ -41,8 +41,6 @@ case class Arguments(input: List[String])
     required = false,
     noshort = true
   )
-
-  verify()
 }
 
 object Arguments {

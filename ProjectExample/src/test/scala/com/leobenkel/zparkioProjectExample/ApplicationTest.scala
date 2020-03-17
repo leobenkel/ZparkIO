@@ -16,6 +16,15 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
       }
     }
 
+    "Wrong argument" in {
+      TestApp.unsafeRunSync(TestApp.runTest("--bar" :: "foo" :: Nil)) match {
+        case Success(value) =>
+          println(s"Read: $value")
+          assertResult(1)(value)
+        case Failure(cause) => fail(cause.prettyPrint)
+      }
+    }
+
     "Help" in {
       TestApp.unsafeRunSync(TestApp.runTest("--help" :: Nil)) match {
         case Success(value) =>
@@ -28,7 +37,7 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
 }
 
 object TestApp extends Application {
-  def runTest(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
+  def runTest(args: List[String]): ZIO[zio.ZEnv, Throwable, Int] = {
     super.run(args)
   }
 }

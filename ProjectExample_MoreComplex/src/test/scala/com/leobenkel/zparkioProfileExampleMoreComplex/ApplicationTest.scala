@@ -26,6 +26,16 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
       }
     }
 
+    "Wrong argument" in {
+      val testApp = TestApp(spark)
+      testApp.unsafeRunSync(testApp.runTest("--bar" :: "foo" :: Nil)) match {
+        case Success(value) =>
+          println(s"Read: $value")
+          assertResult(1)(value)
+        case Failure(cause) => fail(cause.prettyPrint)
+      }
+    }
+
     "Help" in {
       val testApp = TestApp(spark)
       testApp.unsafeRunSync(testApp.runTest("--help" :: Nil)) match {
@@ -40,10 +50,11 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
 
 case class TestApp(s: SparkSession) extends Application {
   override def makeEnvironment(
-    cliService:   Arguments,
-    sparkService: SparkModule.Service
+    cliService:    Arguments,
+    loggerService: Logger.Service,
+    sparkService:  SparkModule.Service
   ): RuntimeEnv.APP_ENV = {
-    TestEnv(cliService, new SparkModule.Service {
+    TestEnv(cliService, loggerService, new SparkModule.Service {
       lazy final override val spark: SparkSession = s
     })
   }
@@ -54,8 +65,9 @@ case class TestApp(s: SparkSession) extends Application {
 }
 
 case class TestEnv(
-  cliService:   Arguments,
-  sparkService: SparkModule.Service
+  cliService:    Arguments,
+  loggerService: Logger.Service,
+  sparkService:  SparkModule.Service
 ) extends System.Live with Console.Live with Clock.Live with Random.Live with Blocking.Live
     with CommandLineArguments[Arguments] with Logger with FileIO.Live with SparkModule
     with Database {

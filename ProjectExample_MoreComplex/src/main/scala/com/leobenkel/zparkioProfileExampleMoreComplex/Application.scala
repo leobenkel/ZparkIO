@@ -29,14 +29,18 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv.APP_ENV, Unit] {
 
   override def makeEnvironment(
     cliService:   Arguments,
+    logger:       Logger.Service,
     sparkService: SparkModule.Service
   ): RuntimeEnv.APP_ENV = {
-    RuntimeEnv(cliService, sparkService)
+    RuntimeEnv(cliService, logger, sparkService)
   }
 
-  override def makeSparkBuilder: SparkModule.Builder[Arguments] = SparkBuilder
+  lazy final override val makeSparkBuilder: SparkModule.Builder[Arguments] = SparkBuilder
 
-  override def makeCliBuilder: CommandLineArguments.Builder[Arguments] =
+  lazy final override protected val makeLogger: Logger = new Logger {
+    lazy final override val log: Logger.Service = new Log()
+  }
+  lazy final override val makeCliBuilder: CommandLineArguments.Builder[Arguments] =
     new CommandLineArguments.Builder[Arguments] {
       override protected def createCli(args: List[String]): Arguments = {
         Arguments(args)
