@@ -2,26 +2,31 @@ package com.leobenkel.zparkio
 
 import com.leobenkel.zparkio.Services.CommandLineArguments.HelpHandlerException
 import com.leobenkel.zparkio.Services._
+import org.rogach.scallop.exceptions.ScallopException
+import zio.console.Console
 import zio.duration.Duration
 import zio.{DefaultRuntime, IO, Task, UIO, ZIO}
 
-trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
+trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPUT]
     extends DefaultRuntime {
 
-  def makeSparkBuilder: SparkModule.Builder[C]
-  def makeCliBuilder:   CommandLineArguments.Builder[C]
+  protected def makeSparkBuilder: SparkModule.Builder[C]
+  protected def makeCliBuilder:   CommandLineArguments.Builder[C]
   protected def displayCommandLines: Boolean = true
+  protected def makeLogger: Logger
 
-  def runApp(): ZIO[ENV, Throwable, OUTPUT]
-  def makeEnvironment(
-    cliService:   C,
-    sparkService: SparkModule.Service
+  protected def makeEnvironment(
+    cliService:    C,
+    loggerService: Logger.Service,
+    sparkService:  SparkModule.Service
   ): ENV
+
+  protected def runApp(): ZIO[ENV, Throwable, OUTPUT]
 
   protected def processErrors(f: Throwable): Option[Int] = Some(1)
   protected def timedApplication: Duration = Duration.Infinity
 
-  object ErrorProcessing {
+  private object ErrorProcessing {
     def unapply(e: Throwable): Option[Int] = {
       processErrors(e)
     }
@@ -29,11 +34,21 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C], 
 
   protected def buildEnv(args: List[String]): ZIO[zio.ZEnv, Throwable, ENV] = {
     for {
-      cliBuilder   <- Task(makeCliBuilder)
-      cliService   <- cliBuilder.createCliSafely(args)
+      c          <- ZIO.environment[Console]
+      logger     <- Task(makeLogger)
+      cliBuilder <- Task(makeCliBuilder)
+      cliService <- cliBuilder.createCliSafely(args).tapError {
+        case cliError: ScallopException =>
+          Logger
+            .displayAllErrors(cliError).provide(new Logger with Console {
+              lazy final override val log:     Logger.Service = logger.log
+              lazy final override val console: Console.Service[Any] = c.console
+            })
+        case _ => UIO(())
+      }
       sparkBuilder <- Task(makeSparkBuilder)
       sparkService <- sparkBuilder.createSpark(cliService)
-    } yield { makeEnvironment(cliService, sparkService) }
+    } yield { makeEnvironment(cliService, logger.log, sparkService) }
   }
 
   protected def app(args: List[String]): ZIO[zio.ZEnv, Throwable, OUTPUT] = {

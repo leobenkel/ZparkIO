@@ -16,17 +16,22 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
     } yield { s }
   }
 
+  lazy final override protected val makeLogger: Logger = new Logger {
+    override def log: Logger.Service = new Log()
+  }
+
   override def processErrors(f: Throwable): Option[Int] = {
-    println(f)
+    println(s"Got error: $f")
     f.printStackTrace()
     Some(1)
   }
 
   override def makeEnvironment(
     cliService:   Arguments,
+    logger:       Logger.Service,
     sparkService: SparkModule.Service
   ): RuntimeEnv = {
-    RuntimeEnv(cliService, sparkService)
+    RuntimeEnv(cliService, logger, sparkService)
   }
 
   override def makeSparkBuilder: SparkModule.Builder[Arguments] = SparkBuilder

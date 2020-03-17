@@ -11,6 +11,7 @@ import zio.{ZIO, console}
 
 case class RuntimeEnv(
   cliService:   Arguments,
+  logger:       Logger.Service,
   sparkService: SparkModule.Service
 ) extends System.Live with Console.Live with Clock.Live with Random.Live with Blocking.Live
     with CommandLineArguments[Arguments] with Logger with FileIO.Live with SparkModule
@@ -18,7 +19,7 @@ case class RuntimeEnv(
 
   lazy final override val cli:   Arguments = cliService
   lazy final override val spark: SparkModule.Service = sparkService
-  lazy final override val log:   Logger.Service = new Log()
+  lazy final override val log:   Logger.Service = logger
   lazy final override protected val getDatabaseCredentials: Database.Credentials =
     Database.Credentials(
       cli.databaseUsername(),

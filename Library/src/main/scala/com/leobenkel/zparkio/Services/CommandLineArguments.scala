@@ -6,6 +6,8 @@ import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
 import zio.console.Console
 import zio.{Task, ZIO}
 
+import scala.util.Try
+
 trait CommandLineArguments[C <: CommandLineArguments.Service] {
   def cli: C
 }
@@ -13,11 +15,26 @@ trait CommandLineArguments[C <: CommandLineArguments.Service] {
 object CommandLineArguments {
   trait Builder[C <: CommandLineArguments.Service] {
     protected def createCli(args: List[String]): C
-    def createCliSafely(args:     List[String]): ZIO[Any, Throwable, C] = Task(createCli(args))
+    def createCliSafely(args:     List[String]): ZIO[Any, Throwable, C] = {
+      createCli(args).verifyInternal()
+    }
   }
 
   trait Service extends ScallopConf {
     this.appendDefaultToDescription = true
+
+    final override def verify(): Unit =
+      throw new Exception(s"Do not call verify yourself! Zparkio calls it for you.")
+
+    private[zparkio] def verifyInternal(): Task[this.type] = {
+      ZIO.fromTry(Try {
+        if (!verified) super.verify()
+        this
+      })
+    }
+
+    lazy final private[zparkio] val commandsDebug: Seq[String] =
+      filteredSummary(Set.empty).split('\n').toSeq
 
     final val env: ScallopOption[Environment] = opt[Environment](
       required = true,
@@ -26,7 +43,7 @@ object CommandLineArguments {
       descr = "Set the environment for the run."
     )
 
-    final protected def getAllMetrics: Seq[(String, Any)] = {
+    lazy final protected val getAllMetrics: Seq[(String, Any)] = {
       builder.opts.map(o => (o.name, builder.get(o.name).getOrElse("<NONE>")))
     }
 
@@ -43,7 +60,7 @@ object CommandLineArguments {
     s:          Scallop,
     subCommand: Option[String]
   ) extends Throwable {
-    private def print(msg: String): ZIO[Console, Nothing, Unit] = {
+    private def print(msg: String): ZIO[Console, Throwable, Unit] = {
       ZIO.accessM[Console](_.console.putStrLn(msg))
     }
 
@@ -52,7 +69,7 @@ object CommandLineArguments {
       case Some(s) => s"Help for '$s':"
     }
 
-    def printHelpMessage: ZIO[zio.ZEnv, Nothing, Unit] = {
+    def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] = {
       for {
         _ <- print(header)
         _ <- ZIO.foreach(s.vers)(print)
@@ -73,7 +90,7 @@ object CommandLineArguments {
     }
   }
 
-  def apply[C <: CommandLineArguments.Service](): ZIO[CommandLineArguments[C], Nothing, C] = {
+  def apply[C <: CommandLineArguments.Service](): ZIO[CommandLineArguments[C], Throwable, C] = {
     ZIO.access[CommandLineArguments[C]](_.cli)
   }
 
@@ -81,7 +98,9 @@ object CommandLineArguments {
     ZIO[CommandLineArguments[A], Throwable, YourConfigWrapper[A]]
 
   def get[C <: CommandLineArguments.Service]: ZIO_CONFIG_SERVICE[C] = {
-    apply[C]().map(c => YourConfigWrapper(c))
+    apply[C]()
+      .flatMap(_.verifyInternal())
+      .map(YourConfigWrapper[C])
   }
 
   implicit class Shortcut[C <: CommandLineArguments.Service](z: ZIO_CONFIG_SERVICE[C]) {
@@ -97,7 +116,7 @@ object CommandLineArguments {
     for {
       conf <- apply[C]()
       _    <- Logger.info("--------------Command Lines--------------")
-      _    <- ZIO.foreach(conf.filteredSummary(Set.empty).split('\n').toSeq)(s => Logger.info(s))
+      _    <- ZIO.foreach(conf.commandsDebug)(s => Logger.info(s))
       _    <- Logger.info("-----------------------------------------")
       _    <- Logger.info("")
     } yield {}
