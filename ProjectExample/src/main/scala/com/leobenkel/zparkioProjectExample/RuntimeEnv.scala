@@ -21,12 +21,12 @@ case class RuntimeEnv(
 }
 
 class Log extends Logger.Service {
-  override def info(txt: String): ZIO[Any with Console, Nothing, Unit] =
+  override def info(txt: => String): ZIO[Console, Throwable, Unit] =
     console.putStrLn(s"INFO: $txt")
 
-  override def error(txt: String): ZIO[Any with Console, Nothing, Unit] =
+  override def error(txt: => String): ZIO[Console, Throwable, Unit] =
     console.putStrLn(s"ERROR: $txt")
 
-  override def debug(txt: String): ZIO[Any with Console, Nothing, Unit] =
+  override def debug(txt: => String): ZIO[Console, Throwable, Unit] =
     console.putStrLn(s"DEBUG: $txt")
 }

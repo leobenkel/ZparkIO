@@ -29,6 +29,16 @@ object implicits {
 
     def apply[A](f: SparkSession => Dataset[A]): ZDS[A] = ZDS.map(f)
 
+    def make[A <: Product: TypeTag: ClassTag, B <: Product: TypeTag: ClassTag](
+      input: Dataset[A]
+    )(
+      f: Dataset[A] => Encoder[B] => Dataset[B]
+    ): ZDS[B] = {
+      ZDS { spark =>
+        f(input)(spark.implicits.newProductEncoder[B])
+      }
+    }
+
     def apply[A <: Product: TypeTag: ClassTag](data: A*): ZDS[A] = {
       apply { spark =>
         import spark.implicits._

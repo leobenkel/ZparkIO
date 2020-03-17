@@ -9,20 +9,20 @@ trait Logger {
 
 object Logger {
   trait Service {
-    def info(txt:  String): ZIO[Any with Console, Nothing, Unit]
-    def error(txt: String): ZIO[Any with Console, Nothing, Unit]
-    def debug(txt: String): ZIO[Any with Console, Nothing, Unit]
+    def info(txt:  => String): ZIO[Console, Throwable, Unit]
+    def error(txt: => String): ZIO[Console, Throwable, Unit]
+    def debug(txt: => String): ZIO[Console, Throwable, Unit]
   }
 
-  def info(txt: String): ZIO[Any with Console with Logger, Nothing, Unit] = {
-    ZIO.environment[Logger].flatMap(_.log.info(txt))
+  def info(txt: => String): ZIO[Console with Logger, Throwable, Unit] = {
+    ZIO.accessM[Console with Logger](_.log.info(txt))
   }
 
-  def error(txt: String): ZIO[Any with Console with Logger, Nothing, Unit] = {
-    ZIO.environment[Logger].flatMap(_.log.error(txt))
+  def error(txt: => String): ZIO[Console with Logger, Throwable, Unit] = {
+    ZIO.accessM[Console with Logger](_.log.error(txt))
   }
 
-  def debug(txt: String): ZIO[Any with Console with Logger, Nothing, Unit] = {
-    ZIO.environment[Logger].flatMap(_.log.debug(txt))
+  def debug(txt: => String): ZIO[Console with Logger, Throwable, Unit] = {
+    ZIO.accessM[Console with Logger](_.log.debug(txt))
   }
 }
