@@ -73,13 +73,12 @@ object CommandLineArguments {
     }
   }
 
-  def apply[C <: CommandLineArguments.Service](
-  ): ZIO[Any with CommandLineArguments[C], Nothing, C] = {
+  def apply[C <: CommandLineArguments.Service](): ZIO[CommandLineArguments[C], Nothing, C] = {
     ZIO.access[CommandLineArguments[C]](_.cli)
   }
 
   type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service] =
-    ZIO[Any with CommandLineArguments[A], Throwable, YourConfigWrapper[A]]
+    ZIO[CommandLineArguments[A], Throwable, YourConfigWrapper[A]]
 
   def get[C <: CommandLineArguments.Service]: ZIO_CONFIG_SERVICE[C] = {
     apply[C]().map(c => YourConfigWrapper(c))
@@ -94,7 +93,7 @@ object CommandLineArguments {
   }
 
   def displayCommandLines[C <: CommandLineArguments.Service](
-  ): ZIO[Any with CommandLineArguments[C] with Logger with Console, Nothing, Unit] = {
+  ): ZIO[CommandLineArguments[C] with Logger with Console, Throwable, Unit] = {
     for {
       conf <- apply[C]()
       _    <- Logger.info("--------------Command Lines--------------")
