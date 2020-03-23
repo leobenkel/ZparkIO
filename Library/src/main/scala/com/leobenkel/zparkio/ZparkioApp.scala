@@ -5,6 +5,7 @@ import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import org.rogach.scallop.exceptions.ScallopException
 import zio.console.Console
 import zio.duration.Duration
+import zio.internal.{Platform, PlatformLive}
 import zio.{DefaultRuntime, Task, UIO, ZIO}
 
 trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPUT] {
@@ -17,13 +18,22 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
     cliService:    C,
     loggerService: Logger.Service,
     sparkService:  SparkModule.Service
-  ): ENV
-
+  ):                      ENV
   protected def runApp(): ZIO[ENV, Throwable, OUTPUT]
 
   protected def processErrors(f: Throwable): Option[Int] = Some(1)
   protected def timedApplication: Duration = Duration.Infinity
-  protected def makeRuntime:      DefaultRuntime = new DefaultRuntime {}
+
+  protected def makePlatform: Platform = {
+    PlatformLive.Default
+      .withReportFailure { cause =>
+        if (cause.died) println(cause.prettyPrint)
+      }
+  }
+
+  def makeRuntime: DefaultRuntime = new DefaultRuntime {
+    override val Platform: Platform = makePlatform
+  }
 
   private object ErrorProcessing {
     def unapply(e: Throwable): Option[Int] = {

@@ -8,7 +8,7 @@ import zio.ZIO
 class ApplicationTest extends FreeSpec with TestWithSpark {
   "Full application" - {
     "Run" in {
-      TestApp.unsafeRunSync(TestApp.runTest("--spark-foo" :: "abc" :: Nil)) match {
+      TestApp.makeRuntime.unsafeRunSync(TestApp.runTest("--spark-foo" :: "abc" :: Nil)) match {
         case Success(value) =>
           println(s"Read: $value")
           assertResult(0)(value)
@@ -17,7 +17,7 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
     }
 
     "Wrong argument" in {
-      TestApp.unsafeRunSync(TestApp.runTest("--bar" :: "foo" :: Nil)) match {
+      TestApp.makeRuntime.unsafeRunSync(TestApp.runTest("--bar" :: "foo" :: Nil)) match {
         case Success(value) =>
           println(s"Read: $value")
           assertResult(1)(value)
@@ -26,7 +26,7 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
     }
 
     "Help" in {
-      TestApp.unsafeRunSync(TestApp.runTest("--help" :: Nil)) match {
+      TestApp.makeRuntime.unsafeRunSync(TestApp.runTest("--help" :: Nil)) match {
         case Success(value) =>
           println(s"Read: $value")
           assertResult(0)(value)
