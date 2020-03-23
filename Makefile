@@ -36,7 +36,7 @@ check_style:
 unit_test:
 	sbt clean test
 
-test_all:
+test_all: deep_clean
 	sbt "; project root ; test"
 
 test: deep_clean check_style unit_test

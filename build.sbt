@@ -72,15 +72,17 @@ lazy val tests = (project in file("tests"))
 lazy val projectExample = (project in file("ProjectExample"))
   .settings(
     commonSettings,
-    name           := s"${projectName}_testProject",
-    publish / skip := true
-  )
-  .dependsOn(library, testHelper)
+    name                       := s"${projectName}_testProject",
+    publish / skip             := true,
+    assemblyOption in assembly := safetyAssemblySettings.value
+  ).enablePlugins(DockerPlugin)
+  .dependsOn(library, testHelper % Test)
 
 lazy val projectExampleMoreComplex = (project in file("ProjectExample_MoreComplex"))
   .settings(
     commonSettings,
-    name           := s"${projectName}_testProject_moreComplex",
-    publish / skip := true
-  )
-  .dependsOn(library, testHelper)
+    name                       := s"${projectName}_testProject_moreComplex",
+    publish / skip             := true,
+    assemblyOption in assembly := safetyAssemblySettings.value
+  ).enablePlugins(DockerPlugin)
+  .dependsOn(library, testHelper % Test)
