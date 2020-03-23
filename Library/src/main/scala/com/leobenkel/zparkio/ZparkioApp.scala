@@ -1,17 +1,15 @@
 package com.leobenkel.zparkio
 
 import com.leobenkel.zparkio.Services.CommandLineArguments.HelpHandlerException
-import com.leobenkel.zparkio.Services._
+import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import org.rogach.scallop.exceptions.ScallopException
 import zio.console.Console
 import zio.duration.Duration
-import zio.{DefaultRuntime, IO, Task, UIO, ZIO}
+import zio.{DefaultRuntime, Task, UIO, ZIO}
 
-trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPUT]
-    extends DefaultRuntime {
-
+trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPUT] {
   protected def makeSparkBuilder: SparkModule.Builder[C]
-  protected def makeCliBuilder:   CommandLineArguments.Builder[C]
+  protected def makeCliBuilder:   CLA.Builder[C]
   protected def displayCommandLines: Boolean = true
   protected def makeLogger: Logger
 
@@ -25,6 +23,7 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C] w
 
   protected def processErrors(f: Throwable): Option[Int] = Some(1)
   protected def timedApplication: Duration = Duration.Infinity
+  protected def makeRuntime:      DefaultRuntime = new DefaultRuntime {}
 
   private object ErrorProcessing {
     def unapply(e: Throwable): Option[Int] = {
@@ -55,7 +54,7 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C] w
     for {
       env <- buildEnv(args)
       _ <- if (displayCommandLines) {
-        CommandLineArguments.displayCommandLines().provide(env)
+        CLA.displayCommandLines().provide(env)
       } else {
         UIO(())
       }
@@ -70,35 +69,24 @@ trait ZparkioApp[C <: CommandLineArguments.Service, ENV <: ZparkioApp.ZPEnv[C] w
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(
         {
-          case CommandLineArguments.ErrorParser(code) => code
-          case ErrorProcessing(errorCode)             => errorCode
-          case _                                      => 1
+          case CLA.ErrorParser(code)      => code
+          case ErrorProcessing(errorCode) => errorCode
+          case _                          => 1
         },
         _ => 0
       )
   }
 
-  protected def wrappedRun(args0: Array[String]): ZIO[zio.ZEnv, Nothing, Int] = {
-    for {
-      fiber <- run(args0.toList).fork
-      _ <- IO.effectTotal(java.lang.Runtime.getRuntime.addShutdownHook(new Thread {
-        override def run(): Unit = {
-          val _ = unsafeRunSync(fiber.interrupt)
-        }
-      }))
-      result <- fiber.join
-    } yield result
-  }
-
   // $COVERAGE-OFF$ Bootstrap to `Unit`
-  final def main(args0: Array[String]): Unit = {
-    val exitCode = unsafeRun(wrappedRun(args0))
+  final def main(args: Array[String]): Unit = {
+    val runtime = makeRuntime
+    val exitCode = runtime.unsafeRun(run(args.toList))
     println(s"ExitCode: $exitCode")
   }
   // $COVERAGE-ON$
 }
 
 object ZparkioApp {
-  type ZPEnv[C <: CommandLineArguments.Service] =
-    zio.ZEnv with CommandLineArguments[C] with Logger with SparkModule
+  type ZPEnv[C <: CLA.Service] =
+    zio.ZEnv with CLA[C] with Logger with SparkModule
 }
