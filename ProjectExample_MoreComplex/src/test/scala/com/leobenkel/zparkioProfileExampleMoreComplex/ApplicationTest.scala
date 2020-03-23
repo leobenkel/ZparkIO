@@ -18,7 +18,7 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
   "Full application" - {
     "Run" in {
       val testApp = TestApp(spark)
-      testApp.unsafeRunSync(testApp.runTest(Nil)) match {
+      testApp.makeRuntime.unsafeRunSync(testApp.runTest(Nil)) match {
         case Success(value) =>
           println(s"Read exit code: $value")
           assertResult(0)(value)
@@ -28,7 +28,7 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
 
     "Wrong argument" in {
       val testApp = TestApp(spark)
-      testApp.unsafeRunSync(testApp.runTest("--bar" :: "foo" :: Nil)) match {
+      testApp.makeRuntime.unsafeRunSync(testApp.runTest("--bar" :: "foo" :: Nil)) match {
         case Success(value) =>
           println(s"Read: $value")
           assertResult(1)(value)
@@ -38,7 +38,7 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
 
     "Help" in {
       val testApp = TestApp(spark)
-      testApp.unsafeRunSync(testApp.runTest("--help" :: Nil)) match {
+      testApp.makeRuntime.unsafeRunSync(testApp.runTest("--help" :: Nil)) match {
         case Success(value) =>
           println(s"Read exit code: $value")
           assertResult(0)(value)
