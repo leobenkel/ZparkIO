@@ -63,6 +63,7 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
   protected def app(args: List[String]): ZIO[zio.ZEnv, Throwable, OUTPUT] = {
     for {
       env <- buildEnv(args)
+      s   <- SparkModule().provide(env)
       _ <- if (displayCommandLines) {
         CLA.displayCommandLines().provide(env)
       } else {
@@ -71,6 +72,8 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
       output <- runApp()
         .provide(env)
         .timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
+      _ = s.sparkContext.stop()
+      _ = s.stop()
     } yield { output }
   }
 
