@@ -65,7 +65,7 @@ It can be tricky to use ZIO to save an instance of Spark to reuse in your code a
 
 ## Public Presentation
 
-Feel free to look at [the slides](https://docs.google.com/presentation/d/1gyFJpH2mzJ9ghSTsIMrUHWA9rCtSn2ML9ERUFvuYSp8) presented during the [ScalaSF meetup](https://www.meetup.com/SF-Scala/events/268998404/) on Thursday, March 26, 2020. 
+Feel free to look at the slides on [Google Drive](https://docs.google.com/presentation/d/1gyFJpH2mzJ9ghSTsIMrUHWA9rCtSn2ML9ERUFvuYSp8) or on [SlideShare](https://www.slideshare.net/LeoBenkel/2020-0326-meet-up-z-parkio-230980911) presented during the [ScalaSF meetup](https://www.meetup.com/SF-Scala/events/268998404/) on Thursday, March 26, 2020. 
 
 ZparkIO was on `version 0.7.0`, so things might be out of date.
 
