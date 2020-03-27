@@ -38,6 +38,7 @@ Allowing them to use Spark is a new, faster, more reliable way, leveraging ZIO p
 ## Table of Contents
 
 * [What is this library for ?](#what-is-this-library-for-)
+* [Public Presentation](#public-presentation)
 * [Why would you want to use ZIO and Spark together?](#why-would-you-want-to-use-zio-and-spark-together)
 * [How to use?](#how-to-use)
     * [Include dependencies](#include-dependencies)
@@ -61,6 +62,10 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 This library will implement all the boiler plate for you to be able to include Spark and ZIO in your ML project.
 
 It can be tricky to use ZIO to save an instance of Spark to reuse in your code and this library solve all the boilerplate problem for you.
+
+## Public Presentation
+
+Feel free to look at [the slides](https://docs.google.com/presentation/d/1gyFJpH2mzJ9ghSTsIMrUHWA9rCtSn2ML9ERUFvuYSp8) presented during the [ScalaSF meetup](https://www.meetup.com/SF-Scala/events/268998404/).
 
 ## Why would you want to use ZIO and Spark together?
 
