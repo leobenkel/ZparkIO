@@ -34,7 +34,7 @@ object CommandLineArguments {
     }
 
     lazy final private[zparkio] val commandsDebug: Seq[String] =
-      filteredSummary(Set.empty).split('\n').toSeq
+      filteredSummary(Set.empty).split('\n').sorted.toSeq
 
     final val env: ScallopOption[Environment] = opt[Environment](
       required = true,
