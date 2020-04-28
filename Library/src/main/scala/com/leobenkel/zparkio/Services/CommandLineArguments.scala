@@ -33,8 +33,13 @@ object CommandLineArguments {
       })
     }
 
-    lazy final private[zparkio] val commandsDebug: Seq[String] =
-      filteredSummary(Set.empty).split('\n').sorted.toSeq
+    lazy final private[zparkio] val commandsDebug: Seq[String] = {
+      val (active, inactive) = filteredSummary(Set.empty)
+        .split('\n')
+        .partition(_.trim.startsWith("*"))
+
+      (active.sorted :+ "") ++ inactive.sorted
+    }
 
     final val env: ScallopOption[Environment] = opt[Environment](
       required = true,
