@@ -1,0 +1,192 @@
+{
+  "dockerImage": "openjdk:8-jre",
+  "modules": {
+    "com.databricks": {
+      "spark-avro_2.11": {
+        "dependenciesToRemove": [
+          "org.apache.avro | avro",
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "version": "4.0.0"
+      }
+    },
+    "com.google.guava": {
+      "guava": {
+        "version": "24.1.1-android"
+      }
+    },
+    "com.jamesmurty.utils": {
+      "java-xmlbuilder": {
+        "version": "1.2"
+      }
+    },
+    "com.netaporter": {
+      "scala-uri": {
+        "needDoublePercent": true,
+        "version": "0.4.16"
+      }
+    },
+    "com.squareup.retrofit2": {
+      "retrofit": {
+        "version": "2.5.0"
+      }
+    },
+    "commons-beanutils": {
+      "commons-beanutils": {
+        "overrideIsEnough": false,
+        "version": "1.9.4"
+      },
+      "commons-beanutils-core": {
+        "overrideIsEnough": false,
+        "version": "None"
+      }
+    },
+    "commons-codec": {
+      "commons-codec": {
+        "version": "1.13"
+      }
+    },
+    "commons-collections": {
+      "commons-collections": {
+        "version": "3.2.2"
+      }
+    },
+    "commons-io": {
+      "commons-io": {
+        "version": "2.5"
+      }
+    },
+    "io.netty": {
+      "netty": {
+        "version": "3.10.6.Final"
+      },
+      "netty-all": {
+        "overrideIsEnough": false,
+        "version": "4.1.48.Final"
+      },
+      "netty-codec": {
+        "version": "4.1.48.Final"
+      },
+      "netty-codec-http": {
+        "version": "4.1.48.Final"
+      },
+      "netty-handler": {
+        "version": "4.1.48.Final"
+      }
+    },
+    "jline": {
+      "jline": {
+        "overrideIsEnough": false,
+        "version": "2.14.6"
+      }
+    },
+    "org.apache.avro": {
+      "avro": {
+        "dependenciesToRemove": [
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "overrideIsEnough": false,
+        "version": "1.8.2"
+      }
+    },
+    "org.apache.commons": {
+      "commons-compress": {
+        "version": "1.18"
+      }
+    },
+    "org.apache.hadoop": {
+      "hadoop-": {
+        "dependenciesToRemove": [
+          "org.apache.avro | avro",
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "exactName": false,
+        "forbidden": "You should not include hadoop in your build.sbt. Spark is fetching it for you and the machine the job will run on will have its own version.",
+        "version": "None"
+      },
+      "hadoop-hdfs": {
+        "dependenciesToRemove": [
+          "io.netty | netty-all",
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "version": "2.7.5"
+      },
+      "hadoop-mapreduce-client-core": {
+        "dependenciesToRemove": [
+          "org.apache.avro | avro",
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "version": "2.7.5"
+      },
+      "hadoop-yarn-common": {
+        "dependenciesToRemove": [
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "version": "2.7.5"
+      },
+      "hadoop-yarn-server-nodemanager": {
+        "dependenciesToRemove": [
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "version": "2.7.5"
+      }
+    },
+    "org.apache.httpcomponents": {
+      "httpclient": {
+        "version": "4.5.11"
+      }
+    },
+    "org.apache.spark": {
+      "spark-": {
+        "dependenciesToRemove": [
+          "com.google.guava | guava",
+          "com.jamesmurty.utils | java-xmlbuilder",
+          "commons-beanutils | commons-beanutils",
+          "commons-beanutils | commons-beanutils-core",
+          "commons-collections | commons-collections",
+          "commons-io | commons-io",
+          "io.netty | netty-all",
+          "org.apache.commons | commons-compress",
+          "org.apache.hadoop | hadoop-hdfs",
+          "org.apache.hadoop | hadoop-mapreduce-client-core",
+          "org.apache.hadoop | hadoop-yarn-common",
+          "org.apache.hadoop | hadoop-yarn-server-nodemanager",
+          "org.apache.httpcomponents | httpclient",
+          "org.codehaus.jackson | jackson-mapper-asl"
+        ],
+        "exactName": false,
+        "shouldBeProvided": true,
+        "version": "2.3.1"
+      }
+    },
+    "org.codehaus.jackson": {
+      "jackson-mapper-asl": {
+        "overrideIsEnough": false,
+        "version": "None"
+      }
+    },
+    "org.rogach": {
+      "scallop": {
+        "needDoublePercent": true,
+        "version": "3.3.1"
+      }
+    }
+  },
+  "sbtVersion": "1.2.6",
+  "scalaCFlags": [
+    "-feature",
+    "-Yrangepos",
+    "-Ywarn-dead-code",
+    "-Ywarn-inaccessible",
+    "-Ywarn-unused",
+    "-Ywarn-unused-import",
+    "-Ywarn-value-discard",
+    "-deprecation",
+    "-encoding",
+    "utf8"
+  ],
+  "scalaVersions": [
+    "2.11.12",
+    "2.12.7"
+  ]
+}

@@ -3,7 +3,7 @@ val v = IO.readLines(new File("VERSION")).head
 
 val sparkVersion = "2.3.1"
 
-lazy val commonSettings = Seq(
+lazy val rootSettings = Seq(
   organization := "com.leobenkel",
   homepage     := Some(url("https://github.com/leobenkel/Sparkio")),
   licenses     := List("MIT" -> url("https://opensource.org/licenses/MIT")),
@@ -17,6 +17,10 @@ lazy val commonSettings = Seq(
   ),
   scalaVersion := "2.11.12",
   resolvers += Resolver.sonatypeRepo("releases"),
+  soteriaAddSemantic := false
+)
+
+lazy val commonSettings = rootSettings ++ Seq(
   libraryDependencies ++= Seq(
     // https://zio.dev/docs/getting_started.html
     "dev.zio" %% "zio" % "1.0.0-RC16",
@@ -38,7 +42,8 @@ lazy val commonSettings = Seq(
 lazy val root = (project in file("."))
   .aggregate(library, testHelper, tests, projectExample, projectExampleMoreComplex)
   .settings(
-    name := s"$projectName-$v"
+    name := s"$projectName-$v",
+    rootSettings
   )
 
 lazy val library = (project in file("Library"))
@@ -74,7 +79,7 @@ lazy val projectExample = (project in file("ProjectExample"))
     commonSettings,
     name                       := s"${projectName}_testProject",
     publish / skip             := true,
-    assemblyOption in assembly := safetyAssemblySettings.value
+    assemblyOption in assembly := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
   .dependsOn(library, testHelper % Test)
 
@@ -83,6 +88,6 @@ lazy val projectExampleMoreComplex = (project in file("ProjectExample_MoreComple
     commonSettings,
     name                       := s"${projectName}_testProject_moreComplex",
     publish / skip             := true,
-    assemblyOption in assembly := safetyAssemblySettings.value
+    assemblyOption in assembly := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
   .dependsOn(library, testHelper % Test)

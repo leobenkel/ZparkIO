@@ -9,7 +9,7 @@ clean:
 	sbt clean
 
 fmt:
-	sbt safetyCheckScalaFmtRun
+	sbt soteriaCheckScalaFmtRun
 
 publishLocal: test
 	 sbt 'set isSnapshot := true' publishLocal
@@ -31,7 +31,7 @@ test_coverage_report:
 	sbt "; project library ; coverageReport" && sbt "; project library ; coverageAggregate"
 
 check_style:
-	sbt safetyCheckScalaFmt
+	sbt soteriaCheckScalaFmt
 
 unit_test:
 	sbt clean test
@@ -43,7 +43,7 @@ test: deep_clean check_style unit_test
 
 mutator_test:
 	export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx4G"
-	sbt 'set logLevel in Test := Level.Error' 'set parallelExecution in Test := true' 'set safetySoftOnCompilerWarning := true' "; project library ; stryker"
+	sbt 'set logLevel in Test := Level.Error' 'set parallelExecution in Test := true' 'set soteriaSoftOnCompilerWarning := true' "; project library ; stryker"
 
 mutator_open_results:
 	open `find ./target/stryker4s* -type f -iname "*index.html"`
