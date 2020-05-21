@@ -30,7 +30,7 @@ lazy val commonSettings = rootSettings ++ Seq(
     "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
     // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
     "org.apache.spark" %% "spark-sql"          % sparkVersion              % Provided,
-    "com.holdenkarau"  %% "spark-testing-base" % s"${sparkVersion}_0.10.0" % Test,
+    "com.holdenkarau"  %% "spark-testing-base" % s"${sparkVersion}_0.14.0" % Test,
     "org.apache.spark" %% "spark-hive"         % sparkVersion              % Test
   ),
   logLevel in stryker     := Level.Debug,
