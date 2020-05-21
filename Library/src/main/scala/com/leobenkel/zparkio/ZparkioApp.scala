@@ -60,6 +60,8 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
     } yield { makeEnvironment(cliService, logger.log, sparkService) }
   }
 
+  protected def stopSparkAtTheEnd: Boolean = true
+
   protected def app(args: List[String]): ZIO[zio.ZEnv, Throwable, OUTPUT] = {
     for {
       env <- buildEnv(args)
@@ -72,8 +74,15 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
       output <- runApp()
         .provide(env)
         .timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
-      _ = s.sparkContext.stop()
-      _ = s.stop()
+      _ <- if (stopSparkAtTheEnd) {
+        Task {
+          s.sparkContext.stop()
+          s.stop()
+          ()
+        }
+      } else {
+        Task(())
+      }
     } yield { output }
   }
 
