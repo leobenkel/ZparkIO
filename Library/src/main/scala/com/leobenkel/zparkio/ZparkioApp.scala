@@ -1,38 +1,35 @@
 package com.leobenkel.zparkio
 
 import com.leobenkel.zparkio.Services.CommandLineArguments.HelpHandlerException
+import com.leobenkel.zparkio.Services.Logger.Logger
+import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import org.rogach.scallop.exceptions.ScallopException
 import zio.console.Console
 import zio.duration.Duration
-import zio.internal.{Platform, PlatformLive}
-import zio.{DefaultRuntime, Task, UIO, ZIO}
+import zio.internal.Platform
+import zio.{BootstrapRuntime, Task, UIO, ZIO, ZLayer}
 
-trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPUT] {
+trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT] {
   protected def makeSparkBuilder: SparkModule.Builder[C]
   protected def makeCliBuilder:   CLA.Builder[C]
   protected def displayCommandLines: Boolean = true
   protected def makeLogger: Logger
 
-  protected def makeEnvironment(
-    cliService:    C,
-    loggerService: Logger.Service,
-    sparkService:  SparkModule.Service
-  ):                      ENV
   protected def runApp(): ZIO[ENV, Throwable, OUTPUT]
 
   protected def processErrors(f: Throwable): Option[Int] = Some(1)
   protected def timedApplication: Duration = Duration.Infinity
 
   protected def makePlatform: Platform = {
-    PlatformLive.Default
+    Platform.default
       .withReportFailure { cause =>
         if (cause.died) println(cause.prettyPrint)
       }
   }
 
-  def makeRuntime: DefaultRuntime = new DefaultRuntime {
-    override val Platform: Platform = makePlatform
+  def makeRuntime: BootstrapRuntime = new BootstrapRuntime {
+    override val platform: Platform = makePlatform
   }
 
   private object ErrorProcessing {
@@ -41,23 +38,21 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
     }
   }
 
+  protected def makeEnvironment() = ZLayer.fromServicesM[]()
+
   protected def buildEnv(args: List[String]): ZIO[zio.ZEnv, Throwable, ENV] = {
     for {
       c          <- ZIO.environment[Console]
       logger     <- Task(makeLogger)
       cliBuilder <- Task(makeCliBuilder)
       cliService <- cliBuilder.createCliSafely(args).tapError {
-        case cliError: ScallopException =>
-          Logger
-            .displayAllErrors(cliError).provide(new Logger with Console {
-              lazy final override val log:     Logger.Service = logger.log
-              lazy final override val console: Console.Service[Any] = c.console
-            })
+        case cliError: ScallopException => Logger.displayAllErrors(cliError).provide(logger)
         case _ => UIO(())
       }
       sparkBuilder <- Task(makeSparkBuilder)
-      sparkService <- sparkBuilder.createSpark(cliService)
-    } yield { makeEnvironment(cliService, logger.log, sparkService) }
+      sparkService <- sparkBuilder.createSpark
+      fullEnv      <- makeEnvironment()
+    } yield { fullEnv }
   }
 
   protected def stopSparkAtTheEnd: Boolean = true
@@ -66,11 +61,7 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
     for {
       env <- buildEnv(args)
       s   <- SparkModule().provide(env)
-      _ <- if (displayCommandLines) {
-        CLA.displayCommandLines().provide(env)
-      } else {
-        UIO(())
-      }
+      _ <- if (displayCommandLines) CLA.displayCommandLines().provide(env) else UIO(())
       output <- runApp()
         .provide(env)
         .timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
@@ -110,5 +101,5 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
 
 object ZparkioApp {
   type ZPEnv[C <: CLA.Service] =
-    zio.ZEnv with CLA[C] with Logger with SparkModule
+    zio.ZEnv with CLA.CommandLineArguments[C] with Logger with SparkModule
 }

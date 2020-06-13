@@ -1,21 +1,20 @@
 package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Env._
+import com.leobenkel.zparkio.Services.Logger.Logger
 import org.rogach.scallop.exceptions.Help
 import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
 import zio.console.Console
-import zio.{Task, ZIO}
+import zio.{Has, Task, ZIO, console}
 
 import scala.util.Try
 
-trait CommandLineArguments[C <: CommandLineArguments.Service] {
-  def cli: C
-}
-
 object CommandLineArguments {
+  type CommandLineArguments[C <: CommandLineArguments.Service] = Has[C]
+
   trait Builder[C <: CommandLineArguments.Service] {
-    protected def createCli(args: List[String]): C
-    def createCliSafely(args:     List[String]): ZIO[Any, Throwable, C] = {
+    protected def createCli(args:              List[String]): C
+    private[zparkio] def createCliSafely(args: List[String]): ZIO[Any, Throwable, C] = {
       createCli(args).verifyInternal()
     }
   }
@@ -65,9 +64,7 @@ object CommandLineArguments {
     s:          Scallop,
     subCommand: Option[String]
   ) extends Throwable {
-    private def print(msg: String): ZIO[Console, Throwable, Unit] = {
-      ZIO.accessM[Console](_.console.putStrLn(msg))
-    }
+    private def print(msg: String): ZIO[Console, Throwable, Unit] = console.putStr(msg)
 
     lazy private val header: String = subCommand match {
       case None    => "Help:"
@@ -96,7 +93,7 @@ object CommandLineArguments {
   }
 
   def apply[C <: CommandLineArguments.Service](): ZIO[CommandLineArguments[C], Throwable, C] = {
-    ZIO.access[CommandLineArguments[C]](_.cli)
+    ZIO.service[C]
   }
 
   type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service] =
@@ -117,7 +114,7 @@ object CommandLineArguments {
   }
 
   def displayCommandLines[C <: CommandLineArguments.Service](
-  ): ZIO[CommandLineArguments[C] with Logger with Console, Throwable, Unit] = {
+  ): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] = {
     for {
       conf <- apply[C]()
       _    <- Logger.info("--------------Command Lines--------------")

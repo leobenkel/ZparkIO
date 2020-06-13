@@ -20,10 +20,14 @@ lazy val rootSettings = Seq(
   soteriaAddSemantic := false
 )
 
+lazy val zioVersion = "1.0.0-RC20"
+
 lazy val commonSettings = rootSettings ++ Seq(
   libraryDependencies ++= Seq(
     // https://zio.dev/docs/getting_started.html
-    "dev.zio" %% "zio" % "1.0.0-RC16",
+    "dev.zio" %% "zio" % zioVersion,
+    // https://github.com/zio/zio-macros
+    "dev.zio" %% "zio-macros" % zioVersion,
     // https://github.com/scallop/scallop
     "org.rogach" %% "scallop" % "3.3.1",
     // https://mvnrepository.com/artifact/org.apache.spark/spark-core
@@ -33,6 +37,7 @@ lazy val commonSettings = rootSettings ++ Seq(
     "com.holdenkarau"  %% "spark-testing-base" % s"${sparkVersion}_0.14.0" % Test,
     "org.apache.spark" %% "spark-hive"         % sparkVersion              % Test
   ),
+  addCompilerPlugin(("org.scalamacros" % "paradise" % "2.1.1") cross CrossVersion.full),
   logLevel in stryker     := Level.Debug,
   updateOptions           := updateOptions.value.withGigahorse(false),
   publishArtifact in Test := false,

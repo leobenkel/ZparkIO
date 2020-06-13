@@ -1,21 +1,20 @@
 package com.leobenkel.zparkio.Services
 
 import org.apache.spark.sql.SparkSession
-import zio.{Task, ZIO}
+import zio.macros.accessible
+import zio.{Has, Task, ZIO, ZLayer}
 
 import scala.util.Try
 
-trait SparkModule {
-  def spark: SparkModule.Service
-}
-
+@accessible
 object SparkModule {
-  def apply(): ZIO[SparkModule, Nothing, SparkSession] =
-    ZIO.access[SparkModule](_.spark.spark)
+  type SparkModule = Has[SparkModule.Service]
+
+  def apply(): ZIO[SparkModule, Nothing, SparkSession] = SparkModule.spark
 
   def getConf(key: String): ZIO[SparkModule, Throwable, String] =
-    ZIO
-      .access[SparkModule](s => Try(s.spark.spark.conf.get(key)))
+    SparkModule.spark
+      .map(s => Try(s.conf.get(key)))
       .flatMap(ZIO.fromTry(_))
 
   trait Service {
@@ -45,7 +44,10 @@ object SparkModule {
       }
     }
 
-    final def createSpark[R](arguments: C): ZIO[R, Throwable, SparkModule.Service] = {
+    val createSpark: ZLayer[Has[C], Throwable, SparkModule] =
+      ZLayer.fromServiceM(createSpark(_))
+
+    final private def createSpark(arguments: C): ZIO[Any, Throwable, SparkModule.Service] = {
       Task(makeSparkService(readyToBuildSparkBuilder(arguments)))
     }
   }
