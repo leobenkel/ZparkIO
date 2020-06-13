@@ -1,11 +1,11 @@
 package com.leobenkel.zparkio.Services
 
-import com.leobenkel.zparkio.TestUtils.TestRuntime
+import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 import org.scalatest._
 import zio.Exit.{Failure, Success}
-import zio.{Task, ZIO}
+import zio.{BootstrapRuntime, Layer, Task, ZIO, ZLayer}
 
 class CommandLineArgumentsTest extends FreeSpec {
   "CommandLineService" - {
@@ -19,24 +19,24 @@ class CommandLineArgumentsTest extends FreeSpec {
     }
 
     object Arguments {
-      def apply[A](
+      def get[A](
         f: ArgumentsService => A
       ): ZIO[CommandLineArguments[ArgumentsService], Throwable, A] = {
-        CommandLineArguments.get[ArgumentsService](f)
+        CommandLineArguments.get[ArgumentsService].apply(f)
+      }
+
+      def apply(input: Seq[String]): Layer[Nothing, CommandLineArguments[ArgumentsService]] = {
+        ZLayer.succeed(ArgumentsService(input))
       }
     }
 
-    case class Arguments(input: Seq[String]) extends CommandLineArguments[ArgumentsService] {
-      override def cli: ArgumentsService = ArgumentsService(input)
-    }
-
-    val runtime = TestRuntime()
+    val runtime = new BootstrapRuntime {}
 
     "should work" in {
       val test: String = "qwe-asd-asd-zxc"
 
       runtime.unsafeRunSync {
-        Arguments(_.test.toOption).provide(Arguments(Seq("--test", test)))
+        Arguments.get(_.test.toOption).provideLayer(Arguments(Seq("--test", test)))
       } match {
         case Success(Some(value)) => assertResult(value)(test)
         case Success(None)        => fail("Did not found any value")
@@ -47,7 +47,7 @@ class CommandLineArgumentsTest extends FreeSpec {
     "should fail - missing required" in {
       runtime.unsafeRunSync(for {
         arg <- Task(Arguments(Nil))
-        a   <- Arguments(_.test.toOption).provide(arg)
+        a   <- Arguments.get(_.test.toOption).provideLayer(arg)
       } yield {
         a
       }) match {
@@ -59,7 +59,7 @@ class CommandLineArgumentsTest extends FreeSpec {
     "should fail - unknonw option" in {
       runtime.unsafeRunSync(for {
         arg <- Task(Arguments(Seq("--abc", "foo")))
-        a   <- Arguments(_.test.toOption).provide(arg)
+        a   <- Arguments.get(_.test.toOption).provideLayer(arg)
       } yield {
         a
       }) match {

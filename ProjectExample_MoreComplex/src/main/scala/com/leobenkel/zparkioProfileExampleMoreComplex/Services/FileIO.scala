@@ -1,14 +1,12 @@
 package com.leobenkel.zparkioProfileExampleMoreComplex.Services
 
-import zio.{Task, ZIO}
+import zio.{Has, Task, ZIO, ZLayer}
 
 import scala.io.Source
 
-trait FileIO {
-  def fileIO: FileIO.Service
-}
-
 object FileIO {
+  type FileIO = Has[Service]
+
   trait Service {
     protected def readFileContent(path: String): Seq[String]
 
@@ -17,7 +15,7 @@ object FileIO {
     }
   }
 
-  private trait LiveService extends FileIO.Service {
+  trait LiveService extends FileIO.Service {
     override protected def readFileContent(path: String): Seq[String] = {
       val file = Source.fromFile(path)
       val content = file.getLines().toArray
@@ -26,11 +24,9 @@ object FileIO {
     }
   }
 
-  trait Live extends FileIO {
-    override def fileIO: Service = new LiveService {}
-  }
+  val Live: ZLayer[Any, Nothing, FileIO] = ZLayer.succeed(new LiveService {})
 
   def apply(path: String): ZIO[FileIO, Throwable, Seq[String]] = {
-    ZIO.accessM[FileIO](_.fileIO.getFileContent(path))
+    ZIO.accessM[FileIO](_.get.getFileContent(path))
   }
 }

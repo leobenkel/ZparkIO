@@ -1,15 +1,15 @@
 package com.leobenkel.zparkioProfileExampleMoreComplex.Services
 
+import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import com.leobenkel.zparkio.Services.SparkModule
 import com.leobenkel.zparkio.implicits._
-import org.apache.spark.sql.{Dataset, Encoder, SparkSession}
-import zio.{Task, ZIO}
-
-trait Database {
-  def database: Database.Service
-}
+import com.leobenkel.zparkioProfileExampleMoreComplex.Arguments
+import org.apache.spark.sql._
+import zio.{Has, Task, ZIO, ZLayer}
 
 object Database {
+  type Database = Has[Service]
+
   case class Credentials(
     user: String,
     psw:  String,
@@ -32,8 +32,7 @@ object Database {
     ): Dataset[A]
   }
 
-  private trait LiveService extends Database.Service {
-
+  case class LiveService(credentials: Credentials) extends Database.Service {
     override protected def query[A: Encoder](
       spark: SparkSession,
       query: String
@@ -49,19 +48,12 @@ object Database {
         */
       Seq[A]().toDS
     }
-
-    protected def getCredentials: Credentials
   }
 
-  trait Live extends Database {
-    protected def getDatabaseCredentials: Credentials
-
-    override def database: Database.Service = new Database.LiveService {
-      override protected def getCredentials: Credentials = getDatabaseCredentials
-    }
-  }
+  val Live: ZLayer[CommandLineArguments[Arguments], Throwable, Database] =
+    ZLayer.fromService(args => LiveService(args.credentials))
 
   def apply[A: Encoder](query: String): ZDS_R[Database, A] = {
-    ZIO.environment[Database].flatMap(_.database.query(query))
+    ZIO.environment[Database].flatMap(_.get.query(query))
   }
 }

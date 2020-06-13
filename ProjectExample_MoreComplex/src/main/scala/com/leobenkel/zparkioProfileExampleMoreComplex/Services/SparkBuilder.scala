@@ -4,8 +4,8 @@ import com.leobenkel.zparkio.Services.SparkModule
 import com.leobenkel.zparkioProfileExampleMoreComplex.Arguments
 import org.apache.spark.sql.SparkSession
 
-object SparkBuilder extends SparkModule.Builder[Arguments] {
-  override protected def appName: String = "Zparkio_test"
+object SparkBuilder extends SparkModule.Factory[Arguments] {
+  lazy final override protected val appName: String = "Zparkio_test"
 
   override protected def updateConfig(
     sparkBuilder: SparkSession.Builder,
@@ -14,9 +14,4 @@ object SparkBuilder extends SparkModule.Builder[Arguments] {
     sparkBuilder
       .config("spark.foo.bar", arguments.sparkConfig())
   }
-
-  override protected def makeSparkService(sparkBuilder: SparkSession.Builder): SparkModule.Service =
-    new SparkModule.Service {
-      lazy final override val spark: SparkSession = sparkBuilder.getOrCreate
-    }
 }

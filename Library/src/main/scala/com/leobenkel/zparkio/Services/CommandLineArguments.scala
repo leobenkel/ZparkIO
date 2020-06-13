@@ -1,24 +1,19 @@
 package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Env._
-import org.rogach.scallop.exceptions.Help
+import com.leobenkel.zparkio.Services.Logger.Logger
+import izumi.reflect.Tag
+import org.rogach.scallop.exceptions.{Help, ScallopException}
 import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
 import zio.console.Console
-import zio.{Task, ZIO}
+import zio.{Has, Task, UIO, ZIO, ZLayer, console}
 
 import scala.util.Try
 
-trait CommandLineArguments[C <: CommandLineArguments.Service] {
-  def cli: C
-}
-
 object CommandLineArguments {
-  trait Builder[C <: CommandLineArguments.Service] {
-    protected def createCli(args: List[String]): C
-    def createCliSafely(args:     List[String]): ZIO[Any, Throwable, C] = {
-      createCli(args).verifyInternal()
-    }
-  }
+  import com.leobenkel.zparkio.Services.CommandLineArguments.Helper._
+
+  type CommandLineArguments[C <: CommandLineArguments.Service] = Has[C]
 
   trait Service extends ScallopConf {
     this.appendDefaultToDescription = true
@@ -61,63 +56,89 @@ object CommandLineArguments {
     }
   }
 
-  private[zparkio] case class HelpHandlerException(
-    s:          Scallop,
-    subCommand: Option[String]
-  ) extends Throwable {
-    private def print(msg: String): ZIO[Console, Throwable, Unit] = {
-      ZIO.accessM[Console](_.console.putStrLn(msg))
-    }
+  object Helper {
+    private[zparkio] case class HelpHandlerException(
+      s:          Scallop,
+      subCommand: Option[String]
+    ) extends Throwable {
+      private def print(msg: String): ZIO[Console, Throwable, Unit] = console.putStr(msg)
 
-    lazy private val header: String = subCommand match {
-      case None    => "Help:"
-      case Some(s) => s"Help for '$s':"
-    }
+      lazy private val header: String = subCommand match {
+        case None    => "Help:"
+        case Some(s) => s"Help for '$s':"
+      }
 
-    def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] = {
-      for {
-        _ <- print(header)
-        _ <- ZIO.foreach(s.vers)(print)
-        _ <- ZIO.foreach(s.bann)(print)
-        _ <- print(s.help)
-        _ <- ZIO.foreach(s.foot)(print)
-      } yield {
-        ()
+      def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] = {
+        for {
+          _ <- print(header)
+          _ <- ZIO.foreach(s.vers)(print)
+          _ <- ZIO.foreach(s.bann)(print)
+          _ <- print(s.help)
+          _ <- ZIO.foreach(s.foot)(print)
+        } yield {
+          ()
+        }
       }
     }
-  }
 
-  private[zparkio] object ErrorParser {
-    def unapply(e: Throwable): Option[Int] = e match {
-      case _: Help                 => Some(0)
-      case _: HelpHandlerException => Some(0)
-      case _ => None
+    private[zparkio] object ErrorParser {
+      def unapply(e: Throwable): Option[Int] = e match {
+        case _: Help                 => Some(0)
+        case _: HelpHandlerException => Some(0)
+        case _ => None
+      }
     }
+
+    type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service] =
+      ZIO[CommandLineArguments[A], Throwable, YourConfigWrapper[A]]
+
+    implicit class Shortcut[C <: CommandLineArguments.Service](z: ZIO_CONFIG_SERVICE[C]) {
+      def apply[A](f: C => A): ZIO[CommandLineArguments[C], Throwable, A] = z.map(_.apply(f))
+    }
+
+    case class YourConfigWrapper[C <: CommandLineArguments.Service](config: C) {
+      def apply[A](f: C => A): A = f(config)
+    }
+
   }
 
-  def apply[C <: CommandLineArguments.Service](): ZIO[CommandLineArguments[C], Throwable, C] = {
-    ZIO.access[CommandLineArguments[C]](_.cli)
+  private[zparkio] trait Factory[C <: CommandLineArguments.Service] {
+    private[zparkio] def createCliSafely(args: C): ZIO[Any, Throwable, C] = {
+      args.verifyInternal()
+    }
+
+    private[zparkio] def assembleCliBuilder(
+      args: C
+    )(
+      implicit t: Tag[C]
+    ): ZLayer[Logger, Throwable, CommandLineArguments[C]] =
+      ZLayer.fromServiceM { logger =>
+        createCliSafely(args).tapError {
+          case cliError: ScallopException => Logger.displayAllErrors(cliError).provide(Has(logger))
+          case _ => UIO(())
+        }
+      }
   }
 
-  type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service] =
-    ZIO[CommandLineArguments[A], Throwable, YourConfigWrapper[A]]
+  private[zparkio] object Factory {
+    private[zparkio] def apply[C <: CommandLineArguments.Service](): Factory[C] = new Factory[C] {}
+  }
 
-  def get[C <: CommandLineArguments.Service]: ZIO_CONFIG_SERVICE[C] = {
+  def apply[C <: CommandLineArguments.Service](
+  )(
+    implicit t: Tag[C]
+  ): ZIO[CommandLineArguments[C], Throwable, C] = {
+    ZIO.service[C]
+  }
+
+  def get[C <: CommandLineArguments.Service: Tag]: ZIO_CONFIG_SERVICE[C] = {
     apply[C]()
       .flatMap(_.verifyInternal())
       .map(YourConfigWrapper[C])
   }
 
-  implicit class Shortcut[C <: CommandLineArguments.Service](z: ZIO_CONFIG_SERVICE[C]) {
-    def apply[A](f: C => A): ZIO[CommandLineArguments[C], Throwable, A] = z.map(_.apply(f))
-  }
-
-  case class YourConfigWrapper[C <: CommandLineArguments.Service](config: C) {
-    def apply[A](f: C => A): A = f(config)
-  }
-
-  def displayCommandLines[C <: CommandLineArguments.Service](
-  ): ZIO[CommandLineArguments[C] with Logger with Console, Throwable, Unit] = {
+  def displayCommandLines[C <: CommandLineArguments.Service: Tag](
+  ): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] = {
     for {
       conf <- apply[C]()
       _    <- Logger.info("--------------Command Lines--------------")

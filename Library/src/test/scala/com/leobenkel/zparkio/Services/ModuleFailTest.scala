@@ -1,7 +1,7 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.FreeSpec
-import zio.{DefaultRuntime, Exit, ZIO}
+import zio.{BootstrapRuntime, Exit, ZIO}
 
 import scala.util.Try
 
@@ -35,7 +35,7 @@ class ModuleFailTest extends FreeSpec {
     }
 
     "Might fail" in {
-      val runtime = new DefaultRuntime {}
+      val runtime = new BootstrapRuntime {}
 
       Try {
         runtime.unsafeRunSync {

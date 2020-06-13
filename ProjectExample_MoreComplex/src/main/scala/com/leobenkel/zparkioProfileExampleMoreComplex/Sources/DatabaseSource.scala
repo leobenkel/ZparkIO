@@ -4,6 +4,7 @@ import com.leobenkel.zparkio.Services.SparkModule
 import com.leobenkel.zparkio.implicits.ZDS_R
 import com.leobenkel.zparkioProfileExampleMoreComplex.Items.{Post, User}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Services.Database
+import com.leobenkel.zparkioProfileExampleMoreComplex.Services.Database.Database
 
 object DatabaseSource {
 

@@ -1,10 +1,11 @@
 package com.leobenkel.zparkio
 
 import com.leobenkel.zparkio.Services.SparkModule
+import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
-import zio.{DefaultRuntime, ZIO}
+import zio.{BootstrapRuntime, ZIO}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -65,7 +66,7 @@ object implicits {
         zds.map { ds =>
           ds.map { a =>
             val zB = f(a)
-            val runtime = new DefaultRuntime {}
+            val runtime = new BootstrapRuntime {}
             runtime.unsafeRun(zB)
           }
         }
