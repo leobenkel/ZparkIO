@@ -1,20 +1,18 @@
 package com.leobenkel.zparkio
 
-import com.leobenkel.zparkio.Services.CommandLineArguments.HelpHandlerException
+import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
+import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
 import com.leobenkel.zparkio.Services.Logger.Logger
 import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
-import org.rogach.scallop.exceptions.ScallopException
-import zio.console.Console
 import zio.duration.Duration
 import zio.internal.Platform
 import zio.{BootstrapRuntime, Task, UIO, ZIO, ZLayer}
 
-trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT] {
+trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
+    extends Logger.Factory with CLA.Factory[C] with SparkModule.Factory[C] {
   protected def makeSparkBuilder: SparkModule.Builder[C]
-  protected def makeCliBuilder:   CLA.Builder[C]
   protected def displayCommandLines: Boolean = true
-  protected def makeLogger: Logger
 
   protected def runApp(): ZIO[ENV, Throwable, OUTPUT]
 
@@ -38,35 +36,25 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT] {
     }
   }
 
-  protected def makeEnvironment() = ZLayer.fromServicesM[]()
-
-  protected def buildEnv(args: List[String]): ZIO[zio.ZEnv, Throwable, ENV] = {
-    for {
-      c          <- ZIO.environment[Console]
-      logger     <- Task(makeLogger)
-      cliBuilder <- Task(makeCliBuilder)
-      cliService <- cliBuilder.createCliSafely(args).tapError {
-        case cliError: ScallopException => Logger.displayAllErrors(cliError).provide(logger)
-        case _ => UIO(())
-      }
-      sparkBuilder <- Task(makeSparkBuilder)
-      sparkService <- sparkBuilder.createSpark
-      fullEnv      <- makeEnvironment()
-    } yield { fullEnv }
+  protected def buildEnv(
+    args: List[String]
+  ): ZLayer[zio.ZEnv, Throwable, Logger with CommandLineArguments[C] with SparkModule] = {
+    this.assembleLogger >+>
+      this.assembleCliBuilder(args) >+>
+      this.assembleSparkModule
   }
 
   protected def stopSparkAtTheEnd: Boolean = true
 
-  protected def app(args: List[String]): ZIO[zio.ZEnv, Throwable, OUTPUT] = {
+  protected def app(args: List[String]): ZIO[ENV, Throwable, OUTPUT] = {
     for {
-      env <- buildEnv(args)
-      s   <- SparkModule().provide(env)
-      _ <- if (displayCommandLines) CLA.displayCommandLines().provide(env) else UIO(())
+      _ <- if (displayCommandLines) CLA.displayCommandLines() else UIO(())
       output <- runApp()
-        .provide(env)
+      // This line has an error because it wants `ENV with Clock`
+      // but `ENV` already contains `Clock`.
         .timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
       _ <- if (stopSparkAtTheEnd) {
-        Task {
+        SparkModule().map { s =>
           s.sparkContext.stop()
           s.stop()
           ()
@@ -74,17 +62,22 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT] {
       } else {
         Task(())
       }
-    } yield { output }
+    } yield {
+      output
+    }
   }
 
   protected def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
     app(args)
+    // this line has the following error:
+    // Cannot prove that zio.ZEnv with Logger with CommandLineArguments[C] with SparkModule <:< ENV.
+      .provideCustomLayer(buildEnv(args))
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(
         {
-          case CLA.ErrorParser(code)      => code
-          case ErrorProcessing(errorCode) => errorCode
-          case _                          => 1
+          case CLA.Helper.ErrorParser(code) => code
+          case ErrorProcessing(errorCode)   => errorCode
+          case _                            => 1
         },
         _ => 0
       )

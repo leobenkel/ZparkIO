@@ -2,9 +2,7 @@ package com.leobenkel.zparkio.Services
 
 import zio.console.Console
 import zio.{Has, Task, ZIO, ZLayer}
-import zio.macros.accessible
 
-@accessible
 object Logger {
   type Logger = Has[Logger.Service]
 
@@ -12,6 +10,15 @@ object Logger {
     def info(txt:  => String): Task[Unit]
     def error(txt: => String): Task[Unit]
     def debug(txt: => String): Task[Unit]
+  }
+
+  trait Factory {
+    protected[Factory] def makeLogger(
+      console: zio.console.Console.Service
+    ): ZIO[Any, Throwable, Logger.Service]
+
+    protected def assembleLogger: ZLayer[Console, Throwable, Logger] =
+      ZLayer.fromServiceM(makeLogger)
   }
 
   def displayAllErrors(ex: Throwable): ZIO[Logger, Throwable, Unit] = {
@@ -33,15 +40,9 @@ object Logger {
     }
   }
 
-//  def info(txt: => String): ZIO[Logger, Throwable, Unit] = {
-//    ZIO.accessM[Console with Logger](_.log.info(txt))
-//  }
-//
-//  def error(txt: => String): ZIO[Logger, Throwable, Unit] = {
-//    ZIO.accessM[Console with Logger](_.log.error(txt))
-//  }
-//
-//  def debug(txt: => String): ZIO[Logger, Throwable, Unit] = {
-//    ZIO.accessM[Logger](_.get.debug(txt))
-//  }
+  def info(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.accessM[Logger](_.get.info(txt))
+
+  def error(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.accessM[Logger](_.get.error(txt))
+
+  def debug(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.accessM[Logger](_.get.debug(txt))
 }

@@ -1,19 +1,18 @@
 package com.leobenkel.zparkio.Services
 
+import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import org.apache.spark.sql.SparkSession
-import zio.macros.accessible
 import zio.{Has, Task, ZIO, ZLayer}
 
 import scala.util.Try
 
-@accessible
 object SparkModule {
   type SparkModule = Has[SparkModule.Service]
 
-  def apply(): ZIO[SparkModule, Nothing, SparkSession] = SparkModule.spark
+  def apply(): ZIO[SparkModule, Nothing, SparkSession] = ZIO.access[SparkModule](_.get.spark)
 
   def getConf(key: String): ZIO[SparkModule, Throwable, String] =
-    SparkModule.spark
+    SparkModule()
       .map(s => Try(s.conf.get(key)))
       .flatMap(ZIO.fromTry(_))
 
@@ -24,6 +23,7 @@ object SparkModule {
   trait Builder[C <: CommandLineArguments.Service] {
     lazy private val sparkBuilder:         SparkSession.Builder = SparkSession.builder
     lazy private val sparkBuilderWithName: SparkSession.Builder = sparkBuilder.appName(appName)
+
     protected def appName: String
 
     protected def updateConfig(
@@ -34,21 +34,32 @@ object SparkModule {
     protected def setMaster(sparkBuilder: SparkSession.Builder): SparkSession.Builder =
       sparkBuilder.master("local[*]")
 
-    protected def readyToBuildSparkBuilder(arguments: C): SparkSession.Builder = {
+    final private def readyToBuildSparkBuilder(arguments: C): SparkSession.Builder = {
       updateConfig(setMaster(sparkBuilderWithName), arguments)
     }
 
-    protected def makeSparkService(sparkBuilder: SparkSession.Builder): SparkModule.Service = {
+    final private def makeSparkService(sparkBuilder: SparkSession.Builder): SparkModule.Service = {
       new SparkModule.Service {
-        override def spark: SparkSession = sparkBuilder.getOrCreate()
+        lazy final override val spark: SparkSession = sparkBuilder.getOrCreate()
       }
     }
 
-    val createSpark: ZLayer[Has[C], Throwable, SparkModule] =
-      ZLayer.fromServiceM(createSpark(_))
-
-    final private def createSpark(arguments: C): ZIO[Any, Throwable, SparkModule.Service] = {
+    final private[SparkModule] def createSpark(
+      arguments: C
+    ): ZIO[Any, Throwable, SparkModule.Service] = {
       Task(makeSparkService(readyToBuildSparkBuilder(arguments)))
     }
   }
+
+  trait Factory[C <: CommandLineArguments.Service] {
+    protected[Factory] def makeSparkModule: ZIO[Any, Throwable, SparkModule.Builder[C]]
+
+    protected def assembleSparkModule: ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
+      ZLayer.fromServiceM(cli => makeSparkModule.flatMap(_.createSpark(cli)))
+  }
+
+  def make[C <: CommandLineArguments.Service](
+    builder: Builder[C]
+  ): ZLayer[Has[C], Throwable, SparkModule] = ZLayer.fromServiceM(builder.createSpark)
+
 }
