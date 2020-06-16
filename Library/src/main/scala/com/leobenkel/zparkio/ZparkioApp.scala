@@ -9,12 +9,12 @@ import zio.duration.Duration
 import zio.internal.Platform
 import zio.{BootstrapRuntime, Task, UIO, ZIO, ZLayer}
 
-trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
+trait ZparkioApp[C <: CLA.Service, ENV, OUTPUT]
     extends Logger.Factory with CLA.Factory[C] with SparkModule.Factory[C] {
   protected def makeSparkBuilder: SparkModule.Builder[C]
   protected def displayCommandLines: Boolean = true
 
-  protected def runApp(): ZIO[ENV, Throwable, OUTPUT]
+  protected def runApp(): ZIO[ENV with ZparkioApp.ZPEnv[C], Throwable, OUTPUT]
 
   protected def processErrors(f: Throwable): Option[Int] = Some(1)
   protected def timedApplication: Duration = Duration.Infinity
@@ -36,6 +36,8 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
     }
   }
 
+  protected def makeEnv: ZLayer[ZparkioApp.ZPEnv[C], Throwable, ENV]
+
   protected def buildEnv(
     args: List[String]
   ): ZLayer[zio.ZEnv, Throwable, Logger with CommandLineArguments[C] with SparkModule] = {
@@ -46,12 +48,13 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
 
   protected def stopSparkAtTheEnd: Boolean = true
 
-  protected def app(args: List[String]): ZIO[ENV, Throwable, OUTPUT] = {
+  protected def app(args: List[String]): ZIO[ZparkioApp.ZPEnv[C], Throwable, OUTPUT] = {
     for {
       _ <- if (displayCommandLines) CLA.displayCommandLines() else UIO(())
       output <- runApp()
-      // This line has an error because it wants `ENV with Clock`
-      // but `ENV` already contains `Clock`.
+        .provideSomeLayer[ZparkioApp.ZPEnv[C]](makeEnv)
+        // This line has an error because it wants `ENV with Clock`
+        // but `ENV` already contains `Clock`.
         .timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
       _ <- if (stopSparkAtTheEnd) {
         SparkModule().map { s =>
@@ -93,6 +96,6 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
 }
 
 object ZparkioApp {
-  type ZPEnv[C <: CLA.Service] =
-    zio.ZEnv with CLA.CommandLineArguments[C] with Logger with SparkModule
+  type BaseEnv[C <: CLA.Service] = CLA.CommandLineArguments[C] with Logger with SparkModule
+  type ZPEnv[C <: CLA.Service] = zio.ZEnv with BaseEnv[C]
 }
