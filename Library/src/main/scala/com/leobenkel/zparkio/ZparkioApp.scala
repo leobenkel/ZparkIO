@@ -7,10 +7,16 @@ import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import zio.duration.Duration
 import zio.internal.Platform
-import zio.{BootstrapRuntime, Task, UIO, ZIO, ZLayer}
+import zio.{BootstrapRuntime, Has, Tag, Task, UIO, ZIO, ZLayer}
 
-trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
+trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT]
     extends Logger.Factory with CLA.Factory[C] with SparkModule.Factory[C] {
+
+  implicit def tag1: Tag[C]
+  implicit def tag2: Tag[ENV]
+
+  def env: ZLayer[Any, Nothing, ENV]
+
   protected def makeSparkBuilder: SparkModule.Builder[C]
   protected def displayCommandLines: Boolean = true
 
@@ -30,7 +36,7 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
     override val platform: Platform = makePlatform
   }
 
-  private object ErrorProcessing {
+  object ErrorProcessing {
     def unapply(e: Throwable): Option[Int] = {
       processErrors(e)
     }
@@ -46,9 +52,9 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
 
   protected def stopSparkAtTheEnd: Boolean = true
 
-  protected def app(args: List[String]): ZIO[ENV, Throwable, OUTPUT] = {
+  protected def app(args: List[String]): ZIO[ENV with ZparkioApp.ZPEnv[C], Throwable, OUTPUT] = {
     for {
-      _ <- if (displayCommandLines) CLA.displayCommandLines() else UIO(())
+      _ <- if (displayCommandLines) CLA.displayCommandLines[C]() else UIO(())
       output <- runApp()
       // This line has an error because it wants `ENV with Clock`
       // but `ENV` already contains `Clock`.
@@ -71,7 +77,7 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C], OUTPUT]
     app(args)
     // this line has the following error:
     // Cannot prove that zio.ZEnv with Logger with CommandLineArguments[C] with SparkModule <:< ENV.
-      .provideCustomLayer(buildEnv(args))
+      .provideCustomLayer(env ++ buildEnv(args))
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(
         {

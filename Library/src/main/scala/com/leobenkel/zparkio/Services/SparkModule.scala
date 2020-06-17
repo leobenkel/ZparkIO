@@ -2,7 +2,7 @@ package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import org.apache.spark.sql.SparkSession
-import zio.{Has, Task, ZIO, ZLayer}
+import zio.{Has, Tag, Task, ZIO, ZLayer}
 
 import scala.util.Try
 
@@ -54,12 +54,12 @@ object SparkModule {
   trait Factory[C <: CommandLineArguments.Service] {
     protected[Factory] def makeSparkModule: ZIO[Any, Throwable, SparkModule.Builder[C]]
 
-    protected def assembleSparkModule: ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
+    protected def assembleSparkModule(implicit t: Tag[C]): ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
       ZLayer.fromServiceM(cli => makeSparkModule.flatMap(_.createSpark(cli)))
   }
 
   def make[C <: CommandLineArguments.Service](
     builder: Builder[C]
-  ): ZLayer[Has[C], Throwable, SparkModule] = ZLayer.fromServiceM(builder.createSpark)
+  )(implicit t: Tag[C]): ZLayer[Has[C], Throwable, SparkModule] = ZLayer.fromServiceM(builder.createSpark)
 
 }

@@ -125,18 +125,18 @@ object CommandLineArguments {
       }
   }
 
-  def apply[C <: CommandLineArguments.Service](): ZIO[CommandLineArguments[C], Throwable, C] = {
+  def apply[C <: CommandLineArguments.Service]()(implicit t: Tag[C]): ZIO[CommandLineArguments[C], Throwable, C] = {
     ZIO.service[C]
   }
 
-  def get[C <: CommandLineArguments.Service]: ZIO_CONFIG_SERVICE[C] = {
+  def get[C <: CommandLineArguments.Service](implicit t: Tag[C]): ZIO_CONFIG_SERVICE[C] = {
     apply[C]()
       .flatMap(_.verifyInternal())
       .map(YourConfigWrapper[C])
   }
 
   def displayCommandLines[C <: CommandLineArguments.Service](
-  ): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] = {
+  )(implicit t: Tag[C]): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] = {
     for {
       conf <- apply[C]()
       _    <- Logger.info("--------------Command Lines--------------")
