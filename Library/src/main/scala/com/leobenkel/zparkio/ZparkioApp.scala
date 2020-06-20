@@ -26,8 +26,8 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
   protected def sparkFactory:  FACTORY_SPARK
   protected def loggerFactory: FACTORY_LOG
   protected def cliFactory: FACTORY_CLI = CLA.Factory()
-  protected def makeCli(args:      List[String]): C
-  final private def buildEnv(args: C): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] = {
+  protected def makeCli(args:        List[String]): C
+  final protected def buildEnv(args: C): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] = {
     loggerFactory.assembleLogger >+>
       cliFactory.assembleCliBuilder(args) >+>
       sparkFactory.assembleSparkModule
@@ -87,7 +87,7 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
       .flatMap { baseEnv =>
         app
           .provideSomeLayer[zio.ZEnv with BaseEnv[C]](env)
-          .provideSomeLayer[zio.ZEnv](baseEnv)
+          .provideCustomLayer(baseEnv)
       }
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(
