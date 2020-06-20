@@ -3,7 +3,7 @@ package com.leobenkel.zparkioProjectExample
 import com.leobenkel.zparkiotest.TestWithSpark
 import org.scalatest.FreeSpec
 import zio.Exit.{Failure, Success}
-import zio.ZIO
+import zio.{BootstrapRuntime, ZIO}
 
 class ApplicationTest extends FreeSpec with TestWithSpark {
   "Full application" - {
@@ -40,4 +40,6 @@ object TestApp extends Application {
   def runTest(args: List[String]): ZIO[zio.ZEnv, Throwable, Int] = {
     super.run(args)
   }
+
+  lazy final override val makeRuntime: BootstrapRuntime = super.makeRuntime
 }

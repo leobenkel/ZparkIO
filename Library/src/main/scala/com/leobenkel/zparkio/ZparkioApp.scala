@@ -1,38 +1,59 @@
 package com.leobenkel.zparkio
 
-import com.leobenkel.zparkio.Services.CommandLineArguments.HelpHandlerException
+import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
+import com.leobenkel.zparkio.Services.Logger.Logger
+import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
-import org.rogach.scallop.exceptions.ScallopException
-import zio.console.Console
+import com.leobenkel.zparkio.ZparkioApp.BaseEnv
 import zio.duration.Duration
-import zio.internal.{Platform, PlatformLive}
-import zio.{DefaultRuntime, Task, UIO, ZIO}
+import zio.internal.Platform
+import zio.{BootstrapRuntime, Has, Tag, Task, UIO, ZIO, ZLayer}
 
-trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPUT] {
-  protected def makeSparkBuilder: SparkModule.Builder[C]
-  protected def makeCliBuilder:   CLA.Builder[C]
+trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
+
+  // Shortcut types
+  final protected type COMPLETE_ENV = ENV with ZparkioApp.ZPEnv[C]
+  final protected type ZPARKIO_ENV = ZparkioApp.ZPEnv[C]
+  final protected type FACTORY_SPARK = SparkModule.Factory[C]
+  final protected type FACTORY_LOG = Logger.Factory
+  final protected type FACTORY_CLI = CLA.Factory[C]
+
+  // Tag for user env
+  implicit def tagC:   Tag[C]
+  implicit def tagEnv: Tag[ENV]
+
+  // Build ZPARKIO environment
+  protected def sparkFactory:  FACTORY_SPARK
+  protected def loggerFactory: FACTORY_LOG
+  protected def cliFactory: FACTORY_CLI = CLA.Factory()
+  protected def makeCli(args:      List[String]): C
+  final private def buildEnv(args: C): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] = {
+    loggerFactory.assembleLogger >+>
+      cliFactory.assembleCliBuilder(args) >+>
+      sparkFactory.assembleSparkModule
+  }
+
+  // Build user environment
+  protected def env: ZLayer[ZPARKIO_ENV, Throwable, ENV]
+
+  // Core business logic
+  protected def runApp(): ZIO[COMPLETE_ENV, Throwable, OUTPUT]
+
+  // Default implementations
   protected def displayCommandLines: Boolean = true
-  protected def makeLogger: Logger
-
-  protected def makeEnvironment(
-    cliService:    C,
-    loggerService: Logger.Service,
-    sparkService:  SparkModule.Service
-  ):                      ENV
-  protected def runApp(): ZIO[ENV, Throwable, OUTPUT]
-
   protected def processErrors(f: Throwable): Option[Int] = Some(1)
-  protected def timedApplication: Duration = Duration.Infinity
+  protected def timedApplication:  Duration = Duration.Infinity
+  protected def stopSparkAtTheEnd: Boolean = true
 
+  // RUNTIME
   protected def makePlatform: Platform = {
-    PlatformLive.Default
+    Platform.default
       .withReportFailure { cause =>
         if (cause.died) println(cause.prettyPrint)
       }
   }
-
-  def makeRuntime: DefaultRuntime = new DefaultRuntime {
-    override val Platform: Platform = makePlatform
+  protected def makeRuntime: BootstrapRuntime = new BootstrapRuntime {
+    override val platform: Platform = makePlatform
   }
 
   private object ErrorProcessing {
@@ -41,41 +62,13 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
     }
   }
 
-  protected def buildEnv(args: List[String]): ZIO[zio.ZEnv, Throwable, ENV] = {
+  protected def app: ZIO[COMPLETE_ENV, Throwable, OUTPUT] = {
     for {
-      c          <- ZIO.environment[Console]
-      logger     <- Task(makeLogger)
-      cliBuilder <- Task(makeCliBuilder)
-      cliService <- cliBuilder.createCliSafely(args).tapError {
-        case cliError: ScallopException =>
-          Logger
-            .displayAllErrors(cliError).provide(new Logger with Console {
-              lazy final override val log:     Logger.Service = logger.log
-              lazy final override val console: Console.Service[Any] = c.console
-            })
-        case _ => UIO(())
-      }
-      sparkBuilder <- Task(makeSparkBuilder)
-      sparkService <- sparkBuilder.createSpark(cliService)
-    } yield { makeEnvironment(cliService, logger.log, sparkService) }
-  }
-
-  protected def stopSparkAtTheEnd: Boolean = true
-
-  protected def app(args: List[String]): ZIO[zio.ZEnv, Throwable, OUTPUT] = {
-    for {
-      env <- buildEnv(args)
-      s   <- SparkModule().provide(env)
-      _ <- if (displayCommandLines) {
-        CLA.displayCommandLines().provide(env)
-      } else {
-        UIO(())
-      }
+      _ <- if (displayCommandLines) CLA.displayCommandLines[C]() else UIO(())
       output <- runApp()
-        .provide(env)
         .timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
       _ <- if (stopSparkAtTheEnd) {
-        Task {
+        SparkModule().map { s =>
           s.sparkContext.stop()
           s.stop()
           ()
@@ -83,17 +76,25 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
       } else {
         Task(())
       }
-    } yield { output }
+    } yield {
+      output
+    }
   }
 
   protected def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
-    app(args)
+    Task(makeCli(args))
+      .map(buildEnv)
+      .flatMap { baseEnv =>
+        app
+          .provideSomeLayer[zio.ZEnv with BaseEnv[C]](env)
+          .provideSomeLayer[zio.ZEnv](baseEnv)
+      }
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(
         {
-          case CLA.ErrorParser(code)      => code
-          case ErrorProcessing(errorCode) => errorCode
-          case _                          => 1
+          case CLA.Helper.ErrorParser(code) => code
+          case ErrorProcessing(errorCode)   => errorCode
+          case _                            => 1
         },
         _ => 0
       )
@@ -109,6 +110,6 @@ trait ZparkioApp[C <: CLA.Service, ENV <: ZparkioApp.ZPEnv[C] with Logger, OUTPU
 }
 
 object ZparkioApp {
-  type ZPEnv[C <: CLA.Service] =
-    zio.ZEnv with CLA[C] with Logger with SparkModule
+  type BaseEnv[C <: CLA.Service] = CLA.CommandLineArguments[C] with Logger with SparkModule
+  type ZPEnv[C <: CLA.Service] = zio.ZEnv with BaseEnv[C]
 }

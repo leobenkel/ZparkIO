@@ -1,6 +1,8 @@
 package com.leobenkel.zparkioProfileExampleMoreComplex
 
 import com.leobenkel.zparkio.Services.CommandLineArguments
+import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
+import com.leobenkel.zparkioProfileExampleMoreComplex.Services.Database
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 import zio.ZIO
 
@@ -41,10 +43,16 @@ case class Arguments(input: List[String])
     required = false,
     noshort = true
   )
+
+  lazy val credentials: Database.Credentials = Database.Credentials(
+    user = databaseUsername(),
+    psw = databasePassword(),
+    host = databaseHost()
+  )
 }
 
 object Arguments {
   def apply[A](f: Arguments => A): ZIO[CommandLineArguments[Arguments], Throwable, A] = {
-    CommandLineArguments.get[Arguments](f)
+    CommandLineArguments.get[Arguments].apply(f)
   }
 }

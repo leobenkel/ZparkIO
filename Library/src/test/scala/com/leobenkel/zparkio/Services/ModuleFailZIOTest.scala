@@ -1,7 +1,7 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.FreeSpec
-import zio.{DefaultRuntime, Exit, Task, ZIO}
+import zio.{BootstrapRuntime, Exit, Task, ZIO}
 
 import scala.util.Try
 
@@ -42,7 +42,7 @@ class ModuleFailZIOTest extends FreeSpec {
     }
 
     "Might fail" in {
-      val runtime = new DefaultRuntime {}
+      val runtime = new BootstrapRuntime {}
 
       def jobRun: ZIO[Module, Throwable, String] = {
         (for {

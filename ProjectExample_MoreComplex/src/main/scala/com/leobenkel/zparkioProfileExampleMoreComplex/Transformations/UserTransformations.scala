@@ -2,7 +2,7 @@ package com.leobenkel.zparkioProfileExampleMoreComplex.Transformations
 
 import com.leobenkel.zparkio.implicits.{ZDS, ZDS_R}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Items.User
-import com.leobenkel.zparkioProfileExampleMoreComplex.Services.Database
+import com.leobenkel.zparkioProfileExampleMoreComplex.Services.Database.Database
 import com.leobenkel.zparkioProfileExampleMoreComplex.Sources.DatabaseSource
 
 object UserTransformations {

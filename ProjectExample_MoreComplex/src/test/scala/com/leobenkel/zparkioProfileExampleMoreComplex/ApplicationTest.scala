@@ -1,18 +1,15 @@
 package com.leobenkel.zparkioProfileExampleMoreComplex
 
-import com.leobenkel.zparkio.Services._
+import com.leobenkel.zparkio.Services.Logger
+import com.leobenkel.zparkioProfileExampleMoreComplex.Application.APP_ENV
 import com.leobenkel.zparkioProfileExampleMoreComplex.Items.{Post, User}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Services.{Database, FileIO}
-import com.leobenkel.zparkiotest.TestWithSpark
+import com.leobenkel.zparkiotest.{LoggerService, TestWithSpark}
 import org.apache.spark.sql._
 import org.scalatest.FreeSpec
 import zio.Exit.{Failure, Success}
-import zio.ZIO
-import zio.blocking.Blocking
-import zio.clock.Clock
 import zio.console.Console
-import zio.random.Random
-import zio.system.System
+import zio.{BootstrapRuntime, Task, ZIO, ZLayer}
 
 class ApplicationTest extends FreeSpec with TestWithSpark {
   "Full application" - {
@@ -49,61 +46,61 @@ class ApplicationTest extends FreeSpec with TestWithSpark {
 }
 
 case class TestApp(s: SparkSession) extends Application {
-  override def makeEnvironment(
-    cliService:    Arguments,
-    loggerService: Logger.Service,
-    sparkService:  SparkModule.Service
-  ): RuntimeEnv.APP_ENV = {
-    TestEnv(cliService, loggerService, new SparkModule.Service {
-      lazy final override val spark: SparkSession = s
-    })
+  def runTest(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = super.run(args)
+
+  override def makeRuntime: BootstrapRuntime = super.makeRuntime
+
+  override protected def sparkFactory: FACTORY_SPARK = new FACTORY_SPARK {
+    lazy final override protected val appName: String = "Test"
+
+    final override protected def createSparkSession(
+      sparkBuilder: SparkSession.Builder
+    ): SparkSession = s
   }
 
-  def runTest(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
-    super.run(args)
-  }
-}
-
-case class TestEnv(
-  cliService:    Arguments,
-  loggerService: Logger.Service,
-  sparkService:  SparkModule.Service
-) extends System.Live with Console.Live with Clock.Live with Random.Live with Blocking.Live
-    with CommandLineArguments[Arguments] with Logger with FileIO.Live with SparkModule
-    with Database {
-  lazy final override val cli:   Arguments = cliService
-  lazy final override val spark: SparkModule.Service = sparkService
-  lazy final override val log:   Logger.Service = new Log()
-
-  override def database: Database.Service = new Database.Service {
-    override protected def query[A: Encoder](
-      spark: SparkSession,
-      query: String
-    ): Dataset[A] = {
-      val rawSeq = query match {
-        case "SELECT * FROM users" =>
-          Seq[User](
-            User(
-              userId = 1,
-              name = "Leo",
-              age = 30,
-              active = true
-            )
-          )
-        case "SELECT * FROM posts" =>
-          Seq[Post](
-            Post(
-              postId = 5,
-              authorId = 1,
-              title = "Foo",
-              content = "Bar"
-            )
-          )
-        case q => throw new UnsupportedOperationException(q)
+  override protected def loggerFactory: FACTORY_LOG =
+    new FACTORY_LOG {
+      override protected def makeLogger(
+        console: Console.Service
+      ): ZIO[Any, Throwable, Logger.Service] = {
+        Task(new LoggerService {})
       }
+    }
 
-      import spark.implicits._
-      rawSeq.map(_.asInstanceOf[A]).toDS
+  lazy final override protected val env: ZLayer[ZPARKIO_ENV, Throwable, APP_ENV] = {
+    FileIO.Live ++ ZLayer.succeed {
+      new Database.Service {
+        override protected def query[A: Encoder](
+          spark: SparkSession,
+          query: String
+        ): Dataset[A] = {
+          val rawSeq = query match {
+            case "SELECT * FROM users" =>
+              Seq[User](
+                User(
+                  userId = 1,
+                  name = "Leo",
+                  age = 30,
+                  active = true
+                )
+              )
+            case "SELECT * FROM posts" =>
+              Seq[Post](
+                Post(
+                  postId = 5,
+                  authorId = 1,
+                  title = "Foo",
+                  content = "Bar"
+                )
+              )
+            case q => throw new UnsupportedOperationException(q)
+          }
+
+          import spark.implicits._
+          rawSeq.map(_.asInstanceOf[A]).toDS
+        }
+      }
     }
   }
+
 }
