@@ -1,7 +1,7 @@
 val projectName = IO.readLines(new File("PROJECT_NAME")).head
 val v = IO.readLines(new File("VERSION")).head
 
-val sparkVersion = "2.3.1"
+val sparkVersion = "2.3.4"
 
 lazy val rootSettings = Seq(
   organization := "com.leobenkel",
