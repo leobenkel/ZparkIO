@@ -27,7 +27,7 @@ lazy val commonSettings = rootSettings ++ Seq(
     // https://zio.dev/docs/getting_started.html
     "dev.zio" %% "zio" % zioVersion,
     // https://github.com/scallop/scallop
-    "org.rogach" %% "scallop" % "3.3.1",
+    "org.rogach" %% "scallop" % "3.3.2",
     // https://mvnrepository.com/artifact/org.apache.spark/spark-core
     "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
     // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
