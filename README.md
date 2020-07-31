@@ -150,7 +150,7 @@ Take a look at the simple project example to see example of working code using t
 
 ### More complex architecture
 
-A full-fledged production-ready project will obviously need more code than the simple example.
+A full-fledged, production-ready project will obviously need more code than the simple example.
 For this purpose, and upon suggestion of several awesome people, I added a more complex project.
 This is a WIP and more will be added as I go. 
 [MoreComplexProject](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample_MoreComplex/src/main/scala/com/leobenkel/zparkioProfileExampleMoreComplex).
