@@ -44,7 +44,7 @@ lazy val commonSettings = rootSettings ++ Seq(
 lazy val root = (project in file("."))
   .aggregate(library, testHelper, tests, projectExample, projectExampleMoreComplex)
   .settings(
-    name := s"$projectName-$v",
+    name := s"${projectName}_root",
     rootSettings
   )
 

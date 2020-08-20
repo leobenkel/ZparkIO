@@ -32,7 +32,7 @@ object Logger {
   def displayAllErrors(ex: Throwable): ZIO[Logger, Throwable, Unit] = {
     for {
       _ <- Logger.error(s"!!! Error: ${ex.toString}:")
-      _ <- ZIO.foreach(ex.getStackTrace)(st => Logger.error(s"  -   $st"))
+      _ <- ZIO.foreach(ex.getStackTrace.toList)(st => Logger.error(s"  -   $st"))
       _ <- Option(ex.getCause)
         .fold[ZIO[Logger, Throwable, Unit]](Task(()))(displayAllErrors)
     } yield {
