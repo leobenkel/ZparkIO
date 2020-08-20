@@ -33,7 +33,7 @@ Boiler plate framework to use [Spark](https://github.com/apache/spark) and [ZIO]
 
 The goal of this framework is to blend Spark and ZIO in an easy to use system for data engineers.
 
-Allowing them to use Spark is a new, faster, more reliable way, leveraging ZIO power.
+Allowing them to use Spark in a new, faster, more reliable way, leveraging ZIO power.
 
 ## Table of Contents
 
@@ -150,7 +150,7 @@ Take a look at the simple project example to see example of working code using t
 
 ### More complex architecture
 
-A full fles production ready project will obviously need more code that the simple example.
+A full-fledged, production-ready project will obviously need more code than the simple example.
 For this purpose, and upon suggestion of several awesome people, I added a more complex project.
 This is a WIP and more will be added as I go. 
 [MoreComplexProject](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample_MoreComplex/src/main/scala/com/leobenkel/zparkioProfileExampleMoreComplex).

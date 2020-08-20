@@ -20,14 +20,14 @@ lazy val rootSettings = Seq(
   soteriaAddSemantic := false
 )
 
-lazy val zioVersion = "1.0.0-RC21-2"
+lazy val zioVersion = "1.0.1"
 
 lazy val commonSettings = rootSettings ++ Seq(
   libraryDependencies ++= Seq(
     // https://zio.dev/docs/getting_started.html
     "dev.zio" %% "zio" % zioVersion,
     // https://github.com/scallop/scallop
-    "org.rogach" %% "scallop" % "3.5.0",
+    "org.rogach" %% "scallop" % "3.5.1",
     // https://mvnrepository.com/artifact/org.apache.spark/spark-core
     "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
     // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
@@ -44,7 +44,7 @@ lazy val commonSettings = rootSettings ++ Seq(
 lazy val root = (project in file("."))
   .aggregate(library, testHelper, tests, projectExample, projectExampleMoreComplex)
   .settings(
-    name := s"$projectName-$v",
+    name := s"${projectName}_root",
     rootSettings
   )
 

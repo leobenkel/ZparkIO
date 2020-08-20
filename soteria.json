@@ -168,11 +168,11 @@
     "org.rogach": {
       "scallop": {
         "needDoublePercent": true,
-        "version": "3.5.0"
+        "version": "3.5.1"
       }
     }
   },
-  "sbtVersion": "1.2.8",
+  "sbtVersion": "1.3.13",
   "scalaCFlags": [
     "-feature",
     "-Yrangepos",
