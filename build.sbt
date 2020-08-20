@@ -20,7 +20,7 @@ lazy val rootSettings = Seq(
   soteriaAddSemantic := false
 )
 
-lazy val zioVersion = "1.0.0-RC21-2"
+lazy val zioVersion = "1.0.1"
 
 lazy val commonSettings = rootSettings ++ Seq(
   libraryDependencies ++= Seq(
