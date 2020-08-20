@@ -20,7 +20,7 @@ lazy val rootSettings = Seq(
   soteriaAddSemantic := false
 )
 
-lazy val zioVersion = "1.0.0-RC21-2"
+lazy val zioVersion = "1.0.1"
 
 lazy val commonSettings = rootSettings ++ Seq(
   libraryDependencies ++= Seq(
@@ -44,7 +44,7 @@ lazy val commonSettings = rootSettings ++ Seq(
 lazy val root = (project in file("."))
   .aggregate(library, testHelper, tests, projectExample, projectExampleMoreComplex)
   .settings(
-    name := s"$projectName-$v",
+    name := s"${projectName}_root",
     rootSettings
   )
 
