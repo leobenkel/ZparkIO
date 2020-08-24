@@ -29,7 +29,11 @@ object SparkModule {
     protected def updateConfig(
       sparkBuilder: SparkSession.Builder,
       arguments:    C
-    ): SparkSession.Builder = sparkBuilder
+    ): SparkSession.Builder = {
+      // to silence warning about being unused
+      locally(arguments)
+      sparkBuilder
+    }
 
     protected def setMaster(sparkBuilder: SparkSession.Builder): SparkSession.Builder =
       sparkBuilder.master("local[*]")

@@ -6,12 +6,12 @@ import com.leobenkel.zparkioProfileExampleMoreComplex.Items.{Post, User}
 import com.leobenkel.zparkioProfileExampleMoreComplex.Services.{Database, FileIO}
 import com.leobenkel.zparkiotest.{LoggerService, TestWithSpark}
 import org.apache.spark.sql._
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 import zio.Exit.{Failure, Success}
 import zio.console.Console
 import zio.{BootstrapRuntime, Task, ZIO, ZLayer}
 
-class ApplicationTest extends FreeSpec with TestWithSpark {
+class ApplicationTest extends AnyFreeSpec with TestWithSpark {
   "Full application" - {
     "Run" in {
       val testApp = TestApp(spark)
@@ -50,13 +50,14 @@ case class TestApp(s: SparkSession) extends Application {
 
   override def makeRuntime: BootstrapRuntime = super.makeRuntime
 
-  override protected def sparkFactory: FACTORY_SPARK = new FACTORY_SPARK {
-    lazy final override protected val appName: String = "Test"
+  override protected def sparkFactory: FACTORY_SPARK =
+    new FACTORY_SPARK {
+      lazy final override protected val appName: String = "Test"
 
-    final override protected def createSparkSession(
-      sparkBuilder: SparkSession.Builder
-    ): SparkSession = s
-  }
+      final override protected def createSparkSession(
+        sparkBuilder: SparkSession.Builder
+      ): SparkSession = s
+    }
 
   override protected def loggerFactory: FACTORY_LOG =
     new FACTORY_LOG {

@@ -3,11 +3,11 @@ package com.leobenkel.zparkio.Services
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
 import org.rogach.scallop.{ScallopConf, ScallopOption}
-import org.scalatest._
+import org.scalatest.freespec._
 import zio.Exit.{Failure, Success}
 import zio.{BootstrapRuntime, Layer, Task, ZIO, ZLayer}
 
-class CommandLineArgumentsTest extends FreeSpec {
+class CommandLineArgumentsTest extends AnyFreeSpec {
   "CommandLineService" - {
     case class ArgumentsService(input: Seq[String])
         extends ScallopConf(input) with CommandLineArguments.Service {

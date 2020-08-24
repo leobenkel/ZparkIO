@@ -136,6 +136,12 @@
         "version": "4.5.11"
       }
     },
+    "org.apache.xbean": {
+      "xbean-asm6-shaded": {
+        "version": "4.10",
+        "overrideIsEnough": false
+      }
+    },
     "org.apache.spark": {
       "spark-": {
         "dependenciesToRemove": [
@@ -146,6 +152,7 @@
           "commons-collections | commons-collections",
           "commons-io | commons-io",
           "io.netty | netty-all",
+          "org.apache.xbean | xbean-asm6-shaded",
           "org.apache.commons | commons-compress",
           "org.apache.hadoop | hadoop-hdfs",
           "org.apache.hadoop | hadoop-mapreduce-client-core",
@@ -156,7 +163,7 @@
         ],
         "exactName": false,
         "shouldBeProvided": true,
-        "version": "2.3.1"
+        "version": "none"
       }
     },
     "org.codehaus.jackson": {
@@ -187,6 +194,7 @@
   ],
   "scalaVersions": [
     "2.11.12",
-    "2.12.7"
+    "2.12.12",
+    "2.13.3"
   ]
 }

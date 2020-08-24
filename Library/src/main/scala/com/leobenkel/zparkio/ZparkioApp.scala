@@ -41,7 +41,11 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
 
   // Default implementations
   protected def displayCommandLines: Boolean = true
-  protected def processErrors(f: Throwable): Option[Int] = Some(1)
+  protected def processErrors(f: Throwable): Option[Int] = {
+    // to silence warning about being unused
+    locally(f)
+    Some(1)
+  }
   protected def timedApplication:  Duration = Duration.Infinity
   protected def stopSparkAtTheEnd: Boolean = true
 
@@ -52,9 +56,10 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
         if (cause.died) println(cause.prettyPrint)
       }
   }
-  protected def makeRuntime: BootstrapRuntime = new BootstrapRuntime {
-    override val platform: Platform = makePlatform
-  }
+  protected def makeRuntime: BootstrapRuntime =
+    new BootstrapRuntime {
+      override val platform: Platform = makePlatform
+    }
 
   private object ErrorProcessing {
     def unapply(e: Throwable): Option[Int] = {

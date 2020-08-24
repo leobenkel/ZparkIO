@@ -5,7 +5,7 @@ import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import com.leobenkel.zparkio.implicits.{ZDS, ZDS_R}
 import com.leobenkel.zparkiotest.TestWithSpark
 import org.apache.spark.sql.SparkSession
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 import zio.{BootstrapRuntime, Task, ZLayer}
 
 // https://stackoverflow.com/a/16990806/3357831
@@ -15,7 +15,7 @@ case class TestClass(
 )
 case class TestClassAfter(a: Int)
 
-class DatasetZTest extends FreeSpec with TestWithSpark {
+class DatasetZTest extends AnyFreeSpec with TestWithSpark {
   "DatasetZ" - {
     import implicits.DatasetZ
     "Test with dataset A " in {

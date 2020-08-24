@@ -1,9 +1,9 @@
 package com.leobenkel.zparkioProjectExample
 
 import com.leobenkel.zparkiotest.SparkExecution
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
-class RunTest extends FreeSpec {
+class RunTest extends AnyFreeSpec {
   "Run" - {
     "Should run" ignore {
       val REBUILD_JAR = true
