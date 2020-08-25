@@ -84,9 +84,9 @@ I hope that you are now convinced that ZIO and Spark are a perfect match. Let's 
 First include the library in your project:
 
 ```sbt
-libraryDependencies += "com.leobenkel" %% "zparkio" % "[VERSION]"
+libraryDependencies += "com.leobenkel" %% "zparkio" % "[SPARK_VERSION]_[VERSION]"
 ```
-With version being: [![maven-central-badge][]][maven-search] .
+With version being: [![maven-central-badge][]][maven-search] [![release-badge][]][release].
 
 This library depends on [Spark](https://github.com/apache/spark), [ZIO](https://github.com/zio/zio) and [Scallop](https://github.com/scallop/scallop). 
 
