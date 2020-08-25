@@ -1,11 +1,11 @@
 package com.leobenkel.zparkio.Services
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 import zio.{BootstrapRuntime, Exit, Task, ZIO}
 
 import scala.util.Try
 
-class ModuleFailZIOTest extends FreeSpec {
+class ModuleFailZIOTest extends AnyFreeSpec {
   "Module" ignore {
     trait Module {
       def service: Module.Service

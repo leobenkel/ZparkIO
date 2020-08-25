@@ -6,7 +6,7 @@ deep_clean: clean
 	(rm -fr ./target **/target ; rm -fr ./project/project ; rm -fr ./project/target) || echo "it's clean"
 
 clean:
-	sbt clean
+	./spark-cross-clean.sh
 
 fmt:
 	sbt soteriaCheckScalaFmtRun
@@ -35,9 +35,6 @@ check_style:
 
 unit_test:
 	sbt clean test
-
-test_all: deep_clean
-	sbt "; project root ; test"
 
 test: deep_clean check_style unit_test
 
