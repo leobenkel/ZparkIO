@@ -42,6 +42,7 @@ jobs:
       script:
         - make test_coverage test_coverage_report
         - sbt "; project library ; coveralls"
+      if: tag IS NOT present
 
     - stage: release
       name: release-staging-lib
