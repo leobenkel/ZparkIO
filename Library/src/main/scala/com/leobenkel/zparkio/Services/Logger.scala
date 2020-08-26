@@ -40,7 +40,7 @@ object Logger {
     }
   }
 
-  val Live: ZLayer[Console, Nothing, Logger] = ZLayer.fromService { console =>
+  val Live: ZLayer[Console, Throwable, Logger] = ZLayer.fromService { console =>
     new Logger.Service {
       override def info(txt:  => String): Task[Unit] = console.putStrLn(s"[INFO] $txt")
       override def error(txt: => String): Task[Unit] = console.putStrLn(s"[ERROR] $txt")
