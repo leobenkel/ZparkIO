@@ -24,7 +24,7 @@ object FileIO {
     }
   }
 
-  val Live: ZLayer[Any, Nothing, FileIO] = ZLayer.succeed(new LiveService {})
+  val Live: ZLayer[Any, Throwable, FileIO] = ZLayer.succeed(new LiveService {})
 
   def apply(path: String): ZIO[FileIO, Throwable, Seq[String]] = {
     ZIO.accessM[FileIO](_.get.getFileContent(path))

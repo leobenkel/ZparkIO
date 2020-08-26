@@ -9,7 +9,7 @@ import scala.util.Try
 object SparkModule {
   type SparkModule = Has[SparkModule.Service]
 
-  def apply(): ZIO[SparkModule, Nothing, SparkSession] = ZIO.access[SparkModule](_.get.spark)
+  def apply(): ZIO[SparkModule, Throwable, SparkSession] = ZIO.access[SparkModule](_.get.spark)
 
   def getConf(key: String): ZIO[SparkModule, Throwable, String] =
     SparkModule()
