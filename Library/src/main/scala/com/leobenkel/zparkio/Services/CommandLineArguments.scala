@@ -6,7 +6,7 @@ import izumi.reflect.Tag
 import org.rogach.scallop.exceptions.{Help, ScallopException}
 import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
 import zio.console.Console
-import zio.{Has, Task, UIO, ZIO, ZLayer, console}
+import zio.{Has, Task, ZIO, ZLayer, console}
 
 import scala.util.Try
 
@@ -115,7 +115,7 @@ object CommandLineArguments {
       ZLayer.fromServiceM { logger =>
         createCliSafely(args).tapError {
           case cliError: ScallopException => Logger.displayAllErrors(cliError).provide(Has(logger))
-          case _ => UIO(())
+          case _ => ZIO.unit
         }
       }
   }
