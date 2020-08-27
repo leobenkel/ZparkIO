@@ -35,12 +35,8 @@ object SparkModule {
       sparkBuilder
     }
 
-    protected def setMaster(sparkBuilder: SparkSession.Builder): SparkSession.Builder =
-      sparkBuilder.master("local[*]")
-
-    final private def readyToBuildSparkBuilder(arguments: C): SparkSession.Builder = {
-      updateConfig(setMaster(sparkBuilderWithName), arguments)
-    }
+    final private def readyToBuildSparkBuilder(arguments: C): SparkSession.Builder =
+      updateConfig(sparkBuilderWithName, arguments)
 
     protected def createSparkSession(sparkBuilder: SparkSession.Builder): SparkSession =
       sparkBuilder.getOrCreate()
