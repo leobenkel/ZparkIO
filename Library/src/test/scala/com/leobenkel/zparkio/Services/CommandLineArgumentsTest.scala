@@ -1,8 +1,9 @@
 package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
+import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
 import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
-import org.rogach.scallop.{ScallopConf, ScallopOption}
+import org.rogach.scallop.{ScallopConf, ScallopOption, Subcommand}
 import org.scalatest.freespec._
 import zio.Exit.{Failure, Success}
 import zio.{BootstrapRuntime, Layer, Task, ZIO, ZLayer}
@@ -65,6 +66,38 @@ class CommandLineArgumentsTest extends AnyFreeSpec {
       }) match {
         case Success(_)  => fail("Should have failed")
         case Failure(ex) => assertThrows[UnknownOption](throw ex.squash)
+      }
+    }
+
+    "help should look good" in {
+      val arg = new ScallopConf(List("--help")) with CommandLineArguments.Service {
+        val foo: ScallopOption[Int] = opt[Int](
+          descr = "Test",
+          default = Some(87)
+        )
+
+        val sub = new Subcommand("test_sub") {
+          val a: ScallopOption[Boolean] = opt[Boolean](
+            descr = "Test",
+            default = Some(false)
+          )
+
+          val b: ScallopOption[Int] = opt[Int](
+            descr = "Test",
+            default = Some(34)
+          )
+        }
+        addSubcommand(sub)
+      }
+      runtime.unsafeRunSync(
+        arg
+          .verifyInternal()
+          .tapError {
+            case h: HelpHandlerException => h.printHelpMessage
+          }
+      ) match {
+        case Success(a)  => assert(a.verified)
+        case Failure(ex) => assertThrows[HelpHandlerException](throw ex.squash)
       }
     }
   }

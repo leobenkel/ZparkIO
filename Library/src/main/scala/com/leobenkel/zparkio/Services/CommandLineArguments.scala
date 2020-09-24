@@ -47,13 +47,14 @@ object CommandLineArguments {
       builder.opts.map(o => (o.name, builder.get(o.name).getOrElse("<NONE>")))
     }
 
-    final override def onError(e: Throwable): Unit = e match {
-      case Help("") =>
-        throw HelpHandlerException(builder, None)
-      case Help(subCommand) =>
-        throw HelpHandlerException(builder.findSubbuilder(subCommand).get, Some(subCommand))
-      case other => throw other
-    }
+    final override def onError(e: Throwable): Unit =
+      e match {
+        case Help("") =>
+          throw HelpHandlerException(builder, None)
+        case Help(subCommand) =>
+          throw HelpHandlerException(builder.findSubbuilder(subCommand).get, Some(subCommand))
+        case other => throw other
+      }
   }
 
   object Helper {
@@ -64,8 +65,8 @@ object CommandLineArguments {
       private def print(msg: String): ZIO[Console, Throwable, Unit] = console.putStr(msg)
 
       lazy private val header: String = subCommand match {
-        case None    => "Help:"
-        case Some(s) => s"Help for '$s':"
+        case None    => "Help:\n"
+        case Some(s) => s"Help for '$s':\n"
       }
 
       def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] = {
@@ -82,11 +83,12 @@ object CommandLineArguments {
     }
 
     private[zparkio] object ErrorParser {
-      def unapply(e: Throwable): Option[Int] = e match {
-        case _: Help                 => Some(0)
-        case _: HelpHandlerException => Some(0)
-        case _ => None
-      }
+      def unapply(e: Throwable): Option[Int] =
+        e match {
+          case _: Help                 => Some(0)
+          case _: HelpHandlerException => Some(0)
+          case _ => None
+        }
     }
 
     type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service] =
