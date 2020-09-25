@@ -76,6 +76,7 @@ object CommandLineArguments {
           _ <- ZIO.foreach(s.bann)(print)
           _ <- print(s.help)
           _ <- ZIO.foreach(s.foot)(print)
+          _ <- print("\n")
         } yield {
           ()
         }
