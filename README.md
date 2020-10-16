@@ -38,7 +38,9 @@ Allowing them to use Spark in a new, faster, more reliable way, leveraging ZIO p
 ## Table of Contents
 
 * [What is this library for ?](#what-is-this-library-for-)
-* [Public Presentation](#public-presentation)
+* [More About ZparkIO](#more-about-zparkio)
+    * [Public Presentation](#public-presentation)
+    * [Migrate your Spark Project to ZparkIO](#migrate-your-spark-project-to-zparkio)
 * [Why would you want to use ZIO and Spark together?](#why-would-you-want-to-use-zio-and-spark-together)
 * [How to use?](#how-to-use)
     * [Include dependencies](#include-dependencies)
@@ -63,11 +65,16 @@ This library will implement all the boiler plate for you to be able to include S
 
 It can be tricky to use ZIO to save an instance of Spark to reuse in your code and this library solve all the boilerplate problem for you.
 
-## Public Presentation
+## More About ZparkIO
+
+### Public Presentation
 
 Feel free to look at the slides on [Google Drive](https://docs.google.com/presentation/d/1gyFJpH2mzJ9ghSTsIMrUHWA9rCtSn2ML9ERUFvuYSp8) or on [SlideShare](https://www.slideshare.net/LeoBenkel/2020-0326-meet-up-z-parkio-230980911) presented during the [ScalaSF meetup](https://www.meetup.com/SF-Scala/events/268998404/) on Thursday, March 26, 2020. You can also watch [the presentation on Youtube](https://www.youtube.com/embed/Ov7WZroBkv0?start=507&end=2416).
 
 ZparkIO was on `version 0.7.0`, so things might be out of date.
+
+### Migrate your Spark Project to ZparkIO
+[Migrate from Plain Spark to ZparkIO](https://medium.com/@AyoubFakir/migrating-from-a-plain-spark-application-to-zio-with-zparkio-8fcd5f5da6ab)
 
 ## Why would you want to use ZIO and Spark together?
 
