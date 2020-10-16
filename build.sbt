@@ -9,7 +9,7 @@ val sparkVersion = settingKey[String]("Spark version")
 
 lazy val rootSettings = Seq(
   organization := "com.leobenkel",
-  homepage     := Some(url("https://github.com/leobenkel/Sparkio")),
+  homepage     := Some(url("https://github.com/leobenkel/ZparkIO")),
   licenses     := List("MIT" -> url("https://opensource.org/licenses/MIT")),
   developers := List(
     Developer(
