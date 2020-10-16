@@ -95,7 +95,7 @@ libraryDependencies += "com.leobenkel" %% "zparkio" % "[SPARK_VERSION]_[VERSION]
 ```
 With version being: [![maven-central-badge][]][maven-search] [![release-badge][]][release].
 
-To checkout out the [Spark Versions](https://github.com/leobenkel/ZparkIO/blob/main/sparkVersions).
+To checkout out the [Spark Versions](https://github.com/leobenkel/ZparkIO/blob/main/sparkVersions) and the [Version](https://github.com/leobenkel/ZparkIO/blob/main/VERSION).
 
 This library depends on [Spark](https://github.com/apache/spark), [ZIO](https://github.com/zio/zio) and [Scallop](https://github.com/scallop/scallop). 
 
