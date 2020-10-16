@@ -4,10 +4,10 @@
 [![Gitter](https://badges.gitter.im/zparkio/community.svg)](https://gitter.im/zparkio/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![release-badge][]][release]
 [![maven-central-badge][]][maven-search]
-[![Build Status](https://travis-ci.com/leobenkel/zparkio.svg?branch=master)](https://travis-ci.com/leobenkel/zparkio)
-[![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/Zparkio?branch=master)](https://bettercodehub.com/)
-[![Coverage Status](https://coveralls.io/repos/github/leobenkel/Zparkio/badge.svg?branch=master)](https://coveralls.io/github/leobenkel/zparkio?branch=master)
-[![Mutation testing badge](https://badge.stryker-mutator.io/github.com/leobenkel/Zparkio/master)](https://stryker-mutator.github.io)
+[![Build Status](https://travis-ci.com/leobenkel/zparkio.svg?branch=main)](https://travis-ci.com/leobenkel/zparkio)
+[![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/Zparkio?branch=main)](https://bettercodehub.com/)
+[![Coverage Status](https://coveralls.io/repos/github/leobenkel/Zparkio/badge.svg?branch=main)](https://coveralls.io/github/leobenkel/zparkio?branch=main)
+[![Mutation testing badge](https://badge.stryker-mutator.io/github.com/leobenkel/Zparkio/main)](https://stryker-mutator.github.io)
 
 
 [release]:              https://github.com/leobenkel/zparkio/releases
@@ -95,7 +95,7 @@ libraryDependencies += "com.leobenkel" %% "zparkio" % "[SPARK_VERSION]_[VERSION]
 ```
 With version being: [![maven-central-badge][]][maven-search] [![release-badge][]][release].
 
-To checkout out the [Spark Versions](https://github.com/leobenkel/ZparkIO/blob/master/sparkVersions).
+To checkout out the [Spark Versions](https://github.com/leobenkel/ZparkIO/blob/main/sparkVersions).
 
 This library depends on [Spark](https://github.com/apache/spark), [ZIO](https://github.com/zio/zio) and [Scallop](https://github.com/scallop/scallop). 
 
@@ -112,11 +112,11 @@ To get access to helper function to help you write unit tests.
 
 ### How to use in your code?
 
-There is a [project example](https://github.com/leobenkel/Zparkio/tree/master/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample) you can look at. But here are the details.
+There is a [project example](https://github.com/leobenkel/Zparkio/tree/main/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample) you can look at. But here are the details.
 
 #### Main
 
-The first thing you have to do is extends the `ZparkioApp` trait. For an example you can look at the [ProjectExample](https://github.com/leobenkel/Zparkio/tree/master/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample): [Application](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala).
+The first thing you have to do is extends the `ZparkioApp` trait. For an example you can look at the [ProjectExample](https://github.com/leobenkel/Zparkio/tree/main/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample): [Application](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala).
 
 #### Spark
 
@@ -144,25 +144,25 @@ Then using it, [like here](https://github.com/leobenkel/Zparkio/blob/0575d24d498
 
 #### Helpers
 
-In the [implicits](https://github.com/leobenkel/Zparkio/blob/master/Library/src/main/scala/com/leobenkel/zparkio/implicits.scala) object, that you can include everywhere. You are getting specific helper functions to help streamline your projects.
+In the [implicits](https://github.com/leobenkel/Zparkio/blob/main/Library/src/main/scala/com/leobenkel/zparkio/implicits.scala) object, that you can include everywhere. You are getting specific helper functions to help streamline your projects.
 
 #### Unit test
 
-Using this architecture will literally allow you to [run your main as a unit test](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample/ApplicationTest.scala).
+Using this architecture will literally allow you to [run your main as a unit test](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample/ApplicationTest.scala).
 
 ## Examples
 
 ### Simple example
 
 Take a look at the simple project example to see example of working code using this library: 
-[SimpleProject](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample).
+[SimpleProject](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample).
 
 ### More complex architecture
 
 A full-fledged, production-ready project will obviously need more code than the simple example.
 For this purpose, and upon suggestion of several awesome people, I added a more complex project.
 This is a WIP and more will be added as I go. 
-[MoreComplexProject](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample_MoreComplex/src/main/scala/com/leobenkel/zparkioProfileExampleMoreComplex).
+[MoreComplexProject](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample_MoreComplex/src/main/scala/com/leobenkel/zparkioProfileExampleMoreComplex).
 
 ## Authors
 
