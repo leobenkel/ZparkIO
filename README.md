@@ -157,6 +157,9 @@ For this purpose, and upon suggestion of several awesome people, I added a more 
 This is a WIP and more will be added as I go. 
 [MoreComplexProject](https://github.com/leobenkel/Zparkio/blob/master/ProjectExample_MoreComplex/src/main/scala/com/leobenkel/zparkioProfileExampleMoreComplex).
 
+## Migrate your Spark Project to ZparkIO
+https://medium.com/@AyoubFakir/migrating-from-a-plain-spark-application-to-zio-with-zparkio-8fcd5f5da6ab
+
 ## Authors
 
 ### Leo Benkel
