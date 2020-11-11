@@ -45,7 +45,7 @@ lazy val commonSettings = rootSettings ++ Seq(
     "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided,
     // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
     "org.apache.spark" %% "spark-sql" % sparkVersion.value % Provided,
-    "org.scalatest"    %% "scalatest" % "3.2.2"            % Test
+    "org.scalatest"    %% "scalatest" % "3.2.3"            % Test
   ),
   logLevel in stryker     := Level.Debug,
   updateOptions           := updateOptions.value.withGigahorse(false),
