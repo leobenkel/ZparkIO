@@ -86,6 +86,12 @@ Some other nice aspect of ZIO is the error/exception handling as well as the bui
 
 I hope that you are now convinced that ZIO and Spark are a perfect match. Let's see how to use this Zparkio.
 
+One of the easiest way to use ZparkIO is to use the [giter8 template project](https://github.com/leobenkel/zparkio.g8):
+
+```
+sbt new leobenkel/zparkio.g8
+```
+
 ### Include dependencies
 
 First include the library in your project:
