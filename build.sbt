@@ -84,7 +84,7 @@ lazy val tests = (project in file("Tests"))
     publish / skip := true
   )
   .dependsOn(
-    library    % Test,
+    library,
     testHelper % Test
   )
 
@@ -95,7 +95,10 @@ lazy val projectExample = (project in file("ProjectExample"))
     publish / skip             := true,
     assemblyOption in assembly := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
-  .dependsOn(library, testHelper % Test)
+  .dependsOn(
+    library,
+    testHelper % Test
+  )
 
 lazy val projectExampleMoreComplex = (project in file("ProjectExample_MoreComplex"))
   .settings(
@@ -104,4 +107,7 @@ lazy val projectExampleMoreComplex = (project in file("ProjectExample_MoreComple
     publish / skip             := true,
     assemblyOption in assembly := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
-  .dependsOn(library, testHelper % Test)
+  .dependsOn(
+    library,
+    testHelper % Test
+  )

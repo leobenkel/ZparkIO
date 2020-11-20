@@ -60,6 +60,10 @@ object implicits {
   }
 
   implicit class DatasetZ[R, A](zds: => ZIO[R, Throwable, Dataset[A]]) extends Serializable {
+    def mapDS[B <: Product: TypeTag: ClassTag](f: A => B): ZDS_R[R, B] = {
+      SparkModule().flatMap(spark => zds.map(_.map(f)(spark.implicits.newProductEncoder[B])))
+    }
+
     def zMap[B <: Product: TypeTag: ClassTag](f: A => ZIO[Any, Throwable, B]): ZDS_R[R, B] = {
       ZDS.flatMapR[R, B] { spark =>
         import spark.implicits._

@@ -26,7 +26,30 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
         TestClass(a = 2, b = "two"),
         TestClass(a = 3, b = "three")
       ).zMap {
-        case TestClass(a, b) => Task(TestClassAfter(a + b.length))
+        case TestClass(a, b) =>
+          Task(TestClassAfter(a + b.length))
+      }
+
+      val r = new BootstrapRuntime {}
+
+      assert(
+        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) == r
+          .unsafeRun(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
+            override def spark: SparkSession = s
+          }))).collect().sortBy(_.a).toList
+      )
+    }
+
+    "Test for mapDS" in {
+      val s = spark
+
+      val d: ZDS_R[SparkModule, TestClassAfter] = ZDS(
+        TestClass(a = 1, b = "one"),
+        TestClass(a = 2, b = "two"),
+        TestClass(a = 3, b = "three")
+      ).mapDS {
+        case TestClass(a, b) =>
+          TestClassAfter(a + b.length)
       }
 
       val r = new BootstrapRuntime {}
