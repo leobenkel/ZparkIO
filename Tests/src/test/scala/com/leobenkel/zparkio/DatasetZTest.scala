@@ -25,8 +25,9 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
         TestClass(a = 1, b = "one"),
         TestClass(a = 2, b = "two"),
         TestClass(a = 3, b = "three")
-      ).zMap { case TestClass(a, b) =>
-        Task(TestClassAfter(a + b.length))
+      ).zMap {
+        case TestClass(a, b) =>
+          Task(TestClassAfter(a + b.length))
       }
 
       val r = new BootstrapRuntime {}
@@ -46,8 +47,9 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
         TestClass(a = 1, b = "one"),
         TestClass(a = 2, b = "two"),
         TestClass(a = 3, b = "three")
-      ).mapDS { case TestClass(a, b) =>
-        TestClassAfter(a + b.length)
+      ).mapDS {
+        case TestClass(a, b) =>
+          TestClassAfter(a + b.length)
       }
 
       val r = new BootstrapRuntime {}
