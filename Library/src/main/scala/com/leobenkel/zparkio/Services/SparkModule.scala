@@ -20,7 +20,7 @@ object SparkModule {
     def spark: SparkSession
   }
 
-  trait Factory[C <: CommandLineArguments.Service] {
+  trait Factory[C <: CommandLineArguments.Service[C]] {
     lazy private val sparkBuilder:         SparkSession.Builder = SparkSession.builder
     lazy private val sparkBuilderWithName: SparkSession.Builder = sparkBuilder.appName(appName)
 
@@ -55,7 +55,6 @@ object SparkModule {
 
     private[zparkio] def assembleSparkModule(
       implicit t: Tag[C]
-    ): ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
-      ZLayer.fromServiceM(createSpark)
+    ): ZLayer[CommandLineArguments[C], Throwable, SparkModule] = ZLayer.fromServiceM(createSpark)
   }
 }

@@ -1,5 +1,6 @@
 package com.leobenkel.zparkio
 
+import com.leobenkel.zparkio.Services.CommandLineArguments.ConfigErrorParser
 import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
 import com.leobenkel.zparkio.Services.Logger.Logger
 import com.leobenkel.zparkio.Services.SparkModule.SparkModule
@@ -9,7 +10,8 @@ import zio.duration.Duration
 import zio.internal.Platform
 import zio.{BootstrapRuntime, Has, Tag, Task, UIO, ZIO, ZLayer}
 
-trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
+//scalastyle:off number.of.methods
+trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
 
   // Shortcut types
   final protected type COMPLETE_ENV = ENV with ZparkioApp.ZPEnv[C]
@@ -23,9 +25,10 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
   implicit def tagEnv: Tag[ENV]
 
   // Build ZPARKIO environment
-  protected def sparkFactory:  FACTORY_SPARK
-  protected def loggerFactory: FACTORY_LOG
-  protected def cliFactory: FACTORY_CLI = CLA.Factory()
+  protected def sparkFactory:          FACTORY_SPARK
+  protected def loggerFactory:         FACTORY_LOG
+  protected def cliFactory:            FACTORY_CLI
+  protected def makeConfigErrorParser: ConfigErrorParser
   protected def makeCli(args:        List[String]): C
   final protected def buildEnv(args: C): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] = {
     loggerFactory.assembleLogger >+>
@@ -86,6 +89,15 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
     }
   }
 
+  private def handleErrors(e: Throwable): Int = {
+    val errorParser = makeConfigErrorParser.ErrorParser
+    e match {
+      case errorParser(code)          => code
+      case ErrorProcessing(errorCode) => errorCode
+      case _                          => 1
+    }
+  }
+
   protected def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
     Task(makeCli(args))
       .map(buildEnv)
@@ -95,14 +107,7 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
           .provideCustomLayer(baseEnv)
       }
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
-      .fold(
-        {
-          case CLA.Helper.ErrorParser(code) => code
-          case ErrorProcessing(errorCode)   => errorCode
-          case _                            => 1
-        },
-        _ => 0
-      )
+      .fold(handleErrors, _ => 0)
   }
 
   // $COVERAGE-OFF$ Bootstrap to `Unit`
@@ -113,8 +118,9 @@ trait ZparkioApp[C <: CLA.Service, ENV <: Has[_], OUTPUT] {
   }
   // $COVERAGE-ON$
 }
+//scalastyle:on number.of.methods
 
 object ZparkioApp {
-  type BaseEnv[C <: CLA.Service] = CLA.CommandLineArguments[C] with Logger with SparkModule
-  type ZPEnv[C <: CLA.Service] = zio.ZEnv with BaseEnv[C]
+  type BaseEnv[C <: CLA.Service[C]] = CLA.CommandLineArguments[C] with Logger with SparkModule
+  type ZPEnv[C <: CLA.Service[C]] = zio.ZEnv with BaseEnv[C]
 }

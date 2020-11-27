@@ -39,8 +39,6 @@ lazy val commonSettings = rootSettings ++ Seq(
   libraryDependencies ++= Seq(
     // https://zio.dev/docs/getting_started.html
     "dev.zio" %% "zio" % zioVersion,
-    // https://github.com/scallop/scallop
-    "org.rogach" %% "scallop" % "3.5.1",
     // https://mvnrepository.com/artifact/org.apache.spark/spark-core
     "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided,
     // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
@@ -87,6 +85,17 @@ lazy val tests = (project in file("testModules/Tests"))
     testHelper % Test
   )
 
+lazy val libraryConfigsScallop = (project in file("configLibs/Scallop"))
+  .settings(
+    commonSettings,
+    name := s"${projectName}-config-scallop",
+    libraryDependencies ++= Seq(
+      // https://github.com/scallop/scallop
+      "org.rogach" %% "scallop" % "3.5.1"
+    )
+  )
+  .dependsOn(library)
+
 lazy val example1Mini = (project in file("examples/Example1_mini"))
   .settings(
     commonSettings,
@@ -96,6 +105,7 @@ lazy val example1Mini = (project in file("examples/Example1_mini"))
   ).enablePlugins(DockerPlugin)
   .dependsOn(
     library,
+    libraryConfigsScallop,
     testHelper % Test
   )
 
@@ -108,5 +118,6 @@ lazy val example2Small = (project in file("examples/Example2_small"))
   ).enablePlugins(DockerPlugin)
   .dependsOn(
     library,
+    libraryConfigsScallop,
     testHelper % Test
   )

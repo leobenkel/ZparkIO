@@ -1,17 +1,18 @@
-package com.leobenkel.zparkio.Services
+package com.leobenkel.zparkio.config.scallop
 
+import com.leobenkel.zparkio.Services.CommandLineArguments
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
-import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
+import com.leobenkel.zparkio.config.scallop.CommandLineArgumentScallop.HelpHandlerException
 import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
 import org.rogach.scallop.{ScallopConf, ScallopOption, Subcommand}
-import org.scalatest.freespec._
+import org.scalatest.freespec.AnyFreeSpec
 import zio.Exit.{Failure, Success}
 import zio.{BootstrapRuntime, Layer, Task, ZIO, ZLayer}
 
-class CommandLineArgumentsTest extends AnyFreeSpec {
+class CommandLineArgumentScallopTest extends AnyFreeSpec {
   "CommandLineService" - {
     case class ArgumentsService(input: Seq[String])
-        extends ScallopConf(input) with CommandLineArguments.Service {
+        extends ScallopConf(input) with CommandLineArgumentScallop.Service[ArgumentsService] {
       val test: ScallopOption[String] = opt[String](
         default = None,
         required = true,
@@ -70,7 +71,8 @@ class CommandLineArgumentsTest extends AnyFreeSpec {
     }
 
     "help should look good" in {
-      val arg = new ScallopConf(List("--help")) with CommandLineArguments.Service {
+      class Argument(args: List[String])
+          extends ScallopConf(args) with CommandLineArgumentScallop.Service[Argument] {
         val foo: ScallopOption[Int] = opt[Int](
           descr = "Test",
           default = Some(87)
@@ -89,11 +91,12 @@ class CommandLineArgumentsTest extends AnyFreeSpec {
         }
         addSubcommand(sub)
       }
+      val arg = new Argument(List("--help"))
       runtime.unsafeRunSync(
         arg
-          .verifyInternal()
-          .tapError {
-            case h: HelpHandlerException => h.printHelpMessage
+          .checkValidity()
+          .tapError { case h: HelpHandlerException =>
+            h.printHelpMessage
           }
       ) match {
         case Success(a)  => assert(a.verified)
