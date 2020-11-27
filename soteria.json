@@ -152,7 +152,6 @@
           "commons-collections | commons-collections",
           "commons-io | commons-io",
           "io.netty | netty-all",
-          "org.apache.xbean | xbean-asm6-shaded",
           "org.apache.commons | commons-compress",
           "org.apache.hadoop | hadoop-hdfs",
           "org.apache.hadoop | hadoop-mapreduce-client-core",
