@@ -3,11 +3,12 @@ package com.leobenkel.example2
 import com.leobenkel.zparkio.Services.CommandLineArguments
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import com.leobenkel.example2.Services.Database
+import com.leobenkel.zparkio.config.scallop.CommandLineArgumentScallop
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 import zio.ZIO
 
 case class Arguments(input: List[String])
-    extends ScallopConf(input) with CommandLineArguments.Service {
+    extends ScallopConf(input) with CommandLineArgumentScallop.Service[Arguments] {
 
   val databaseUsername: ScallopOption[String] = opt[String](
     default = Some("admin"),

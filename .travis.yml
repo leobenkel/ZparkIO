@@ -29,7 +29,7 @@ jobs:
       script: ./scripts/spark-cross-compile.sh
     - stage: test
       name: scalafmt
-      script: ./scripts/scalafmt --test
+      script: ./scripts/spark-cross-fmt.sh
     - stage: test
       name: mutators-test
       script: make mutator_test
