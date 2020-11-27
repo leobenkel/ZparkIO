@@ -4,7 +4,7 @@ scala:
   - 2.12.7
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 # https://travis-ci.community/t/solved-oraclejdk8-installation-failing-still-again/3428
 dist: trusty
@@ -26,17 +26,17 @@ jobs:
 
     - stage: test
       name: compile
-      script: ./spark-cross-compile.sh
+      script: ./scripts/spark-cross-compile.sh
     - stage: test
       name: scalafmt
-      script: ./bin/scalafmt --test
+      script: ./scripts/scalafmt --test
     - stage: test
       name: mutators-test
       script: make mutator_test
       if: branch = master AND type = push AND NOT fork
     - stage: test
       name: unit-test
-      script: ./spark-cross-test.sh
+      script: ./scripts/spark-cross-test.sh
     - stage: test
       name: unit-test-coverage
       script:
@@ -46,24 +46,20 @@ jobs:
 
     - stage: release
       name: release-staging-lib
-      script: ./spark-cross-publish.sh library true
-      #sbt 'set isSnapshot := true' "; project library ; ci-release"
+      script: ./scripts/spark-cross-publish.sh library true
       if: tag IS NOT present
     - stage: release
       name: release-staging-test
-      script: ./spark-cross-publish.sh testHelper true
-      #sbt 'set isSnapshot := true' "; project testHelper ; ci-release"
+      script: ./scripts/spark-cross-publish.sh testHelper true
       if: tag IS NOT present
 
     - stage: release
       name: release-production-lib
-      script: ./spark-cross-publish.sh library
-      # sbt "; project library ; ci-release"
+      script: ./scripts/spark-cross-publish.sh library
       if: tag IS present
     - stage: release
       name: release-production-test
-      script: ./spark-cross-publish.sh testHelper
-      #sbt "; project testHelper ; ci-release"
+      script: ./scripts/spark-cross-publish.sh testHelper
       if: tag IS present
 
 # https://github.com/olafurpg/sbt-ci-release/blob/master/.travis.yml

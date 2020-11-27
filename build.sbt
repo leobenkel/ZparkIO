@@ -47,14 +47,13 @@ lazy val commonSettings = rootSettings ++ Seq(
     "org.apache.spark" %% "spark-sql" % sparkVersion.value % Provided,
     "org.scalatest"    %% "scalatest" % "3.2.3"            % Test
   ),
-  logLevel in stryker     := Level.Debug,
   updateOptions           := updateOptions.value.withGigahorse(false),
   publishArtifact in Test := false,
   pomIncludeRepository    := (_ => false)
 )
 
 lazy val root = (project in file("."))
-  .aggregate(library, testHelper, tests, projectExample, projectExampleMoreComplex)
+  .aggregate(library, testHelper, tests, example1Mini, example2Small)
   .settings(
     name := s"${projectName}_root",
     rootSettings
@@ -66,7 +65,7 @@ lazy val library = (project in file("Library"))
     name := projectName
   )
 
-lazy val testHelper = (project in file("TestHelper"))
+lazy val testHelper = (project in file("testModules/TestHelper"))
   .settings(
     commonSettings,
     name := s"$projectName-test",
@@ -77,7 +76,7 @@ lazy val testHelper = (project in file("TestHelper"))
   )
   .dependsOn(library)
 
-lazy val tests = (project in file("Tests"))
+lazy val tests = (project in file("testModules/Tests"))
   .settings(
     commonSettings,
     name           := s"${projectName}_tests",
@@ -88,10 +87,10 @@ lazy val tests = (project in file("Tests"))
     testHelper % Test
   )
 
-lazy val projectExample = (project in file("ProjectExample"))
+lazy val example1Mini = (project in file("examples/Example1_mini"))
   .settings(
     commonSettings,
-    name                       := s"${projectName}_testProject",
+    name                       := s"${projectName}_example1_mini",
     publish / skip             := true,
     assemblyOption in assembly := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
@@ -100,10 +99,10 @@ lazy val projectExample = (project in file("ProjectExample"))
     testHelper % Test
   )
 
-lazy val projectExampleMoreComplex = (project in file("ProjectExample_MoreComplex"))
+lazy val example2Small = (project in file("examples/Example2_small"))
   .settings(
     commonSettings,
-    name                       := s"${projectName}_testProject_moreComplex",
+    name                       := s"${projectName}_example2_small",
     publish / skip             := true,
     assemblyOption in assembly := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
