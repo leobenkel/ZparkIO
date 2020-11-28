@@ -52,6 +52,10 @@ jobs:
       name: release-staging-test
       script: ./scripts/spark-cross-publish.sh testHelper true
       if: tag IS NOT present
+    - stage: release
+      name: release-staging-config-scallop
+      script: ./scripts/spark-cross-publish.sh libraryConfigsScallop true
+      if: tag IS NOT present
 
     - stage: release
       name: release-production-lib
@@ -60,6 +64,10 @@ jobs:
     - stage: release
       name: release-production-test
       script: ./scripts/spark-cross-publish.sh testHelper
+      if: tag IS present
+    - stage: release
+      name: release-production-config-scallop
+      script: ./scripts/spark-cross-publish.sh libraryConfigsScallop
       if: tag IS present
 
 # https://github.com/olafurpg/sbt-ci-release/blob/master/.travis.yml
