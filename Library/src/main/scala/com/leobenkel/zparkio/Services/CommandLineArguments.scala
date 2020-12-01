@@ -31,7 +31,7 @@ object CommandLineArguments {
   }
 
   trait Factory[C <: CommandLineArguments.Service[C]] {
-    protected def createCliSafely(args: C): ZIO[Any, Throwable, C]
+    protected def createCliSafely(args: C): ZIO[Any, Throwable, C] = args.checkValidity()
 
     protected def handleErrors(t: Throwable): ZIO[Logger, Throwable, Unit]
 
