@@ -1,6 +1,5 @@
 package com.leobenkel.zparkio
 
-import com.leobenkel.zparkio.Services.CommandLineArguments.ConfigErrorParser
 import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
 import com.leobenkel.zparkio.Services.Logger.Logger
 import com.leobenkel.zparkio.Services.SparkModule.SparkModule
@@ -19,6 +18,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   final protected type FACTORY_SPARK = SparkModule.Factory[C]
   final protected type FACTORY_LOG = Logger.Factory
   final protected type FACTORY_CLI = CLA.Factory[C]
+  final protected type ERROR_HANDLER = CLA.ConfigErrorParser
 
   // Tag for user env
   implicit def tagC:   Tag[C]
@@ -28,7 +28,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   protected def sparkFactory:          FACTORY_SPARK
   protected def loggerFactory:         FACTORY_LOG
   protected def cliFactory:            FACTORY_CLI
-  protected def makeConfigErrorParser: ConfigErrorParser
+  protected def makeConfigErrorParser: ERROR_HANDLER
   protected def makeCli(args:        List[String]): C
   final protected def buildEnv(args: C): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] = {
     loggerFactory.assembleLogger >+>
