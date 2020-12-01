@@ -91,10 +91,6 @@ object CommandLineArgumentScallop {
 
   private[zparkio] trait Factory[C <: CommandLineArguments.Service[C]]
       extends CommandLineArguments.Factory[C] {
-    final override protected def createCliSafely(args: C): ZIO[Any, Throwable, C] = {
-      args.checkValidity()
-    }
-
     final override protected def handleErrors(
       t: Throwable
     ): ZIO[Logger, Throwable, Unit] = {
