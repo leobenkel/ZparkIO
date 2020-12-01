@@ -16,7 +16,7 @@ stages:
   - name: clean
   - name: test
   - name: release
-    if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
+    if: ((branch = main AND type = push) OR (tag IS present)) AND NOT fork
 
 jobs:
   include:
@@ -33,7 +33,7 @@ jobs:
     - stage: test
       name: mutators-test
       script: make mutator_test
-      if: branch = master AND type = push AND NOT fork
+      if: branch = main AND type = push AND NOT fork
     - stage: test
       name: unit-test
       script: ./scripts/spark-cross-test.sh
@@ -70,7 +70,7 @@ jobs:
       script: ./scripts/spark-cross-publish.sh libraryConfigsScallop
       if: tag IS present
 
-# https://github.com/olafurpg/sbt-ci-release/blob/master/.travis.yml
+# https://github.com/olafurpg/sbt-ci-release/blob/main/.travis.yml
 
 cache:
   directories:
