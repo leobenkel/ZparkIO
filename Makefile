@@ -39,8 +39,7 @@ unit_test:
 test: deep_clean check_style unit_test
 
 mutator_test:
-	export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx4G"
-	sbt 'set logLevel in Test := Level.Error' 'set parallelExecution in Test := true' 'set soteriaSoftOnCompilerWarning := true' "; project library ; stryker"
+	SBT_OPTS="-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=4G -Xms4G -Xmx4G -Xss1G -XX:MaxMetaspaceSize=4G" sbt -mem 4096 'set logLevel in Test := Level.Error' 'set parallelExecution in Test := true' 'set soteriaSoftOnCompilerWarning := true' "; project library ; stryker"
 
 mutator_open_results:
 	open `find ./target/stryker4s* -type f -iname "*index.html"`
