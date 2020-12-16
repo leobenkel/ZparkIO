@@ -118,7 +118,7 @@ To get access to helper function to help you write unit tests.
 
 ### How to use in your code?
 
-There is a [project example](https://github.com/leobenkel/Zparkio/tree/main/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample) you can look at. But here are the details.
+There is a [project example](https://github.com/leobenkel/ZparkIO/tree/main/examples/Example1_mini/src) you can look at. But here are the details.
 
 #### Main
 
