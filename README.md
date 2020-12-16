@@ -122,7 +122,7 @@ There is a [project example](https://github.com/leobenkel/ZparkIO/tree/main/exam
 
 #### Main
 
-The first thing you have to do is extends the `ZparkioApp` trait. For an example you can look at the [ProjectExample](https://github.com/leobenkel/Zparkio/tree/main/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample): [Application](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala).
+The first thing you have to do is extends the `ZparkioApp` trait. For an example you can look at the [ProjectExample](https://github.com/leobenkel/ZparkIO/tree/main/examples/Example1_mini/src): [Application](https://github.com/leobenkel/ZparkIO/blob/main/examples/Example1_mini/src/main/scala/com/leobenkel/example1/Application.scala).
 
 #### Spark
 
@@ -137,16 +137,16 @@ for {
 }
 ```
 
-for instance you can see its use [here](https://github.com/leobenkel/Zparkio/blob/9e83fbec32f067c75a7fdb083220fbfc848d1eb9/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala#L12).
+for instance you can see its use [here](https://github.com/leobenkel/ZparkIO/blob/cd958947d26996a15f100f397d8c471a07f047d3/examples/Example1_mini/src/main/scala/com/leobenkel/example1/Application.scala#L30).
 
 #### Command lines
 
 You will also have access to all your command lines automatically parsed, generated and accessible to you via: 
 
-[CommandLineArguments](https://github.com/leobenkel/Zparkio/blob/0575d24d4989c0838880a2b7c8d7e3011fa79e0a/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Arguments.scala#L25-L27) ;
+[CommandLineArguments](https://github.com/leobenkel/ZparkIO/blob/cd958947d26996a15f100f397d8c471a07f047d3/examples/Example1_mini/src/main/scala/com/leobenkel/example1/Arguments.scala#L11-L22) ;
 it is recommended to make this helper function to make the rest of your code easier to use.
 
-Then using it, [like here](https://github.com/leobenkel/Zparkio/blob/0575d24d4989c0838880a2b7c8d7e3011fa79e0a/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample/Application.scala#L12), is easy.
+Then using it, [like here](https://github.com/leobenkel/ZparkIO/blob/cd958947d26996a15f100f397d8c471a07f047d3/examples/Example1_mini/src/main/scala/com/leobenkel/example1/Application.scala#L29), is easy.
 
 #### Helpers
 
@@ -154,21 +154,21 @@ In the [implicits](https://github.com/leobenkel/Zparkio/blob/main/Library/src/ma
 
 #### Unit test
 
-Using this architecture will literally allow you to [run your main as a unit test](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample/src/test/scala/com/leobenkel/zparkioProjectExample/ApplicationTest.scala).
+Using this architecture will literally allow you to [run your main as a unit test](https://github.com/leobenkel/ZparkIO/blob/main/examples/Example1_mini/src/test/scala/com/leobenkel/example1/ApplicationTest.scala).
 
 ## Examples
 
 ### Simple example
 
 Take a look at the simple project example to see example of working code using this library: 
-[SimpleProject](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample/src/main/scala/com/leobenkel/zparkioProjectExample).
+[SimpleProject](https://github.com/leobenkel/ZparkIO/tree/main/examples/Example1_mini).
 
 ### More complex architecture
 
 A full-fledged, production-ready project will obviously need more code than the simple example.
 For this purpose, and upon suggestion of several awesome people, I added a more complex project.
 This is a WIP and more will be added as I go. 
-[MoreComplexProject](https://github.com/leobenkel/Zparkio/blob/main/ProjectExample_MoreComplex/src/main/scala/com/leobenkel/zparkioProfileExampleMoreComplex).
+[MoreComplexProject](https://github.com/leobenkel/ZparkIO/tree/main/examples/Example2_small/src).
 
 ## Authors
 
