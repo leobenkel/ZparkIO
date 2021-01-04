@@ -1,4 +1,4 @@
-addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.9.2")
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.10.1")
 addSbtPlugin("org.scoverage"      % "sbt-coveralls" % "1.2.7")
 
 // To publish
