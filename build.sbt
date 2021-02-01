@@ -33,7 +33,7 @@ lazy val rootSettings = Seq(
   dynver ~= (v => s"${sparkVersionSystem}_$v")
 )
 
-lazy val zioVersion = "1.0.3"
+lazy val zioVersion = "1.0.4-1"
 
 lazy val commonSettings = rootSettings ++ Seq(
   libraryDependencies ++= Seq(
