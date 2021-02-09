@@ -24,6 +24,7 @@ lazy val rootSettings = Seq(
     sparkVersion.value match {
       case "2.3.3" => Seq(scala11)
       case "2.4.5" => Seq(scala11, scala12)
+      case "3.0.1" => Seq(scala12)
     }
   },
   scalaVersion := crossScalaVersions.value.head,
