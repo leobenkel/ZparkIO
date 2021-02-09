@@ -4,6 +4,11 @@ val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.
 
 val scala11 = "2.11.12"
 val scala12 = "2.12.12"
+
+val Spark233 = "2.3.3"
+val Spark245 = "2.4.5"
+val Spark301 = "3.0.1"
+
 val sparkVersionSystem = System.getProperty("sparkVersion", sparkVersions.head)
 val sparkVersion = settingKey[String]("Spark version")
 
@@ -22,9 +27,9 @@ lazy val rootSettings = Seq(
   sparkVersion := sparkVersionSystem,
   crossScalaVersions := {
     sparkVersion.value match {
-      case "2.3.3" => Seq(scala11)
-      case "2.4.5" => Seq(scala11, scala12)
-      case "3.0.1" => Seq(scala12)
+      case Spark233 => Seq(scala11)
+      case Spark245 => Seq(scala11, scala12)
+      case Spark301 => Seq(scala12)
     }
   },
   scalaVersion := crossScalaVersions.value.head,
@@ -64,12 +69,17 @@ lazy val library = (project in file("Library"))
     name := projectName
   )
 
+lazy val sparkTestingBaseVersion = sparkVersionSystem match {
+  case Spark233 => s"${sparkVersionSystem}_0.14.0"
+  case _ => s"${sparkVersionSystem}_1.0.0"
+}
+
 lazy val testHelper = (project in file("testModules/TestHelper"))
   .settings(
     commonSettings,
     name := s"$projectName-test",
     libraryDependencies ++= Seq(
-      "com.holdenkarau"  %% "spark-testing-base" % s"${sparkVersion.value}_0.14.0",
+      "com.holdenkarau"  %% "spark-testing-base" % sparkTestingBaseVersion,
       "org.apache.spark" %% "spark-hive"         % sparkVersion.value % Provided
     )
   )
