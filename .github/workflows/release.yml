@@ -1,0 +1,31 @@
+name: Release
+on:
+  push:
+    branches: [ main ]
+    tags: [ "*" ]
+jobs:
+  publish:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: olafurpg/setup-scala@v10
+      - uses: olafurpg/setup-gpg@v3
+      - name: release-staging
+        run: |
+          make mutator_test
+          ./scripts/spark-cross-publish.sh library true
+          ./scripts/spark-cross-publish.sh testHelper true
+          ./scripts/spark-cross-publish.sh libraryConfigsScallop true
+        if: tag IS NOT present
+
+      - name: release-production
+        run: |
+          ./scripts/spark-cross-publish.sh library
+          ./scripts/spark-cross-publish.sh testHelper
+          ./scripts/spark-cross-publish.sh libraryConfigsScallop
+        if: tag IS present
+    env:
+      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
