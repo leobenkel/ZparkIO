@@ -1,0 +1,32 @@
+name: CI
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v10
+      - name: Coursier cache
+        uses: coursier/cache-action@v5
+      - name: clean
+        run: make deep_clean
+      - name: Build and test
+        run: |
+          ./scripts/spark-cross-fmt.sh
+          ./scripts/spark-cross-compile.sh
+          ./scripts/spark-cross-test.sh
+          make test_coverage test_coverage_report
+          sbt "; project library ; coveralls"
+
+          rm -rf "$HOME/.ivy2/local" || true
+          find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+          find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+          find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+          find $HOME/.sbt                              -name "*.lock"               -delete || true
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
