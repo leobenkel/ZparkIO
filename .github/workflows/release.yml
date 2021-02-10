@@ -16,14 +16,14 @@ jobs:
           ./scripts/spark-cross-publish.sh library true
           ./scripts/spark-cross-publish.sh testHelper true
           ./scripts/spark-cross-publish.sh libraryConfigsScallop true
-        if: tag IS NOT present
+        if: startsWith(github.ref, ‘refs/tags/’) != true
 
       - name: release-production
         run: |
           ./scripts/spark-cross-publish.sh library
           ./scripts/spark-cross-publish.sh testHelper
           ./scripts/spark-cross-publish.sh libraryConfigsScallop
-        if: tag IS present
+        if: startsWith(github.ref, 'refs/tags/v')
     env:
       PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
       PGP_SECRET: ${{ secrets.PGP_SECRET }}
