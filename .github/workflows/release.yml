@@ -12,7 +12,6 @@ jobs:
       - uses: olafurpg/setup-gpg@v3
       - name: release-staging
         run: |
-          make mutator_test
           ./scripts/spark-cross-publish.sh library true
           ./scripts/spark-cross-publish.sh testHelper true
           ./scripts/spark-cross-publish.sh libraryConfigsScallop true
