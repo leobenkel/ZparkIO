@@ -70,8 +70,8 @@ lazy val library = (project in file("Library"))
   )
 
 lazy val sparkTestingBaseVersion = sparkVersionSystem match {
-  case Spark233 => s"${sparkVersionSystem}_0.14.0"
-  case _ => s"${sparkVersionSystem}_1.0.0"
+  case Spark301 => s"${sparkVersionSystem}_1.0.0"
+  case _ => s"${sparkVersionSystem}_0.14.0"
 }
 
 lazy val testHelper = (project in file("testModules/TestHelper"))
