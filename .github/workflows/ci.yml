@@ -1,5 +1,20 @@
 name: CI
-on: [ push, pull_request ]
+on:
+  push:
+    paths-ignore:
+      - ".github/**"
+      - ".gitignore"
+      - ".bettercodehub.yml"
+      - ".scalafix.conf"
+      - ".scalafmt.conf"
+      - "LICENSE"
+      - "README.md"
+      - "PULL_REQUEST_TEMPLATE.md"
+      - "VERSION"
+      - "PROJECT_NAME"
+      - "scalastyle-config.xml"
+      - "soteria.json"
+      - "stryker4s.conf"
 
 jobs:
   build:
