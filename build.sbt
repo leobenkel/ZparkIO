@@ -49,7 +49,7 @@ lazy val commonSettings = rootSettings ++ Seq(
     "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided,
     // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
     "org.apache.spark" %% "spark-sql" % sparkVersion.value % Provided,
-    "org.scalatest"    %% "scalatest" % "3.2.3"            % Test
+    "org.scalatest"    %% "scalatest" % "3.2.7"            % Test
   ),
   updateOptions           := updateOptions.value.withGigahorse(false),
   publishArtifact in Test := false,
