@@ -2,7 +2,6 @@ name: CI
 on:
   push:
     paths-ignore:
-      - ".github/**"
       - ".gitignore"
       - ".bettercodehub.yml"
       - ".scalafix.conf"
@@ -10,10 +9,18 @@ on:
       - "LICENSE"
       - "README.md"
       - "PULL_REQUEST_TEMPLATE.md"
-      - "VERSION"
-      - "PROJECT_NAME"
       - "scalastyle-config.xml"
-      - "soteria.json"
+      - "stryker4s.conf"
+  pull_request:
+    paths-ignore:
+      - ".gitignore"
+      - ".bettercodehub.yml"
+      - ".scalafix.conf"
+      - ".scalafmt.conf"
+      - "LICENSE"
+      - "README.md"
+      - "PULL_REQUEST_TEMPLATE.md"
+      - "scalastyle-config.xml"
       - "stryker4s.conf"
 
 jobs:
@@ -30,10 +37,12 @@ jobs:
         uses: coursier/cache-action@v5
       - name: clean
         run: make deep_clean
-      - name: Build and test
+      - name: build
+        run: |
+          ./scripts/spark-cross-compile.sh
+      - name: test
         run: |
           ./scripts/spark-cross-fmt.sh
-          ./scripts/spark-cross-compile.sh
           ./scripts/spark-cross-test.sh
           make test_coverage test_coverage_report
           sbt "; project library ; coveralls"
