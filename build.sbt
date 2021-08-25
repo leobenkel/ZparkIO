@@ -7,7 +7,7 @@ val scala12 = "2.12.12"
 
 val Spark233 = "2.3.3"
 val Spark245 = "2.4.5"
-val Spark311 = "3.1.1"
+val Spark312 = "3.1.2"
 
 val sparkVersionSystem = System.getProperty("sparkVersion", sparkVersions.head)
 val sparkVersion = settingKey[String]("Spark version")
@@ -29,7 +29,7 @@ lazy val rootSettings = Seq(
     sparkVersion.value match {
       case Spark233 => Seq(scala11)
       case Spark245 => Seq(scala11, scala12)
-      case Spark311 => Seq(scala12)
+      case Spark312 => Seq(scala12)
     }
   },
   scalaVersion := crossScalaVersions.value.head,
@@ -71,7 +71,7 @@ lazy val library = (project in file("Library"))
 
 lazy val sparkTestingBaseVersion = sparkVersionSystem match {
   // https://mvnrepository.com/artifact/com.holdenkarau/spark-testing-base
-  case Spark311 => "3.0.1_1.0.0"
+  case Spark312 => "3.1.2_1.1.0"
   case _        => s"${sparkVersionSystem}_0.14.0"
 }
 
