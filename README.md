@@ -7,7 +7,7 @@
 ![CI](https://github.com/leobenkel/zparkio/workflows/CI/badge.svg)
 [![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/ZparkIO?branch=main)](https://bettercodehub.com/)
 [![Coverage Status](https://coveralls.io/repos/github/leobenkel/ZparkIO/badge.svg?branch=main)](https://coveralls.io/github/leobenkel/ZparkIO?branch=main)
-[![Mutation testing badge](https://badge.stryker-mutator.io/github.com/leobenkel/Zparkio/main)](https://stryker-mutator.github.io)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fleobenkel%2FZparkIO%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/leobenkel/ZparkIO/main)
 
 
 [release]:              https://github.com/leobenkel/zparkio/releases
