@@ -5,7 +5,7 @@
 [![release-badge][]][release]
 [![maven-central-badge][]][maven-search]
 ![CI](https://github.com/leobenkel/zparkio/workflows/CI/badge.svg)
-[![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/Zparkio?branch=main)](https://bettercodehub.com/)
+[![BCH compliance](https://bettercodehub.com/edge/badge/leobenkel/ZparkIO?branch=main)](https://bettercodehub.com/)
 [![Coverage Status](https://coveralls.io/repos/github/leobenkel/Zparkio/badge.svg?branch=main)](https://coveralls.io/github/leobenkel/zparkio?branch=main)
 [![Mutation testing badge](https://badge.stryker-mutator.io/github.com/leobenkel/Zparkio/main)](https://stryker-mutator.github.io)
 
