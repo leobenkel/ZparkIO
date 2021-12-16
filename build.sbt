@@ -2,7 +2,7 @@ val projectName = IO.readLines(new File("PROJECT_NAME")).head
 val v = IO.readLines(new File("VERSION")).head
 val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.trim)
 
-val scala11 = "2.11.12"
+val scala11 = "2.13.7"
 val scala12 = "2.12.15"
 
 val Spark233 = "2.3.3"
