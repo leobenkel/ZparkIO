@@ -39,10 +39,10 @@ class ModuleFailZIOTest extends AnyFreeSpec {
       val runtime = new BootstrapRuntime {}
 
       def jobRun: ZIO[Module, Throwable, String] =
-        (for {
+        for {
           a <- Module("bar")
           b <- Module("foo")
-        } yield s"$a - $b")
+        } yield s"$a - $b"
 
       Try {
         runtime.unsafeRunSync {
