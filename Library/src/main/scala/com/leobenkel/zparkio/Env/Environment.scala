@@ -2,7 +2,8 @@ package com.leobenkel.zparkio.Env
 
 sealed trait Environment {
   protected def getValidStrings: Seq[String]
-  lazy final val validStrings: Seq[String] = getValidStrings.map(_.trim.toLowerCase)
+  lazy final val validStrings: Seq[String] =
+    getValidStrings.map(_.trim.toLowerCase)
 }
 
 object Environment {
@@ -26,8 +27,7 @@ object Environment {
     Production
   )
 
-  def parseEnv(input: String): Option[Environment] = {
+  def parseEnv(input: String): Option[Environment] =
     ValidEnvs.find(_.validStrings.contains(input.toLowerCase))
-  }
 
 }

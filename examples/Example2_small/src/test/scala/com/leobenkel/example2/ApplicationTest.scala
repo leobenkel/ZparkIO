@@ -1,15 +1,15 @@
 package com.leobenkel.example2
 
-import com.leobenkel.zparkio.Services.Logger
 import com.leobenkel.example2.Application.APP_ENV
 import com.leobenkel.example2.Items.{Post, User}
 import com.leobenkel.example2.Services.{Database, FileIO}
+import com.leobenkel.zparkio.Services.Logger
 import com.leobenkel.zparkiotest.{LoggerService, TestWithSpark}
 import org.apache.spark.sql._
 import org.scalatest.freespec.AnyFreeSpec
+import zio.{BootstrapRuntime, Task, ZIO, ZLayer}
 import zio.Exit.{Failure, Success}
 import zio.console.Console
-import zio.{BootstrapRuntime, Task, ZIO, ZLayer}
 
 class ApplicationTest extends AnyFreeSpec with TestWithSpark {
   "Full application - Example 2" - {
@@ -25,7 +25,11 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
 
     "Wrong argument" in {
       val testApp = TestApp(spark)
-      testApp.makeRuntime.unsafeRunSync(testApp.runTest("--bar" :: "foo" :: Nil)) match {
+      testApp
+        .makeRuntime
+        .unsafeRunSync(
+          testApp.runTest("--bar" :: "foo" :: Nil)
+        ) match {
         case Success(value) =>
           println(s"Read: $value")
           assertResult(1)(value)
@@ -63,45 +67,44 @@ case class TestApp(s: SparkSession) extends Application {
     new FACTORY_LOG {
       override protected def makeLogger(
         console: Console.Service
-      ): ZIO[Any, Throwable, Logger.Service] = {
-        Task(new LoggerService {})
-      }
+      ): ZIO[Any, Throwable, Logger.Service] = Task(new LoggerService {})
     }
 
   lazy final override protected val env: ZLayer[ZPARKIO_ENV, Throwable, APP_ENV] = {
-    FileIO.Live ++ ZLayer.succeed {
-      new Database.Service {
-        override protected def query[A: Encoder](
-          spark: SparkSession,
-          query: String
-        ): Dataset[A] = {
-          val rawSeq = query match {
-            case "SELECT * FROM users" =>
-              Seq[User](
-                User(
-                  userId = 1,
-                  name = "Leo",
-                  age = 30,
-                  active = true
+    FileIO.Live ++
+      ZLayer.succeed {
+        new Database.Service {
+          override protected def query[A: Encoder](
+            spark: SparkSession,
+            query: String
+          ): Dataset[A] = {
+            val rawSeq = query match {
+              case "SELECT * FROM users" =>
+                Seq[User](
+                  User(
+                    userId = 1,
+                    name = "Leo",
+                    age = 30,
+                    active = true
+                  )
                 )
-              )
-            case "SELECT * FROM posts" =>
-              Seq[Post](
-                Post(
-                  postId = 5,
-                  authorId = 1,
-                  title = "Foo",
-                  content = "Bar"
+              case "SELECT * FROM posts" =>
+                Seq[Post](
+                  Post(
+                    postId = 5,
+                    authorId = 1,
+                    title = "Foo",
+                    content = "Bar"
+                  )
                 )
-              )
-            case q => throw new UnsupportedOperationException(q)
-          }
+              case q => throw new UnsupportedOperationException(q)
+            }
 
-          import spark.implicits._
-          rawSeq.map(_.asInstanceOf[A]).toDS
+            import spark.implicits._
+            rawSeq.map(_.asInstanceOf[A]).toDS
+          }
         }
       }
-    }
   }
 
 }

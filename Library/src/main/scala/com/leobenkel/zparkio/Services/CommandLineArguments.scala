@@ -21,11 +21,15 @@ object CommandLineArguments {
     type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service[A]] =
       ZIO[CommandLineArguments[A], Throwable, YourConfigWrapper[A]]
 
-    implicit class Shortcut[C <: CommandLineArguments.Service[C]](z: ZIO_CONFIG_SERVICE[C]) {
+    implicit class Shortcut[C <: CommandLineArguments.Service[C]](
+      z: ZIO_CONFIG_SERVICE[C]
+    ) {
       def apply[A](f: C => A): ZIO[CommandLineArguments[C], Throwable, A] = z.map(_.apply(f))
     }
 
-    case class YourConfigWrapper[C <: CommandLineArguments.Service[C]](config: C) {
+    case class YourConfigWrapper[C <: CommandLineArguments.Service[C]](
+      config: C
+    ) {
       def apply[A](f: C => A): A = f(config)
     }
   }
@@ -39,11 +43,10 @@ object CommandLineArguments {
       args: C
     )(
       implicit t: Tag[C]
-    ): ZLayer[Logger, Throwable, CommandLineArguments[C]] = {
+    ): ZLayer[Logger, Throwable, CommandLineArguments[C]] =
       ZLayer.fromServiceM { logger =>
         createCliSafely(args).tapError(handleErrors(_).provide(Has(logger)))
       }
-    }
   }
 
   trait ConfigErrorParser {
@@ -57,18 +60,13 @@ object CommandLineArguments {
   def apply[C <: CommandLineArguments.Service[C]](
   )(
     implicit t: Tag[C]
-  ): ZIO[CommandLineArguments[C], Throwable, C] = {
-    ZIO.service[C]
-  }
+  ): ZIO[CommandLineArguments[C], Throwable, C] = ZIO.service[C]
 
-  def get[C <: CommandLineArguments.Service[C]: Tag]: ZIO_CONFIG_SERVICE[C] = {
-    apply[C]()
-      .flatMap(_.checkValidity())
-      .map(YourConfigWrapper[C])
-  }
+  def get[C <: CommandLineArguments.Service[C]: Tag]: ZIO_CONFIG_SERVICE[C] =
+    apply[C]().flatMap(_.checkValidity()).map(YourConfigWrapper[C])
 
   def displayCommandLines[C <: CommandLineArguments.Service[C]: Tag](
-  ): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] = {
+  ): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] =
     for {
       conf <- apply[C]()
       _    <- Logger.info("--------------Command Lines--------------")
@@ -76,5 +74,4 @@ object CommandLineArguments {
       _    <- Logger.info("-----------------------------------------")
       _    <- Logger.info("")
     } yield {}
-  }
 }

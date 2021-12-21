@@ -9,8 +9,5 @@ object SparkBuilder extends SparkModule.Factory[Arguments] {
   override protected def updateConfig(
     sparkBuilder: SparkSession.Builder,
     arguments:    Arguments
-  ): SparkSession.Builder = {
-    sparkBuilder
-      .config("spark.foo.bar", arguments.sparkFoo())
-  }
+  ): SparkSession.Builder = sparkBuilder.config("spark.foo.bar", arguments.sparkFoo())
 }

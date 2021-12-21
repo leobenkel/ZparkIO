@@ -1,9 +1,8 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{BootstrapRuntime, Exit, ZIO}
-
 import scala.util.Try
+import zio.{BootstrapRuntime, Exit, ZIO}
 
 class ModuleFailTest extends AnyFreeSpec {
   "Module" ignore {
@@ -15,15 +14,12 @@ class ModuleFailTest extends AnyFreeSpec {
         def foo(bar: String): String
       }
 
-      def apply(b: String): ZIO[Module, Nothing, String] = {
-        ZIO.access[Module](_.service.foo(b))
-      }
+      def apply(b: String): ZIO[Module, Nothing, String] = ZIO.access[Module](_.service.foo(b))
     }
 
     case class ModuleServiceIpml(dead: Boolean) extends Module.Service {
-      if (dead) {
+      if (dead)
         throw new RuntimeException("It failed !")
-      }
       override def foo(bar: String): String = {
         println(bar)
         bar
@@ -42,7 +38,7 @@ class ModuleFailTest extends AnyFreeSpec {
           (for {
             a <- Module("bar")
             b <- Module("foo")
-          } yield { s"$a - $b" }).provide(ModuleIpml(false))
+          } yield s"$a - $b").provide(ModuleIpml(false))
         } match {
           case a @ Exit.Success(value) =>
             println(s"Intern: $value")
