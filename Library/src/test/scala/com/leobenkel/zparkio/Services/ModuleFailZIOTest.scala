@@ -1,9 +1,8 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{BootstrapRuntime, Exit, Task, ZIO}
-
 import scala.util.Try
+import zio.{BootstrapRuntime, Exit, Task, ZIO}
 
 class ModuleFailZIOTest extends AnyFreeSpec {
   "Module" ignore {
@@ -15,16 +14,13 @@ class ModuleFailZIOTest extends AnyFreeSpec {
         def foo(bar: String): String
       }
 
-      def apply(b: String): ZIO[Module, Throwable, String] = {
-        ZIO.access[Module](_.service.foo(b))
-      }
+      def apply(b: String): ZIO[Module, Throwable, String] = ZIO.access[Module](_.service.foo(b))
     }
 
     case class ModuleServiceIpml(dead: Boolean) extends Module.Service {
       println(s"SERVICE IS CREATED !!!")
-      if (dead) {
+      if (dead)
         throw new RuntimeException("It failed !")
-      }
       override def foo(bar: String): String = {
         println(bar)
         bar
@@ -32,9 +28,7 @@ class ModuleFailZIOTest extends AnyFreeSpec {
     }
 
     object ModuleServiceBuilder {
-      def create(dead: Boolean): Task[Module.Service] = {
-        Task(ModuleServiceIpml(dead))
-      }
+      def create(dead: Boolean): Task[Module.Service] = Task(ModuleServiceIpml(dead))
     }
 
     case class ModuleIpml(s: Module.Service) extends Module {
@@ -44,19 +38,18 @@ class ModuleFailZIOTest extends AnyFreeSpec {
     "Might fail" in {
       val runtime = new BootstrapRuntime {}
 
-      def jobRun: ZIO[Module, Throwable, String] = {
+      def jobRun: ZIO[Module, Throwable, String] =
         (for {
           a <- Module("bar")
           b <- Module("foo")
-        } yield { s"$a - $b" })
-      }
+        } yield s"$a - $b")
 
       Try {
         runtime.unsafeRunSync {
           for {
             s <- ModuleServiceBuilder.create(true)
             a <- jobRun.provide(ModuleIpml(s))
-          } yield { a }
+          } yield a
         } match {
           case a @ Exit.Success(value) =>
             println(s"Intern: $value")

@@ -33,10 +33,13 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
       val r = new BootstrapRuntime {}
 
       assert(
-        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) == r
-          .unsafeRun(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
-            override def spark: SparkSession = s
-          }))).collect().sortBy(_.a).toList
+        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) ==
+          r.unsafeRun(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
+              override def spark: SparkSession = s
+            })))
+            .collect()
+            .sortBy(_.a)
+            .toList
       )
     }
 
@@ -55,10 +58,13 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
       val r = new BootstrapRuntime {}
 
       assert(
-        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) == r
-          .unsafeRun(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
-            override def spark: SparkSession = s
-          }))).collect().sortBy(_.a).toList
+        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) ==
+          r.unsafeRun(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
+              override def spark: SparkSession = s
+            })))
+            .collect()
+            .sortBy(_.a)
+            .toList
       )
     }
   }

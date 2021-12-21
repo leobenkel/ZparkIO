@@ -22,12 +22,12 @@ case class SparkExecution(
     .mkString("\n")
 
   /**
-    * --conf spark.driver.bindAddress=127.0.0.1
-    * --conf spark.driver.port=46879
-    *
-    * @return
-    */
-  private def makeCommand: List[String] = {
+   * --conf spark.driver.bindAddress=127.0.0.1
+   * --conf spark.driver.port=46879
+   *
+   * @return
+   */
+  private def makeCommand: List[String] =
     s"""spark-submit
        |--class $mainClassPath
        |--master local[*]
@@ -36,16 +36,15 @@ case class SparkExecution(
        |file://$pathToJar
        |$args
        |""".stripMargin.split("\\s").filter(_.nonEmpty).toList
-  }
 
   def execute: Int = {
     import sys.process._
     val command = makeCommand
     println(s"Execute:\n${command.mkString("\n")}")
     Process(command, None, "SPARK_LOCAL_IP" -> "127.0.0.1").!(new ProcessLogger {
-      override def out(s:       => String): Unit = System.out.println(s)
-      override def err(s:       => String): Unit = System.err.println(s)
-      override def buffer[T](f: => T):      T = f
+      override def out(s: => String):  Unit = System.out.println(s)
+      override def err(s: => String):  Unit = System.err.println(s)
+      override def buffer[T](f: => T): T = f
     })
   }
 }

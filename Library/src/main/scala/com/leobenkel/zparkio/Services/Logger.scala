@@ -1,7 +1,7 @@
 package com.leobenkel.zparkio.Services
 
-import zio.console.Console
 import zio.{Has, Task, ZIO, ZLayer}
+import zio.console.Console
 
 object Logger {
   type Logger = Has[Logger.Service]
@@ -22,27 +22,24 @@ object Logger {
   }
 
   object Factory {
-    def apply(make: Console.Service => Service): Factory = new Factory {
-      override protected def makeLogger(console: Console.Service): ZIO[Any, Throwable, Service] = {
-        Task(make(console))
+    def apply(make: Console.Service => Service): Factory =
+      new Factory {
+        override protected def makeLogger(
+          console: Console.Service
+        ): ZIO[Any, Throwable, Service] = Task(make(console))
       }
-    }
   }
 
-  def displayAllErrors(ex: Throwable): ZIO[Logger, Throwable, Unit] = {
+  def displayAllErrors(ex: Throwable): ZIO[Logger, Throwable, Unit] =
     for {
       _ <- Logger.error(s"!!! Error: ${ex.toString}:")
       _ <- ZIO.foreach(ex.getStackTrace.toList)(st => Logger.error(s"  -   $st"))
-      _ <- Option(ex.getCause)
-        .fold[ZIO[Logger, Throwable, Unit]](Task(()))(displayAllErrors)
-    } yield {
-      ()
-    }
-  }
+      _ <- Option(ex.getCause).fold[ZIO[Logger, Throwable, Unit]](Task(()))(displayAllErrors)
+    } yield ()
 
   val Live: ZLayer[Console, Throwable, Logger] = ZLayer.fromService { console =>
     new Logger.Service {
-      override def info(txt:  => String): Task[Unit] = console.putStrLn(s"[INFO] $txt")
+      override def info(txt: => String):  Task[Unit] = console.putStrLn(s"[INFO] $txt")
       override def error(txt: => String): Task[Unit] = console.putStrLn(s"[ERROR] $txt")
       override def debug(txt: => String): Task[Unit] = console.putStrLn(s"[DEBUG] $txt")
     }
