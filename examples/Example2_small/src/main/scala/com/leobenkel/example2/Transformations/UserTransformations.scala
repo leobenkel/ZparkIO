@@ -1,13 +1,13 @@
 package com.leobenkel.example2.Transformations
 
-import com.leobenkel.zparkio.implicits.{ZDS, ZDS_R}
 import com.leobenkel.example2.Items.User
 import com.leobenkel.example2.Services.Database.Database
 import com.leobenkel.example2.Sources.DatabaseSource
+import com.leobenkel.zparkio.implicits.{ZDS, ZDS_R}
 
 object UserTransformations {
 
-  def getAuthors: ZDS_R[Database, User] = {
+  def getAuthors: ZDS_R[Database, User] =
     for {
       /* One advantage of ZIO here is the forking of the source fetch.
        * All source can be fetch in parallel.
@@ -22,11 +22,6 @@ object UserTransformations {
         import spark.implicits._
         posts.map(_.authorId).distinct.collect
       }
-      authors <- ZDS { _ =>
-        users.filter(u => authorIds.value.contains(u.userId))
-      }
-    } yield {
-      authors
-    }
-  }
+      authors <- ZDS(_ => users.filter(u => authorIds.value.contains(u.userId)))
+    } yield authors
 }

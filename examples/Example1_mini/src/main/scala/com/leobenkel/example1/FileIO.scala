@@ -1,8 +1,7 @@
 package com.leobenkel.example1
 
-import zio.{Task, ZIO}
-
 import scala.io.Source
+import zio.{Task, ZIO}
 
 trait FileIO {
   def fileIO: FileIO.Service
@@ -12,9 +11,8 @@ object FileIO {
   trait Service {
     protected def readFileContent(path: String): Seq[String]
 
-    final def getFileContent(path: String): ZIO[Any, Throwable, Seq[String]] = {
+    final def getFileContent(path: String): ZIO[Any, Throwable, Seq[String]] =
       Task(readFileContent(path))
-    }
   }
 
   private trait LiveService extends FileIO.Service {
@@ -30,7 +28,6 @@ object FileIO {
     override def fileIO: Service = new LiveService {}
   }
 
-  def apply(path: String): ZIO[FileIO, Throwable, Seq[String]] = {
+  def apply(path: String): ZIO[FileIO, Throwable, Seq[String]] =
     ZIO.accessM[FileIO](_.fileIO.getFileContent(path))
-  }
 }

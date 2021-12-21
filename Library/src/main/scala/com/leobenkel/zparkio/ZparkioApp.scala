@@ -1,13 +1,13 @@
 package com.leobenkel.zparkio
 
+import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
 import com.leobenkel.zparkio.Services.Logger.Logger
 import com.leobenkel.zparkio.Services.SparkModule.SparkModule
-import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import com.leobenkel.zparkio.ZparkioApp.BaseEnv
+import zio.{BootstrapRuntime, Has, Tag, Task, UIO, ZIO, ZLayer}
 import zio.duration.Duration
 import zio.internal.Platform
-import zio.{BootstrapRuntime, Has, Tag, Task, UIO, ZIO, ZLayer}
 
 //scalastyle:off number.of.methods
 trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
@@ -29,12 +29,12 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   protected def loggerFactory:         FACTORY_LOG
   protected def cliFactory:            FACTORY_CLI
   protected def makeConfigErrorParser: ERROR_HANDLER
-  protected def makeCli(args:        List[String]): C
-  final protected def buildEnv(args: C): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] = {
-    loggerFactory.assembleLogger >+>
-      cliFactory.assembleCliBuilder(args) >+>
+  protected def makeCli(args: List[String]): C
+  final protected def buildEnv(
+    args: C
+  ): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] =
+    loggerFactory.assembleLogger >+> cliFactory.assembleCliBuilder(args) >+>
       sparkFactory.assembleSparkModule
-  }
 
   // Build user environment
   protected def env: ZLayer[ZPARKIO_ENV, Throwable, ENV]
@@ -53,41 +53,31 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   protected def stopSparkAtTheEnd: Boolean = true
 
   // RUNTIME
-  protected def makePlatform: Platform = {
-    Platform.default
-      .withReportFailure { cause =>
-        if (cause.died) println(cause.prettyPrint)
-      }
-  }
+  protected def makePlatform: Platform =
+    Platform.default.withReportFailure(cause => if (cause.died) println(cause.prettyPrint))
   protected def makeRuntime: BootstrapRuntime =
     new BootstrapRuntime {
       override val platform: Platform = makePlatform
     }
 
   private object ErrorProcessing {
-    def unapply(e: Throwable): Option[Int] = {
-      processErrors(e)
-    }
+    def unapply(e: Throwable): Option[Int] = processErrors(e)
   }
 
-  protected def app: ZIO[COMPLETE_ENV, Throwable, OUTPUT] = {
+  protected def app: ZIO[COMPLETE_ENV, Throwable, OUTPUT] =
     for {
-      _ <- if (displayCommandLines) CLA.displayCommandLines[C]() else UIO(())
-      output <- runApp()
-        .timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
-      _ <- if (stopSparkAtTheEnd) {
-        SparkModule().map { s =>
-          s.sparkContext.stop()
-          s.stop()
-          ()
-        }
-      } else {
-        Task(())
-      }
-    } yield {
-      output
-    }
-  }
+      _      <- if (displayCommandLines) CLA.displayCommandLines[C]() else UIO(())
+      output <- runApp().timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
+      _ <-
+        if (stopSparkAtTheEnd)
+          SparkModule().map { s =>
+            s.sparkContext.stop()
+            s.stop()
+            ()
+          }
+        else
+          Task(())
+    } yield output
 
   private def handleErrors(e: Throwable): Int = {
     val errorParser = makeConfigErrorParser.ErrorParser
@@ -98,17 +88,14 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
     }
   }
 
-  protected def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
+  protected def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] =
     Task(makeCli(args))
       .map(buildEnv)
       .flatMap { baseEnv =>
-        app
-          .provideSomeLayer[zio.ZEnv with BaseEnv[C]](env)
-          .provideCustomLayer(baseEnv)
+        app.provideSomeLayer[zio.ZEnv with BaseEnv[C]](env).provideCustomLayer(baseEnv)
       }
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(handleErrors, _ => 0)
-  }
 
   // $COVERAGE-OFF$ Bootstrap to `Unit`
   final def main(args: Array[String]): Unit = {
@@ -121,6 +108,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
 //scalastyle:on number.of.methods
 
 object ZparkioApp {
-  type BaseEnv[C <: CLA.Service[C]] = CLA.CommandLineArguments[C] with Logger with SparkModule
+  type BaseEnv[C <: CLA.Service[C]] =
+    CLA.CommandLineArguments[C] with Logger with SparkModule
   type ZPEnv[C <: CLA.Service[C]] = zio.ZEnv with BaseEnv[C]
 }

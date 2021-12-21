@@ -1,8 +1,8 @@
 package com.leobenkel.example2
 
+import com.leobenkel.example2.Services.Database
 import com.leobenkel.zparkio.Services.CommandLineArguments
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
-import com.leobenkel.example2.Services.Database
 import com.leobenkel.zparkio.config.scallop.CommandLineArgumentScallop
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 import zio.ZIO
@@ -53,7 +53,8 @@ case class Arguments(input: List[String])
 }
 
 object Arguments {
-  def apply[A](f: Arguments => A): ZIO[CommandLineArguments[Arguments], Throwable, A] = {
+  def apply[A](
+    f: Arguments => A
+  ): ZIO[CommandLineArguments[Arguments], Throwable, A] =
     CommandLineArguments.get[Arguments].apply(f)
-  }
 }
