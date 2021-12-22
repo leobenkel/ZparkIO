@@ -52,7 +52,7 @@ lazy val commonSettings = rootSettings ++ Seq(
     "org.scalatest"    %% "scalatest" % "3.2.10"            % Test
   ),
   updateOptions           := updateOptions.value.withGigahorse(false),
-  publishArtifact in Test := false,
+  (Test / publishArtifact) := false,
   pomIncludeRepository    := (_ => false)
 )
 
@@ -113,7 +113,7 @@ lazy val example1Mini = (project in file("examples/Example1_mini"))
     commonSettings,
     name                       := s"${projectName}_example1_mini",
     publish / skip             := true,
-    assemblyOption in assembly := soteriaAssemblySettings.value
+    (assembly / assemblyOption) := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
   .dependsOn(
     library,
@@ -126,7 +126,7 @@ lazy val example2Small = (project in file("examples/Example2_small"))
     commonSettings,
     name                       := s"${projectName}_example2_small",
     publish / skip             := true,
-    assemblyOption in assembly := soteriaAssemblySettings.value
+    (assembly / assemblyOption) := soteriaAssemblySettings.value
   ).enablePlugins(DockerPlugin)
   .dependsOn(
     library,
