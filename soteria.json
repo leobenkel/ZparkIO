@@ -175,7 +175,7 @@
     "org.rogach": {
       "scallop": {
         "needDoublePercent": true,
-        "version": "3.5.1"
+        "version": "4.1.0"
       }
     }
   },

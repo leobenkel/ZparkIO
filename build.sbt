@@ -16,14 +16,15 @@ lazy val rootSettings = Seq(
   organization := "com.leobenkel",
   homepage     := Some(url("https://github.com/leobenkel/ZparkIO")),
   licenses     := List("MIT" -> url("https://opensource.org/licenses/MIT")),
-  developers := List(
-    Developer(
-      "leobenkel",
-      "Leo Benkel",
-      "",
-      url("https://leobenkel.com")
-    )
-  ),
+  developers :=
+    List(
+      Developer(
+        "leobenkel",
+        "Leo Benkel",
+        "",
+        url("https://leobenkel.com")
+      )
+    ),
   sparkVersion := sparkVersionSystem,
   crossScalaVersions := {
     sparkVersion.value match {
@@ -41,20 +42,22 @@ lazy val rootSettings = Seq(
 
 lazy val zioVersion = "1.0.13"
 
-lazy val commonSettings = rootSettings ++ Seq(
-  libraryDependencies ++= Seq(
-    // https://zio.dev/docs/getting_started.html
-    "dev.zio" %% "zio" % zioVersion,
-    // https://mvnrepository.com/artifact/org.apache.spark/spark-core
-    "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided,
-    // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
-    "org.apache.spark" %% "spark-sql" % sparkVersion.value % Provided,
-    "org.scalatest"    %% "scalatest" % "3.2.10"            % Test
-  ),
-  updateOptions           := updateOptions.value.withGigahorse(false),
-  (Test / publishArtifact) := false,
-  pomIncludeRepository    := (_ => false)
-)
+lazy val commonSettings = rootSettings ++
+  Seq(
+    libraryDependencies ++=
+      Seq(
+        // https://zio.dev/docs/getting_started.html
+        "dev.zio" %% "zio" % zioVersion,
+        // https://mvnrepository.com/artifact/org.apache.spark/spark-core
+        "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided,
+        // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
+        "org.apache.spark" %% "spark-sql" % sparkVersion.value % Provided,
+        "org.scalatest"    %% "scalatest" % "3.2.10"           % Test
+      ),
+    updateOptions            := updateOptions.value.withGigahorse(false),
+    (Test / publishArtifact) := false,
+    pomIncludeRepository     := (_ => false)
+  )
 
 lazy val root = (project in file("."))
   .aggregate(library, testHelper, tests, example1Mini, example2Small)
@@ -63,11 +66,10 @@ lazy val root = (project in file("."))
     rootSettings
   )
 
-lazy val library = (project in file("Library"))
-  .settings(
-    commonSettings,
-    name := projectName
-  )
+lazy val library = (project in file("Library")).settings(
+  commonSettings,
+  name := projectName
+)
 
 lazy val sparkTestingBaseVersion = sparkVersionSystem match {
   // https://mvnrepository.com/artifact/com.holdenkarau/spark-testing-base
@@ -79,10 +81,11 @@ lazy val testHelper = (project in file("testModules/TestHelper"))
   .settings(
     commonSettings,
     name := s"$projectName-test",
-    libraryDependencies ++= Seq(
-      "com.holdenkarau"  %% "spark-testing-base" % sparkTestingBaseVersion,
-      "org.apache.spark" %% "spark-hive"         % sparkVersion.value % Provided
-    )
+    libraryDependencies ++=
+      Seq(
+        "com.holdenkarau"  %% "spark-testing-base" % sparkTestingBaseVersion,
+        "org.apache.spark" %% "spark-hive"         % sparkVersion.value % Provided
+      )
   )
   .dependsOn(library)
 
@@ -100,21 +103,23 @@ lazy val tests = (project in file("testModules/Tests"))
 lazy val libraryConfigsScallop = (project in file("configLibs/Scallop"))
   .settings(
     commonSettings,
-    name := s"${projectName}-config-scallop",
-    libraryDependencies ++= Seq(
-      // https://github.com/scallop/scallop
-      "org.rogach" %% "scallop" % "3.5.1"
-    )
+    name := s"$projectName-config-scallop",
+    libraryDependencies ++=
+      Seq(
+        // https://github.com/scallop/scallop
+        "org.rogach" %% "scallop" % "4.1.0"
+      )
   )
   .dependsOn(library)
 
 lazy val example1Mini = (project in file("examples/Example1_mini"))
   .settings(
     commonSettings,
-    name                       := s"${projectName}_example1_mini",
-    publish / skip             := true,
+    name                        := s"${projectName}_example1_mini",
+    publish / skip              := true,
     (assembly / assemblyOption) := soteriaAssemblySettings.value
-  ).enablePlugins(DockerPlugin)
+  )
+  .enablePlugins(DockerPlugin)
   .dependsOn(
     library,
     libraryConfigsScallop,
@@ -124,10 +129,11 @@ lazy val example1Mini = (project in file("examples/Example1_mini"))
 lazy val example2Small = (project in file("examples/Example2_small"))
   .settings(
     commonSettings,
-    name                       := s"${projectName}_example2_small",
-    publish / skip             := true,
+    name                        := s"${projectName}_example2_small",
+    publish / skip              := true,
     (assembly / assemblyOption) := soteriaAssemblySettings.value
-  ).enablePlugins(DockerPlugin)
+  )
+  .enablePlugins(DockerPlugin)
   .dependsOn(
     library,
     libraryConfigsScallop,
