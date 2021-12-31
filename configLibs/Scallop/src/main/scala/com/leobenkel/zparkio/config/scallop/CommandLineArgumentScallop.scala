@@ -1,15 +1,14 @@
 package com.leobenkel.zparkio.config.scallop
 
 import com.leobenkel.zparkio.Env._
+import com.leobenkel.zparkio.Services.{CommandLineArguments, Logger}
 import com.leobenkel.zparkio.Services.CommandLineArguments.ConfigErrorParser
 import com.leobenkel.zparkio.Services.Logger.Logger
-import com.leobenkel.zparkio.Services.{CommandLineArguments, Logger}
-import org.rogach.scallop.exceptions.{Help, ScallopException}
 import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
-import zio.console.Console
-import zio.{Task, ZIO, console}
-
+import org.rogach.scallop.exceptions.{Help, ScallopException}
 import scala.util.Try
+import zio.{console, Task, ZIO}
+import zio.console.Console
 
 object CommandLineArgumentScallop {
   trait Service[C <: CommandLineArguments.Service[C]]
@@ -19,12 +18,13 @@ object CommandLineArgumentScallop {
     final override def verify(): Unit =
       throw new Exception(s"Do not call verify yourself! Zparkio calls it for you.")
 
-    final override def checkValidity(): Task[C] = {
+    private def wasVerified(): Boolean = Try(this.assertVerified()).isSuccess
+
+    final override def checkValidity(): Task[C] =
       ZIO.fromTry(Try {
-        if (!verified) super.verify()
+        if (!wasVerified()) super.verify()
         this
       })
-    }
 
     lazy final override val commandsDebug: Seq[String] = {
       val (active, inactive) = filteredSummary(Set.empty)
@@ -41,9 +41,8 @@ object CommandLineArgumentScallop {
       descr = "Set the environment for the run."
     )(EnvironmentConverter.Parser)
 
-    lazy final protected val getAllMetrics: Seq[(String, Any)] = {
+    lazy final protected val getAllMetrics: Seq[(String, Any)] =
       builder.opts.map(o => (o.name, builder.get(o.name).getOrElse("<NONE>")))
-    }
 
     final override def onError(e: Throwable): Unit =
       e match {
@@ -66,7 +65,7 @@ object CommandLineArgumentScallop {
       case Some(s) => s"Help for '$s':\n"
     }
 
-    final override def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] = {
+    final override def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] =
       for {
         _ <- print(header)
         _ <- ZIO.foreach_(s.vers)(print)
@@ -74,10 +73,7 @@ object CommandLineArgumentScallop {
         _ <- print(s.help)
         _ <- ZIO.foreach_(s.foot)(print)
         _ <- print("\n")
-      } yield {
-        ()
-      }
-    }
+      } yield ()
   }
 
   object ErrorParser extends ConfigErrorParser {
@@ -93,12 +89,11 @@ object CommandLineArgumentScallop {
       extends CommandLineArguments.Factory[C] {
     final override protected def handleErrors(
       t: Throwable
-    ): ZIO[Logger, Throwable, Unit] = {
+    ): ZIO[Logger, Throwable, Unit] =
       t match {
         case cliError: ScallopException => Logger.displayAllErrors(cliError)
         case _ => ZIO.unit
       }
-    }
   }
 
   object Factory {
