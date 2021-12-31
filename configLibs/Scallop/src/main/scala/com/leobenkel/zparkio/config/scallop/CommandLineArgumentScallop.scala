@@ -18,9 +18,11 @@ object CommandLineArgumentScallop {
     final override def verify(): Unit =
       throw new Exception(s"Do not call verify yourself! Zparkio calls it for you.")
 
+    private def wasVerified(): Boolean = Try(this.assertVerified()).isSuccess
+
     final override def checkValidity(): Task[C] =
       ZIO.fromTry(Try {
-        if (!verified) super.verify()
+        if (!wasVerified()) super.verify()
         this
       })
 
