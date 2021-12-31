@@ -14,7 +14,7 @@ object EnvironmentConverter extends DefaultConverters {
     new ValueConverter[EnvironmentConverter.ArgType] {
       def parse(
         s: List[(String, List[String])]
-      ): Either[String, Option[EnvironmentConverter.ArgType]] = {
+      ): Either[String, Option[EnvironmentConverter.ArgType]] =
         s match {
           case (_, i :: Nil) :: Nil =>
             Environment.parseEnv(i) match {
@@ -24,7 +24,6 @@ object EnvironmentConverter extends DefaultConverters {
           case Nil => Right(None)
           case _   => Left("you should provide exactly one argument for this option")
         }
-      }
       val argType: ArgType.V = ArgType.SINGLE
     }
 }

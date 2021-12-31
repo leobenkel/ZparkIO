@@ -3,11 +3,11 @@ package com.leobenkel.zparkio.config.scallop
 import com.leobenkel.zparkio.Services.CommandLineArguments
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import com.leobenkel.zparkio.config.scallop.CommandLineArgumentScallop.HelpHandlerException
-import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
 import org.rogach.scallop.{ScallopConf, ScallopOption, Subcommand}
+import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
 import org.scalatest.freespec.AnyFreeSpec
-import zio.Exit.{Failure, Success}
 import zio.{BootstrapRuntime, Layer, Task, ZIO, ZLayer}
+import zio.Exit.{Failure, Success}
 
 class CommandLineArgumentScallopTest extends AnyFreeSpec {
   "CommandLineService" - {
@@ -23,13 +23,11 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
     object Arguments {
       def get[A](
         f: ArgumentsService => A
-      ): ZIO[CommandLineArguments[ArgumentsService], Throwable, A] = {
+      ): ZIO[CommandLineArguments[ArgumentsService], Throwable, A] =
         CommandLineArguments.get[ArgumentsService].apply(f)
-      }
 
-      def apply(input: Seq[String]): Layer[Nothing, CommandLineArguments[ArgumentsService]] = {
+      def apply(input: Seq[String]): Layer[Nothing, CommandLineArguments[ArgumentsService]] =
         ZLayer.succeed(ArgumentsService(input))
-      }
     }
 
     val runtime = new BootstrapRuntime {}
@@ -50,9 +48,7 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
       runtime.unsafeRunSync(for {
         arg <- Task(Arguments(Nil))
         a   <- Arguments.get(_.test.toOption).provideLayer(arg)
-      } yield {
-        a
-      }) match {
+      } yield a) match {
         case Success(_)  => fail("Should have failed")
         case Failure(ex) => assertThrows[RequiredOptionNotFound](throw ex.squash)
       }
@@ -62,9 +58,7 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
       runtime.unsafeRunSync(for {
         arg <- Task(Arguments(Seq("--abc", "foo")))
         a   <- Arguments.get(_.test.toOption).provideLayer(arg)
-      } yield {
-        a
-      }) match {
+      } yield a) match {
         case Success(_)  => fail("Should have failed")
         case Failure(ex) => assertThrows[UnknownOption](throw ex.squash)
       }
@@ -95,8 +89,9 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
       runtime.unsafeRunSync(
         arg
           .checkValidity()
-          .tapError { case h: HelpHandlerException =>
-            h.printHelpMessage
+          .tapError {
+            case h: HelpHandlerException =>
+              h.printHelpMessage
           }
       ) match {
         case Success(a)  => assert(a.verified)
