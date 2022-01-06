@@ -1,7 +1,6 @@
 ![ZparkIO logo](https://raw.githubusercontent.com/leobenkel/ZparkIO/main/assets/ZparkIO_animated.gif)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Gitter](https://badges.gitter.im/zparkio/community.svg)](https://gitter.im/zparkio/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![release-badge][]][release]
 [![maven-central-badge][]][maven-search]
 ![CI](https://github.com/leobenkel/zparkio/workflows/CI/badge.svg)
