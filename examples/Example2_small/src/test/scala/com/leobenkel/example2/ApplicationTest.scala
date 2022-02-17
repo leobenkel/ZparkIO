@@ -76,7 +76,7 @@ case class TestApp(s: SparkSession) extends Application {
         new Database.Service {
           override protected def query[A : Encoder](
               spark: SparkSession,
-              query: String,
+              query: String
           ): Dataset[A] = {
             val rawSeq =
               query match {
@@ -85,7 +85,7 @@ case class TestApp(s: SparkSession) extends Application {
                       userId = 1,
                       name = "Leo",
                       age = 30,
-                      active = true,
+                      active = true
                     )
                   )
                 case "SELECT * FROM posts" => Seq[Post](
@@ -93,7 +93,7 @@ case class TestApp(s: SparkSession) extends Application {
                       postId = 5,
                       authorId = 1,
                       title = "Foo",
-                      content = "Bar",
+                      content = "Bar"
                     )
                   )
                 case q                     => throw new UnsupportedOperationException(q)

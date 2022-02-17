@@ -11,7 +11,7 @@ import zio.{BootstrapRuntime, Task, ZLayer}
 // https://stackoverflow.com/a/16990806/3357831
 case class TestClass(
     a: Int,
-    b: String,
+    b: String
 )
 
 case class TestClassAfter(a: Int)
@@ -26,7 +26,7 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
         ZDS(
           TestClass(a = 1, b = "one"),
           TestClass(a = 2, b = "two"),
-          TestClass(a = 3, b = "three"),
+          TestClass(a = 3, b = "three")
         ).zMap { case TestClass(a, b) => Task(TestClassAfter(a + b.length)) }
 
       val r = new BootstrapRuntime {}
@@ -49,7 +49,7 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
         ZDS(
           TestClass(a = 1, b = "one"),
           TestClass(a = 2, b = "two"),
-          TestClass(a = 3, b = "three"),
+          TestClass(a = 3, b = "three")
         ).mapDS { case TestClass(a, b) => TestClassAfter(a + b.length) }
 
       val r = new BootstrapRuntime {}

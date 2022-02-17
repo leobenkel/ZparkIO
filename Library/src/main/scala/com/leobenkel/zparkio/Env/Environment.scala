@@ -27,7 +27,7 @@ object Environment {
       Local,
       Development,
       Staging,
-      Production,
+      Production
     )
 
   def parseEnv(input: String): Option[Environment] =

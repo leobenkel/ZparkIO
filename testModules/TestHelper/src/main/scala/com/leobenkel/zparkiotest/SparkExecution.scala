@@ -6,7 +6,7 @@ case class SparkExecution(
     private val pathToJar:     String,
     private val mainClassPath: String,
     private val jarArgument:   Map[String, Option[Any]],
-    private val deployMode:    String = "client",
+    private val deployMode:    String = "client"
 ) {
   @transient lazy private val args: String =
     jarArgument.map { case (k, v) => s"--$k ${v.map(_.toString).getOrElse("")}" }.mkString("\n")

@@ -13,7 +13,7 @@ object Database {
   case class Credentials(
       user: String,
       psw:  String,
-      host: String,
+      host: String
   )
 
   trait Service {
@@ -25,14 +25,14 @@ object Database {
 
     protected def query[A : Encoder](
         spark: SparkSession,
-        query: String,
+        query: String
     ): Dataset[A]
   }
 
   case class LiveService(credentials: Credentials) extends Database.Service {
     override protected def query[A : Encoder](
         spark: SparkSession,
-        query: String,
+        query: String
     ): Dataset[A] = {
       import spark.implicits._
 

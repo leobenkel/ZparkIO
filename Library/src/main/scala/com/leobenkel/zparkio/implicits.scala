@@ -23,7 +23,7 @@ object implicits {
   object ZDS {
     def map[A](f: SparkSession => Dataset[A]): ZDS[A] = SparkModule().map(spark => f(spark))
 
-    def flatMap[A](f: SparkSession => ZDS[A]):          ZDS[A]      = SparkModule().flatMap(spark => f(spark))
+    def flatMap[A](f: SparkSession => ZDS[A]): ZDS[A] = SparkModule().flatMap(spark => f(spark))
 
     def flatMapR[R, A](f: SparkSession => ZDS_R[R, A]): ZDS_R[R, A] =
       SparkModule().flatMap(spark => f(spark))

@@ -4,5 +4,5 @@ case class Post(
     postId:   Int,
     authorId: Int,
     title:    String,
-    content:  String,
+    content:  String
 )

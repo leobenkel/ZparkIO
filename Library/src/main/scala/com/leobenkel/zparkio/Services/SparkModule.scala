@@ -25,7 +25,7 @@ object SparkModule {
 
     protected def updateConfig(
         sparkBuilder: SparkSession.Builder,
-        arguments:    C,
+        arguments:    C
     ): SparkSession.Builder = {
       // to silence warning about being unused
       locally(arguments)

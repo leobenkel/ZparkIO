@@ -44,7 +44,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   protected def runApp(): ZIO[COMPLETE_ENV, Throwable, OUTPUT]
 
   // Default implementations
-  protected def displayCommandLines:         Boolean     = true
+  protected def displayCommandLines: Boolean = true
 
   protected def processErrors(f: Throwable): Option[Int] = {
     // to silence warning about being unused
@@ -52,14 +52,14 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
     Some(1)
   }
 
-  protected def timedApplication:            Duration    = Duration.Infinity
-  protected def stopSparkAtTheEnd:           Boolean     = true
+  protected def timedApplication:  Duration = Duration.Infinity
+  protected def stopSparkAtTheEnd: Boolean  = true
 
   // RUNTIME
-  protected def makePlatform: Platform         =
+  protected def makePlatform: Platform =
     Platform.default.withReportFailure(cause => if(cause.died) println(cause.prettyPrint))
 
-  protected def makeRuntime:  BootstrapRuntime =
+  protected def makeRuntime: BootstrapRuntime =
     new BootstrapRuntime {
       override val platform: Platform = makePlatform
     }

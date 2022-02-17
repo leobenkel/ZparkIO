@@ -13,14 +13,14 @@ case class Arguments(input: List[String])
     opt[Int](
       default = Some(10),
       required = false,
-      noshort = true,
+      noshort = true
     )
 
   val sparkFoo: ScallopOption[String] =
     opt[String](
       default = Some("hello"),
       required = false,
-      noshort = true,
+      noshort = true
     )
 }
 

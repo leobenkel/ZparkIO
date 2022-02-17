@@ -39,7 +39,7 @@ class RunTest extends AnyFreeSpec {
           sparkFile = Map.empty,
           pathToJar = jarPath,
           mainClassPath = "com.leobenkel.zparkioProjectExample.Main",
-          jarArgument = Map.empty,
+          jarArgument = Map.empty
         )
 
       val exitCode = s.execute

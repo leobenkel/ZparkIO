@@ -14,7 +14,7 @@ case class Arguments(input: List[String])
     opt[String](
       default = Some("admin"),
       required = false,
-      noshort = true,
+      noshort = true
     )
 
   /*
@@ -25,14 +25,14 @@ case class Arguments(input: List[String])
     opt[String](
       default = Some("123456"),
       required = false,
-      noshort = true,
+      noshort = true
     )
 
   val databaseHost: ScallopOption[String] =
     opt[String](
       default = Some("database://host.com/database"),
       required = false,
-      noshort = true,
+      noshort = true
     )
 
   val generatedInputSize: ScallopOption[Int] =
@@ -40,21 +40,21 @@ case class Arguments(input: List[String])
       default = Some(100),
       required = false,
       noshort = true,
-      descr = "The size of the sample data generated",
+      descr = "The size of the sample data generated"
     )
 
   val sparkConfig: ScallopOption[String] =
     opt[String](
       default = Some("foo"),
       required = false,
-      noshort = true,
+      noshort = true
     )
 
   lazy val credentials: Database.Credentials =
     Database.Credentials(
       user = databaseUsername(),
       psw = databasePassword(),
-      host = databaseHost(),
+      host = databaseHost()
     )
 }
 
