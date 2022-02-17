@@ -18,15 +18,14 @@ object SparkModule {
   }
 
   trait Factory[C <: CommandLineArguments.Service[C]] {
-    lazy private val sparkBuilder: SparkSession.Builder = SparkSession.builder
-    lazy private val sparkBuilderWithName: SparkSession.Builder =
-      sparkBuilder.appName(appName)
+    lazy private val sparkBuilder:         SparkSession.Builder = SparkSession.builder
+    lazy private val sparkBuilderWithName: SparkSession.Builder = sparkBuilder.appName(appName)
 
     protected def appName: String
 
     protected def updateConfig(
-      sparkBuilder: SparkSession.Builder,
-      arguments:    C
+        sparkBuilder: SparkSession.Builder,
+        arguments:    C,
     ): SparkSession.Builder = {
       // to silence warning about being unused
       locally(arguments)
@@ -34,29 +33,30 @@ object SparkModule {
     }
 
     final private def readyToBuildSparkBuilder(
-      arguments: C
+        arguments: C
     ): SparkSession.Builder = updateConfig(sparkBuilderWithName, arguments)
 
     protected def createSparkSession(
-      sparkBuilder: SparkSession.Builder
+        sparkBuilder: SparkSession.Builder
     ): SparkSession = sparkBuilder.getOrCreate()
 
     final private def makeSparkService(
-      sparkBuilder: SparkSession.Builder
+        sparkBuilder: SparkSession.Builder
     ): SparkModule.Service =
       new SparkModule.Service {
-        lazy final override val spark: SparkSession = createSparkSession(
-          sparkBuilder
-        )
+        lazy final override val spark: SparkSession =
+          createSparkSession(
+            sparkBuilder
+          )
       }
 
     final private[SparkModule] def createSpark(
-      arguments: C
+        arguments: C
     ): ZIO[Any, Throwable, SparkModule.Service] =
       Task(makeSparkService(readyToBuildSparkBuilder(arguments)))
 
-    private[zparkio] def assembleSparkModule(
-      implicit t: Tag[C]
+    private[zparkio] def assembleSparkModule(implicit
+        t: Tag[C]
     ): ZLayer[CommandLineArguments[C], Throwable, SparkModule] = ZLayer.fromServiceM(createSpark)
   }
 }

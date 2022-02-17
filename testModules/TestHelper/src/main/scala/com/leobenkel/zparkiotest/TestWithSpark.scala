@@ -12,8 +12,6 @@ trait TestWithSpark extends DataFrameSuiteBase { self: Suite =>
   def enableSparkUI: Boolean = false
 
   final override def conf: SparkConf =
-    if (enableSparkUI)
-      super.conf.set("spark.ui.enabled", "true").set("spark.ui.port", "4050")
-    else
-      super.conf
+    if(enableSparkUI) super.conf.set("spark.ui.enabled", "true").set("spark.ui.port", "4050")
+    else super.conf
 }

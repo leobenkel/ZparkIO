@@ -59,14 +59,14 @@ case class TestApp(s: SparkSession) extends Application {
       lazy final override protected val appName: String = "Test"
 
       final override protected def createSparkSession(
-        sparkBuilder: SparkSession.Builder
+          sparkBuilder: SparkSession.Builder
       ): SparkSession = s
     }
 
   override protected def loggerFactory: FACTORY_LOG =
     new FACTORY_LOG {
       override protected def makeLogger(
-        console: Console.Service
+          console: Console.Service
       ): ZIO[Any, Throwable, Logger.Service] = Task(new LoggerService {})
     }
 
@@ -74,31 +74,30 @@ case class TestApp(s: SparkSession) extends Application {
     FileIO.Live ++
       ZLayer.succeed {
         new Database.Service {
-          override protected def query[A: Encoder](
-            spark: SparkSession,
-            query: String
+          override protected def query[A : Encoder](
+              spark: SparkSession,
+              query: String,
           ): Dataset[A] = {
-            val rawSeq = query match {
-              case "SELECT * FROM users" =>
-                Seq[User](
-                  User(
-                    userId = 1,
-                    name = "Leo",
-                    age = 30,
-                    active = true
+            val rawSeq =
+              query match {
+                case "SELECT * FROM users" => Seq[User](
+                    User(
+                      userId = 1,
+                      name = "Leo",
+                      age = 30,
+                      active = true,
+                    )
                   )
-                )
-              case "SELECT * FROM posts" =>
-                Seq[Post](
-                  Post(
-                    postId = 5,
-                    authorId = 1,
-                    title = "Foo",
-                    content = "Bar"
+                case "SELECT * FROM posts" => Seq[Post](
+                    Post(
+                      postId = 5,
+                      authorId = 1,
+                      title = "Foo",
+                      content = "Bar",
+                    )
                   )
-                )
-              case q => throw new UnsupportedOperationException(q)
-            }
+                case q                     => throw new UnsupportedOperationException(q)
+              }
 
             import spark.implicits._
             rawSeq.map(_.asInstanceOf[A]).toDS
@@ -106,5 +105,4 @@ case class TestApp(s: SparkSession) extends Application {
         }
       }
   }
-
 }

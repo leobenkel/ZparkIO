@@ -19,8 +19,7 @@ class ModuleFailZIOTest extends AnyFreeSpec {
 
     case class ModuleServiceIpml(dead: Boolean) extends Module.Service {
       println(s"SERVICE IS CREATED !!!")
-      if (dead)
-        throw new RuntimeException("It failed !")
+      if(dead) throw new RuntimeException("It failed !")
       override def foo(bar: String): String = {
         println(bar)
         bar
@@ -54,12 +53,12 @@ class ModuleFailZIOTest extends AnyFreeSpec {
           case a @ Exit.Success(value) =>
             println(s"Intern: $value")
             a
-          case Exit.Failure(cause) =>
+          case Exit.Failure(cause)     =>
             println(s"Failed inside with: $cause")
             fail(cause.prettyPrint)
         }
       } match {
-        case scala.util.Success(value) => println(s"Outside: $value")
+        case scala.util.Success(value)     => println(s"Outside: $value")
         case scala.util.Failure(exception) =>
           println(s"Failed outside with : $exception")
           fail(exception)

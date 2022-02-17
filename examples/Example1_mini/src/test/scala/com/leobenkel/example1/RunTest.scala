@@ -9,15 +9,14 @@ class RunTest extends AnyFreeSpec {
       val REBUILD_JAR = true
       import sys.process._
 
-      val version = "cat VERSION".!!.replaceAll("v", "").replaceAll("\n", "")
+      val version  = "cat VERSION".!!.replaceAll("v", "").replaceAll("\n", "")
       println(s"Version: '$version'")
       val rootPath = System.getProperty("user.dir")
       println(rootPath)
-      val jarPath =
-        s"$rootPath/ProjectExample/target/docker/0/zparkio_testProject-$version-all.jar"
+      val jarPath  = s"$rootPath/ProjectExample/target/docker/0/zparkio_testProject-$version-all.jar"
       println(jarPath)
 
-      if (REBUILD_JAR || s"ls $jarPath".! != 0) {
+      if(REBUILD_JAR || s"ls $jarPath".! != 0) {
         val out: Int =
           ("pwd" #&&
             ("sbt" :: "; project projectExample" :: "; set test in assembly := {}" ::
@@ -34,13 +33,14 @@ class RunTest extends AnyFreeSpec {
       }
       assert(s"ls $jarPath".! == 0)
 
-      val s = SparkExecution(
-        sparkConf = Map.empty,
-        sparkFile = Map.empty,
-        pathToJar = jarPath,
-        mainClassPath = "com.leobenkel.zparkioProjectExample.Main",
-        jarArgument = Map.empty
-      )
+      val s =
+        SparkExecution(
+          sparkConf = Map.empty,
+          sparkFile = Map.empty,
+          pathToJar = jarPath,
+          mainClassPath = "com.leobenkel.zparkioProjectExample.Main",
+          jarArgument = Map.empty,
+        )
 
       val exitCode = s.execute
       assert(exitCode == 0)

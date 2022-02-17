@@ -15,7 +15,7 @@ object FileIO {
 
   trait LiveService extends FileIO.Service {
     override protected def readFileContent(path: String): Seq[String] = {
-      val file = Source.fromFile(path)
+      val file    = Source.fromFile(path)
       val content = file.getLines().toArray
       file.close()
       content

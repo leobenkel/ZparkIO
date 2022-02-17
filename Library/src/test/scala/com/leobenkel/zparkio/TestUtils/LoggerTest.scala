@@ -1,4 +1,5 @@
 package com.leobenkel.zparkio.TestUtils
+
 import com.leobenkel.zparkio.Services.Logger
 import zio.{Task, UIO}
 

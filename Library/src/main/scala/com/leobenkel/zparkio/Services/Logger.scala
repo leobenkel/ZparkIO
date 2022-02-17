@@ -14,7 +14,7 @@ object Logger {
 
   trait Factory {
     protected def makeLogger(
-      console: zio.console.Console.Service
+        console: zio.console.Console.Service
     ): ZIO[Any, Throwable, Logger.Service]
 
     private[zparkio] def assembleLogger: ZLayer[Console, Throwable, Logger] =
@@ -25,7 +25,7 @@ object Logger {
     def apply(make: Console.Service => Service): Factory =
       new Factory {
         override protected def makeLogger(
-          console: Console.Service
+            console: Console.Service
         ): ZIO[Any, Throwable, Service] = Task(make(console))
       }
   }
@@ -37,13 +37,14 @@ object Logger {
       _ <- Option(ex.getCause).fold[ZIO[Logger, Throwable, Unit]](Task(()))(displayAllErrors)
     } yield ()
 
-  val Live: ZLayer[Console, Throwable, Logger] = ZLayer.fromService { console =>
-    new Logger.Service {
-      override def info(txt: => String):  Task[Unit] = console.putStrLn(s"[INFO] $txt")
-      override def error(txt: => String): Task[Unit] = console.putStrLn(s"[ERROR] $txt")
-      override def debug(txt: => String): Task[Unit] = console.putStrLn(s"[DEBUG] $txt")
+  val Live: ZLayer[Console, Throwable, Logger] =
+    ZLayer.fromService { console =>
+      new Logger.Service {
+        override def info(txt: => String):  Task[Unit] = console.putStrLn(s"[INFO] $txt")
+        override def error(txt: => String): Task[Unit] = console.putStrLn(s"[ERROR] $txt")
+        override def debug(txt: => String): Task[Unit] = console.putStrLn(s"[DEBUG] $txt")
+      }
     }
-  }
 
   def info(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.accessM[Logger](_.get.info(txt))
 

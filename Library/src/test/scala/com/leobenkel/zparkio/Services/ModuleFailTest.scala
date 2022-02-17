@@ -18,8 +18,7 @@ class ModuleFailTest extends AnyFreeSpec {
     }
 
     case class ModuleServiceIpml(dead: Boolean) extends Module.Service {
-      if (dead)
-        throw new RuntimeException("It failed !")
+      if(dead) throw new RuntimeException("It failed !")
       override def foo(bar: String): String = {
         println(bar)
         bar
@@ -43,7 +42,7 @@ class ModuleFailTest extends AnyFreeSpec {
           case a @ Exit.Success(value) =>
             println(s"Intern: $value")
             a
-          case Exit.Failure(cause) => fail(cause.prettyPrint)
+          case Exit.Failure(cause)     => fail(cause.prettyPrint)
         }
       } match {
         case scala.util.Success(value)     => println(s"Outside: $value")

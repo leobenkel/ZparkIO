@@ -7,7 +7,6 @@ import com.leobenkel.zparkio.Services.SparkModule
 import com.leobenkel.zparkio.implicits.ZDS_R
 
 object DatabaseSource {
-
   def getUsers: ZDS_R[Database, User] =
     for {
       spark <- SparkModule()
@@ -25,5 +24,4 @@ object DatabaseSource {
         Database[Post]("SELECT * FROM posts")
       }
     } yield users
-
 }
