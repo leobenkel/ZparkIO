@@ -1,8 +1,8 @@
 name: Release
 on:
   push:
-    branches: [ main ]
-    tags: [ "*" ]
+    branches: [main]
+    tags: ["*"]
 jobs:
   publish:
     runs-on: ubuntu-20.04
@@ -22,7 +22,7 @@ jobs:
         uses: coursier/cache-action@v5
 
       - name: release-staging
-        run: |	
+        run: |
           ./scripts/spark-cross-publish.sh library true
           ./scripts/spark-cross-publish.sh testHelper true
           ./scripts/spark-cross-publish.sh libraryConfigsScallop true
@@ -34,3 +34,11 @@ jobs:
           ./scripts/spark-cross-publish.sh testHelper
           ./scripts/spark-cross-publish.sh libraryConfigsScallop
         if: startsWith(github.ref, 'refs/tags/v')
+
+      - name: clean-up
+        run: |
+          rm -rf "$HOME/.ivy2/local" || true
+          find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+          find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+          find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+          find $HOME/.sbt
