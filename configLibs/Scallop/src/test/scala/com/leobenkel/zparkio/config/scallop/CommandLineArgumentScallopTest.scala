@@ -12,17 +12,19 @@ import zio.Exit.{Failure, Success}
 class CommandLineArgumentScallopTest extends AnyFreeSpec {
   "CommandLineService" - {
     case class ArgumentsService(input: Seq[String])
-        extends ScallopConf(input) with CommandLineArgumentScallop.Service[ArgumentsService] {
-      val test: ScallopOption[String] = opt[String](
-        default = None,
-        required = true,
-        noshort = true
-      )
+        extends ScallopConf(input)
+        with CommandLineArgumentScallop.Service[ArgumentsService] {
+      val test: ScallopOption[String] =
+        opt[String](
+          default = None,
+          required = true,
+          noshort = true
+        )
     }
 
     object Arguments {
       def get[A](
-        f: ArgumentsService => A
+          f: ArgumentsService => A
       ): ZIO[CommandLineArguments[ArgumentsService], Throwable, A] =
         CommandLineArguments.get[ArgumentsService].apply(f)
 
@@ -66,33 +68,33 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
 
     "help should look good" in {
       class Argument(args: List[String])
-          extends ScallopConf(args) with CommandLineArgumentScallop.Service[Argument] {
-        val foo: ScallopOption[Int] = opt[Int](
-          descr = "Test",
-          default = Some(87)
-        )
-
-        val sub = new Subcommand("test_sub") {
-          val a: ScallopOption[Boolean] = opt[Boolean](
+          extends ScallopConf(args)
+          with CommandLineArgumentScallop.Service[Argument] {
+        val foo: ScallopOption[Int] =
+          opt[Int](
             descr = "Test",
-            default = Some(false)
+            default = Some(87)
           )
 
-          val b: ScallopOption[Int] = opt[Int](
-            descr = "Test",
-            default = Some(34)
-          )
-        }
+        val sub =
+          new Subcommand("test_sub") {
+            val a: ScallopOption[Boolean] =
+              opt[Boolean](
+                descr = "Test",
+                default = Some(false)
+              )
+
+            val b: ScallopOption[Int] =
+              opt[Int](
+                descr = "Test",
+                default = Some(34)
+              )
+          }
         addSubcommand(sub)
       }
       val arg = new Argument(List("--help"))
       runtime.unsafeRunSync(
-        arg
-          .checkValidity()
-          .tapError {
-            case h: HelpHandlerException =>
-              h.printHelpMessage
-          }
+        arg.checkValidity().tapError { case h: HelpHandlerException => h.printHelpMessage }
       ) match {
         case Success(a)  => assert(a.verified)
         case Failure(ex) => assertThrows[HelpHandlerException](throw ex.squash)
