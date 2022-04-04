@@ -12,7 +12,8 @@ import zio.console.Console
 
 object CommandLineArgumentScallop {
   trait Service[C <: CommandLineArguments.Service[C]]
-      extends ScallopConf with CommandLineArguments.Service[C] { this: ScallopConf with C =>
+      extends ScallopConf
+      with CommandLineArguments.Service[C] { this: ScallopConf with C =>
     this.appendDefaultToDescription = true
 
     final override def verify(): Unit =
@@ -22,48 +23,49 @@ object CommandLineArgumentScallop {
 
     final override def checkValidity(): Task[C] =
       ZIO.fromTry(Try {
-        if (!wasVerified()) super.verify()
+        if(!wasVerified()) super.verify()
         this
       })
 
     lazy final override val commandsDebug: Seq[String] = {
-      val (active, inactive) = filteredSummary(Set.empty)
-        .split('\n')
-        .partition(_.trim.startsWith("*"))
+      val (active, inactive) =
+        filteredSummary(Set.empty).split('\n').partition(_.trim.startsWith("*"))
 
       (active.sorted :+ "") ++ inactive.sorted
     }
 
-    final val env: ScallopOption[Environment] = opt[Environment](
-      required = true,
-      noshort = true,
-      default = Some(Environment.Local),
-      descr = "Set the environment for the run."
-    )(EnvironmentConverter.Parser)
+    final val env: ScallopOption[Environment] =
+      opt[Environment](
+        required = true,
+        noshort = true,
+        default = Some(Environment.Local),
+        descr = "Set the environment for the run."
+      )(EnvironmentConverter.Parser)
 
     lazy final protected val getAllMetrics: Seq[(String, Any)] =
       builder.opts.map(o => (o.name, builder.get(o.name).getOrElse("<NONE>")))
 
     final override def onError(e: Throwable): Unit =
       e match {
-        case Help("") =>
-          throw HelpHandlerException(builder, None)
+        case Help("")         => throw HelpHandlerException(builder, None)
         case Help(subCommand) =>
           throw HelpHandlerException(builder.findSubbuilder(subCommand).get, Some(subCommand))
-        case other => throw other
+        case other            => throw other
       }
   }
 
   case class HelpHandlerException(
-    s:          Scallop,
-    subCommand: Option[String]
-  ) extends Throwable with CommandLineArguments.Helper.HelpHandlerException {
+      s:          Scallop,
+      subCommand: Option[String]
+  ) extends Throwable
+      with CommandLineArguments.Helper.HelpHandlerException {
     private def print(msg: String): ZIO[Console, Throwable, Unit] = console.putStr(msg)
 
-    lazy private val header: String = subCommand match {
-      case None    => "Help:\n"
-      case Some(s) => s"Help for '$s':\n"
-    }
+    lazy private val header: String =
+      subCommand match {
+        case None    => "Help:\n"
+        case Some(s) => s"Help for '$s':\n"
+      }
 
     final override def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] =
       for {
@@ -88,7 +90,7 @@ object CommandLineArgumentScallop {
   private[zparkio] trait Factory[C <: CommandLineArguments.Service[C]]
       extends CommandLineArguments.Factory[C] {
     final override protected def handleErrors(
-      t: Throwable
+        t: Throwable
     ): ZIO[Logger, Throwable, Unit] =
       t match {
         case cliError: ScallopException => Logger.displayAllErrors(cliError)
