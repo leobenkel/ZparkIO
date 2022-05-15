@@ -56,9 +56,9 @@ lazy val commonSettings =
           "org.apache.spark" %% "spark-sql"  % sparkVersion.value % Provided,
           "org.scalatest"    %% "scalatest"  % "3.2.12"           % Test
         ),
-      updateOptions            := updateOptions.value.withGigahorse(false),
-      (Test / publishArtifact) := false,
-      pomIncludeRepository     := (_ => false)
+      updateOptions          := updateOptions.value.withGigahorse(false),
+      Test / publishArtifact := false,
+      pomIncludeRepository   := (_ => false)
     )
 
 lazy val root = (project in file("."))
@@ -118,9 +118,9 @@ lazy val libraryConfigsScallop = (project in file("configLibs/Scallop"))
 lazy val example1Mini = (project in file("examples/Example1_mini"))
   .settings(
     commonSettings,
-    name                        := s"${projectName}_example1_mini",
-    publish / skip              := true,
-    (assembly / assemblyOption) := soteriaAssemblySettings.value
+    name                      := s"${projectName}_example1_mini",
+    publish / skip            := true,
+    assembly / assemblyOption := soteriaAssemblySettings.value
   )
   .enablePlugins(DockerPlugin)
   .dependsOn(
@@ -132,9 +132,9 @@ lazy val example1Mini = (project in file("examples/Example1_mini"))
 lazy val example2Small = (project in file("examples/Example2_small"))
   .settings(
     commonSettings,
-    name                        := s"${projectName}_example2_small",
-    publish / skip              := true,
-    (assembly / assemblyOption) := soteriaAssemblySettings.value
+    name                      := s"${projectName}_example2_small",
+    publish / skip            := true,
+    assembly / assemblyOption := soteriaAssemblySettings.value
   )
   .enablePlugins(DockerPlugin)
   .dependsOn(

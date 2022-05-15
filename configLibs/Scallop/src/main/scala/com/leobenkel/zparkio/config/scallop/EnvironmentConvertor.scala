@@ -16,12 +16,12 @@ object EnvironmentConverter extends DefaultConverters {
           s: List[(String, List[String])]
       ): Either[String, Option[EnvironmentConverter.ArgType]] =
         s match {
-          case (_, i :: Nil) :: Nil => Environment.parseEnv(i) match {
+          case _, i :: Nil :: Nil => Environment.parseEnv(i) match {
               case Some(e) => Right(Some(e))
               case None    => Left(s"Cannot find valid environment for input: '$i'")
             }
-          case Nil                  => Right(None)
-          case _                    => Left("you should provide exactly one argument for this option")
+          case Nil                => Right(None)
+          case _                  => Left("you should provide exactly one argument for this option")
         }
 
       val argType: ArgType.V = ArgType.SINGLE
