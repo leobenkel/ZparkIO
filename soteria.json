@@ -179,7 +179,7 @@
       }
     }
   },
-  "sbtVersion": "1.6.2",
+  "sbtVersion": "1.7.1",
   "scalaCFlags": [
     "-feature",
     "-Yrangepos",
@@ -194,7 +194,7 @@
   ],
   "scalaVersions": [
     "2.11.12",
-    "2.12.15",
+    "2.12.16",
     "2.13.3"
   ]
 }

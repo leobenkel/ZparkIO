@@ -3,7 +3,7 @@ val v           = IO.readLines(new File("VERSION")).head
 val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.trim)
 
 val scala11 = "2.11.12"
-val scala12 = "2.12.15"
+val scala12 = "2.12.16"
 
 val Spark233 = "2.3.3"
 val Spark245 = "2.4.5"
@@ -41,7 +41,7 @@ lazy val rootSettings =
     dynver ~= (v => s"${sparkVersionSystem}_$v")
   )
 
-lazy val zioVersion = "1.0.15"
+lazy val zioVersion = "1.0.16"
 
 lazy val commonSettings =
   rootSettings ++
