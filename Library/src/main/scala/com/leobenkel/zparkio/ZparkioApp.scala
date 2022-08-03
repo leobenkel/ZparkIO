@@ -22,7 +22,6 @@ trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
   // Tag for user env
   implicit def tagC:   Tag[C]
   implicit def tagEnv: Tag[ENV]
-  implicit def zioT: zio.Tag[C]
   // Build ZPARKIO environment
   protected def sparkFactory:          FACTORY_SPARK
   protected def loggerFactory:         FACTORY_LOG

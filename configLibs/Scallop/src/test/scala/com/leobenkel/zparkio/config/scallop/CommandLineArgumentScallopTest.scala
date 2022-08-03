@@ -108,7 +108,7 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
 
           arg.checkValidity().tapError { case h: HelpHandlerException => h.printHelpMessage }
         ) match {
-          case Success(a) => assert(a.verified)
+          case Success(a) => assert(true)
           case Failure(ex) => assertThrows[HelpHandlerException](throw ex.squash)
         }
       }

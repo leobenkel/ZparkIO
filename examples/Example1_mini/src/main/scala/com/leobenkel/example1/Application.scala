@@ -10,7 +10,6 @@ import zio.{ZIO, ZLayer}
 trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
   implicit lazy final override val tagC:   Tag[Arguments]  = Tag.tagFromTagMacro
   implicit lazy final override val tagEnv: Tag[RuntimeEnv] = Tag.tagFromTagMacro
-  implicit lazy final override val zioT: zio.Tag[Arguments] = zio.Tag[Arguments]
 
   lazy final override protected val env: ZLayer[ZPARKIO_ENV, Throwable, RuntimeEnv] =
     ZLayer.succeed(())

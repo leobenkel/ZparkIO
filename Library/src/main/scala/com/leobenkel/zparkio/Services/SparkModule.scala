@@ -58,9 +58,7 @@ object SparkModule {
       ZIO.attempt(makeSparkService(readyToBuildSparkBuilder(arguments)))
 
     private[zparkio] def assembleSparkModule(implicit
-        t: Tag[C],
-        zioT: zio.Tag[C]
-    ): ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
+        t: Tag[C]): ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
       ZLayer.fromZIO(
       ZIO.serviceWithZIO[CommandLineArguments[C]](c => createSpark(c))
     )
