@@ -2,13 +2,15 @@ package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import org.apache.spark.sql.SparkSession
+import zio.{ZIO, ZLayer}
+import izumi.reflect.Tag
+
 import scala.util.Try
-import zio.{Has, Tag, Task, ZIO, ZLayer}
 
 object SparkModule {
-  type SparkModule = Has[SparkModule.Service]
+  type SparkModule = SparkModule.Service
 
-  def apply(): ZIO[SparkModule, Throwable, SparkSession] = ZIO.access[SparkModule](_.get.spark)
+  def apply(): ZIO[SparkModule, Throwable, SparkSession] = ZIO.service[SparkModule].map(_.spark)
 
   def getConf(key: String): ZIO[SparkModule, Throwable, String] =
     SparkModule().map(s => Try(s.conf.get(key))).flatMap(ZIO.fromTry(_))
@@ -53,10 +55,14 @@ object SparkModule {
     final private[SparkModule] def createSpark(
         arguments: C
     ): ZIO[Any, Throwable, SparkModule.Service] =
-      Task(makeSparkService(readyToBuildSparkBuilder(arguments)))
+      ZIO.attempt(makeSparkService(readyToBuildSparkBuilder(arguments)))
 
     private[zparkio] def assembleSparkModule(implicit
-        t: Tag[C]
-    ): ZLayer[CommandLineArguments[C], Throwable, SparkModule] = ZLayer.fromServiceM(createSpark)
+        t: Tag[C],
+        zioT: zio.Tag[C]
+    ): ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
+      ZLayer.fromZIO(
+      ZIO.serviceWithZIO[CommandLineArguments[C]](c => createSpark(c))
+    )
   }
 }

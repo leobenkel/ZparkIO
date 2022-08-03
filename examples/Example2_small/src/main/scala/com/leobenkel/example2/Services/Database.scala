@@ -5,10 +5,10 @@ import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import com.leobenkel.zparkio.Services.SparkModule
 import com.leobenkel.zparkio.implicits._
 import org.apache.spark.sql._
-import zio.{Has, Task, ZIO, ZLayer}
+import zio.{ZIO, ZLayer}
 
 object Database {
-  type Database = Has[Service]
+  type Database = Service
 
   case class Credentials(
       user: String,
@@ -20,7 +20,7 @@ object Database {
     final def query[A : Encoder](q: String): ZDS[A] =
       for {
         s           <- SparkModule()
-        queryResult <- Task(query(s, q))
+        queryResult <- ZIO.attempt(query(s, q))
       } yield queryResult
 
     protected def query[A : Encoder](
@@ -47,8 +47,9 @@ object Database {
     }
   }
 
-  val Live: ZLayer[CommandLineArguments[Arguments], Throwable, Database] =
-    ZLayer.fromService(args => LiveService(args.credentials))
+  val Live: ZLayer[CommandLineArguments[Arguments], Throwable, Database] = {
+    ZLayer.fromZIO(ZIO.serviceWith[Arguments](args => LiveService(args.credentials)))
+  }
 
   def apply[A : Encoder](query: String): ZDS_R[Database, A] =
     ZIO.environment[Database].flatMap(_.get.query(query))

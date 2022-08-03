@@ -1,12 +1,12 @@
 package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Services.Logger.Logger
+import zio.{Console, ZIO, ZLayer}
 import izumi.reflect.Tag
-import zio.{Has, ZIO, ZLayer}
 
 object CommandLineArguments {
   import Helper._
-  type CommandLineArguments[C <: CommandLineArguments.Service[C]] = Has[C]
+  type CommandLineArguments[C <: CommandLineArguments.Service[C]] = C
 
   trait Service[C <: CommandLineArguments.Service[C]] { this: C =>
     def checkValidity(): ZIO[Any, Throwable, C]
@@ -15,7 +15,7 @@ object CommandLineArguments {
 
   object Helper {
     trait HelpHandlerException {
-      def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit]
+      def printHelpMessage: ZIO[Console, Throwable, Unit]
     }
 
     type ZIO_CONFIG_SERVICE[A <: CommandLineArguments.Service[A]] =
@@ -42,11 +42,11 @@ object CommandLineArguments {
     final def assembleCliBuilder(
         args: C
     )(implicit
-        t:    Tag[C]
+        t:    Tag[C],
+      zioT:    zio.Tag[C]
+
     ): ZLayer[Logger, Throwable, CommandLineArguments[C]] =
-      ZLayer.fromServiceM { logger =>
-        createCliSafely(args).tapError(handleErrors(_).provide(Has(logger)))
-      }
+      ZLayer.fromZIO(createCliSafely(args).tapError(handleErrors(_)))
   }
 
   trait ConfigErrorParser {
@@ -59,18 +59,19 @@ object CommandLineArguments {
 
   def apply[C <: CommandLineArguments.Service[C]](
   )(implicit
-      t: Tag[C]
+      t: Tag[C],
+    zioT: zio.Tag[C]
   ): ZIO[CommandLineArguments[C], Throwable, C] = ZIO.service[C]
 
-  def get[C <: CommandLineArguments.Service[C] : Tag]: ZIO_CONFIG_SERVICE[C] =
+  def get[C <: CommandLineArguments.Service[C] : Tag: zio.Tag]: ZIO_CONFIG_SERVICE[C] =
     apply[C]().flatMap(_.checkValidity()).map(YourConfigWrapper[C])
 
-  def displayCommandLines[C <: CommandLineArguments.Service[C] : Tag](
+  def displayCommandLines[C <: CommandLineArguments.Service[C] : Tag : zio.Tag](
   ): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] =
     for {
       conf <- apply[C]()
       _    <- Logger.info("--------------Command Lines--------------")
-      _    <- ZIO.foreach_(conf.commandsDebug)(s => Logger.info(s))
+      _    <- ZIO.foreach(conf.commandsDebug)(s => Logger.info(s))
       _    <- Logger.info("-----------------------------------------")
       _    <- Logger.info("")
     } yield {}

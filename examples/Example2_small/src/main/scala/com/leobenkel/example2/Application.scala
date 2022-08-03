@@ -15,6 +15,7 @@ import zio.{ZIO, ZLayer}
 trait Application extends ZparkioApp[Arguments, APP_ENV, Unit] {
   implicit lazy final override val tagC:   Tag[Arguments] = Tag.tagFromTagMacro
   implicit lazy final override val tagEnv: Tag[APP_ENV]   = Tag.tagFromTagMacro
+  implicit lazy final override val zioT: zio.Tag[Arguments] = zio.Tag[Arguments]
 
   override protected def env: ZLayer[ZPARKIO_ENV, Throwable, APP_ENV] = FileIO.Live ++ Database.Live
 

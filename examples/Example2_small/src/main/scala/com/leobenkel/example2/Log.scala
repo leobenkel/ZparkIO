@@ -1,13 +1,12 @@
 package com.leobenkel.example2
 
 import com.leobenkel.zparkio.Services._
-import zio.Task
-import zio.console.Console
+import zio.{Console, Task}
 
-case class Log(console: Console.Service) extends Logger.Service {
-  override def info(txt: => String): Task[Unit] = console.putStrLn(s"INFO: $txt")
+case class Log(console: Console) extends Logger.Service {
+  override def info(txt: => String): Task[Unit] = console.printLine(s"INFO: $txt")
 
-  override def error(txt: => String): Task[Unit] = console.putStrLn(s"ERROR: $txt")
+  override def error(txt: => String): Task[Unit] = console.printLine(s"ERROR: $txt")
 
-  override def debug(txt: => String): Task[Unit] = console.putStrLn(s"DEBUG: $txt")
+  override def debug(txt: => String): Task[Unit] = console.printLine(s"DEBUG: $txt")
 }

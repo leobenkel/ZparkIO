@@ -1,8 +1,9 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
+import zio.{Exit, FiberRef, FiberRefs, RuntimeFlags, ZEnvironment, ZIO}
+
 import scala.util.Try
-import zio.{BootstrapRuntime, Exit, ZIO}
 
 class ModuleFailTest extends AnyFreeSpec {
   "Module" ignore {
@@ -14,7 +15,7 @@ class ModuleFailTest extends AnyFreeSpec {
         def foo(bar: String): String
       }
 
-      def apply(b: String): ZIO[Module, Nothing, String] = ZIO.access[Module](_.service.foo(b))
+      def apply(b: String): ZIO[Module, Nothing, String] = ZIO.serviceWith[Module](_.service.foo(b))
     }
 
     case class ModuleServiceIpml(dead: Boolean) extends Module.Service {
@@ -30,10 +31,14 @@ class ModuleFailTest extends AnyFreeSpec {
     }
 
     "Might fail" in {
-      val runtime = new BootstrapRuntime {}
+      val runtime = zio.Runtime(
+        ZEnvironment.empty,
+        FiberRefs.empty,
+        RuntimeFlags.default
+      )
 
       Try {
-        runtime.unsafeRunSync {
+        runtime.unsafe.run {
           (for {
             a <- Module("bar")
             b <- Module("foo")

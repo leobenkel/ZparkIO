@@ -6,9 +6,9 @@ import com.leobenkel.zparkio.Services.CommandLineArguments.ConfigErrorParser
 import com.leobenkel.zparkio.Services.Logger.Logger
 import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
 import org.rogach.scallop.exceptions.{Help, ScallopException}
+import zio.{Console, Task, ZIO}
+
 import scala.util.Try
-import zio.{console, Task, ZIO}
-import zio.console.Console
 
 object CommandLineArgumentScallop {
   trait Service[C <: CommandLineArguments.Service[C]]
@@ -59,7 +59,8 @@ object CommandLineArgumentScallop {
       subCommand: Option[String]
   ) extends Throwable
       with CommandLineArguments.Helper.HelpHandlerException {
-    private def print(msg: String): ZIO[Console, Throwable, Unit] = console.putStr(msg)
+    private def print(msg: String): ZIO[Console, Throwable, Unit] =
+      ZIO.serviceWithZIO[Console](console => console.printLine(msg))
 
     lazy private val header: String =
       subCommand match {
@@ -67,13 +68,13 @@ object CommandLineArgumentScallop {
         case Some(s) => s"Help for '$s':\n"
       }
 
-    final override def printHelpMessage: ZIO[zio.ZEnv, Throwable, Unit] =
+    final override def printHelpMessage: ZIO[Console, Throwable, Unit] =
       for {
         _ <- print(header)
-        _ <- ZIO.foreach_(s.vers)(print)
-        _ <- ZIO.foreach_(s.bann)(print)
+        _ <- ZIO.foreach(s.vers)(print)
+        _ <- ZIO.foreach(s.bann)(print)
         _ <- print(s.help)
-        _ <- ZIO.foreach_(s.foot)(print)
+        _ <- ZIO.foreach(s.foot)(print)
         _ <- print("\n")
       } yield ()
   }
