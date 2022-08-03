@@ -1,7 +1,7 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{Exit, FiberRefs, RuntimeFlags, Task, ZEnvironment, ZIO}
+import zio.{Exit, FiberRefs, RuntimeFlags, Task, Unsafe, ZEnvironment, ZIO}
 
 import scala.util.Try
 
@@ -51,10 +51,11 @@ class ModuleFailZIOTest extends AnyFreeSpec {
         } yield s"$a - $b"
 
       Try {
+        Unsafe.unsafe { implicit unsafe =>
         runtime.unsafe.run {
           for {
             s <- ModuleServiceBuilder.create(true)
-            a <- jobRun.provide(ModuleIpml(s))
+            a <- jobRun.provideEnvironment(ZEnvironment(ModuleIpml(s)))
           } yield a
         } match {
           case a @ Exit.Success(value) =>
@@ -64,7 +65,7 @@ class ModuleFailZIOTest extends AnyFreeSpec {
             println(s"Failed inside with: $cause")
             fail(cause.prettyPrint)
         }
-      } match {
+      }} match {
         case scala.util.Success(value)     => println(s"Outside: $value")
         case scala.util.Failure(exception) =>
           println(s"Failed outside with : $exception")

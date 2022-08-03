@@ -3,11 +3,11 @@ package com.leobenkel.zparkio.config.scallop
 import com.leobenkel.zparkio.Services.CommandLineArguments
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import com.leobenkel.zparkio.config.scallop.CommandLineArgumentScallop.HelpHandlerException
-import org.rogach.scallop.{ScallopConf, ScallopOption, Subcommand}
 import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
+import org.rogach.scallop.{ScallopConf, ScallopOption, Subcommand}
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{BootstrapRuntime, Layer, Task, ZIO, ZLayer}
 import zio.Exit.{Failure, Success}
+import zio.{Layer, ZIO, ZLayer}
 
 class CommandLineArgumentScallopTest extends AnyFreeSpec {
   "CommandLineService" - {

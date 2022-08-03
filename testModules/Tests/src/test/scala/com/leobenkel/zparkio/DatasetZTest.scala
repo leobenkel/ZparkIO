@@ -6,7 +6,7 @@ import com.leobenkel.zparkio.implicits.{ZDS, ZDS_R}
 import com.leobenkel.zparkiotest.TestWithSpark
 import org.apache.spark.sql.SparkSession
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{BootstrapRuntime, Task, ZLayer}
+import zio.{FiberRefs, RuntimeFlags, Unsafe, ZEnvironment, ZIO, ZLayer}
 
 // https://stackoverflow.com/a/16990806/3357831
 case class TestClass(
@@ -27,18 +27,24 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
           TestClass(a = 1, b = "one"),
           TestClass(a = 2, b = "two"),
           TestClass(a = 3, b = "three")
-        ).zMap { case TestClass(a, b) => Task(TestClassAfter(a + b.length)) }
+        ).zMap { case TestClass(a, b) => ZIO.attempt(TestClassAfter(a + b.length)) }
 
-      val r = new BootstrapRuntime {}
-
+      val r = zio.Runtime(
+        ZEnvironment.empty,
+        FiberRefs.empty,
+        RuntimeFlags.default
+      )
+      val result = Unsafe.unsafe {implicit unsafe =>
+        r.unsafe.run(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
+          override def spark: SparkSession = s
+        })))
+          .collect()
+          .sortBy(_.a)
+          .toList
+      }
       assert(
         List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) ==
-          r.unsafeRun(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
-              override def spark: SparkSession = s
-            })))
-            .collect()
-            .sortBy(_.a)
-            .toList
+
       )
     }
 

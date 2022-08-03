@@ -1,7 +1,7 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{Exit, FiberRef, FiberRefs, RuntimeFlags, ZEnvironment, ZIO}
+import zio.{Exit, FiberRefs, RuntimeFlags, Unsafe, ZEnvironment, ZIO}
 
 import scala.util.Try
 
@@ -38,12 +38,14 @@ class ModuleFailTest extends AnyFreeSpec {
       )
 
       Try {
+        Unsafe.unsafe{ implicit unsafe =>
         runtime.unsafe.run {
           (for {
             a <- Module("bar")
             b <- Module("foo")
-          } yield s"$a - $b").provide(ModuleIpml(false))
-        } match {
+          } yield s"$a - $b")
+            .provideEnvironment(ZEnvironment.apply(ModuleIpml(false)))
+        }} match {
           case a @ Exit.Success(value) =>
             println(s"Intern: $value")
             a
