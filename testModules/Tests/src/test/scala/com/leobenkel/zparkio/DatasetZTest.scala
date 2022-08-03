@@ -34,17 +34,18 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
         FiberRefs.empty,
         RuntimeFlags.default
       )
+
       val result = Unsafe.unsafe {implicit unsafe =>
         r.unsafe.run(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
           override def spark: SparkSession = s
         })))
+          .getOrThrowFiberFailure()
           .collect()
           .sortBy(_.a)
           .toList
       }
       assert(
-        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) ==
-
+        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) == result
       )
     }
 
@@ -58,16 +59,23 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
           TestClass(a = 3, b = "three")
         ).mapDS { case TestClass(a, b) => TestClassAfter(a + b.length) }
 
-      val r = new BootstrapRuntime {}
+      val r = zio.Runtime(
+        ZEnvironment.empty,
+        FiberRefs.empty,
+        RuntimeFlags.default
+      )
 
+      val result = Unsafe.unsafe { implicit unsafe =>
+        r.unsafe.run(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
+          override def spark: SparkSession = s
+        })))
+          .getOrThrowFiberFailure()
+          .collect()
+          .sortBy(_.a)
+          .toList
+      }
       assert(
-        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) ==
-          r.unsafeRun(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
-              override def spark: SparkSession = s
-            })))
-            .collect()
-            .sortBy(_.a)
-            .toList
+        List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) == result
       )
     }
   }

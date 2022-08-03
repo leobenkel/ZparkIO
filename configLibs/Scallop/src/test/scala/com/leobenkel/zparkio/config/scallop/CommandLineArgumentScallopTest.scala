@@ -7,7 +7,7 @@ import org.rogach.scallop.exceptions.{RequiredOptionNotFound, UnknownOption}
 import org.rogach.scallop.{ScallopConf, ScallopOption, Subcommand}
 import org.scalatest.freespec.AnyFreeSpec
 import zio.Exit.{Failure, Success}
-import zio.{Layer, ZIO, ZLayer}
+import zio.{Console, FiberRefs, Layer, RuntimeFlags, Unsafe, ZEnvironment, ZIO, ZLayer}
 
 class CommandLineArgumentScallopTest extends AnyFreeSpec {
   "CommandLineService" - {
@@ -32,37 +32,47 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
         ZLayer.succeed(ArgumentsService(input))
     }
 
-    val runtime = new BootstrapRuntime {}
+    val runtime = zio.Runtime(
+      ZEnvironment(Console.ConsoleLive),
+      FiberRefs.empty,
+      RuntimeFlags.default
+    )
 
     "should work" in {
       val test: String = "qwe-asd-asd-zxc"
 
-      runtime.unsafeRunSync {
-        Arguments.get(_.test.toOption).provideLayer(Arguments(Seq("--test", test)))
-      } match {
-        case Success(Some(value)) => assertResult(value)(test)
-        case Success(None)        => fail("Did not found any value")
-        case Failure(ex)          => fail(ex.prettyPrint)
+      Unsafe.unsafe {implicit unsafe =>
+        runtime.unsafe.run {
+          Arguments.get(_.test.toOption).provideLayer(Arguments(Seq("--test", test)))
+        } match {
+          case Success(Some(value)) => assertResult(value)(test)
+          case Success(None) => fail("Did not found any value")
+          case Failure(ex) => fail(ex.prettyPrint)
+        }
       }
     }
 
     "should fail - missing required" in {
-      runtime.unsafeRunSync(for {
-        arg <- Task(Arguments(Nil))
-        a   <- Arguments.get(_.test.toOption).provideLayer(arg)
-      } yield a) match {
-        case Success(_)  => fail("Should have failed")
-        case Failure(ex) => assertThrows[RequiredOptionNotFound](throw ex.squash)
+      Unsafe.unsafe {implicit unsafe =>
+        runtime.unsafe.run(for {
+          arg <- ZIO.attempt(Arguments(Nil))
+          a <- Arguments.get(_.test.toOption).provideLayer(arg)
+        } yield a) match {
+          case Success(_) => fail("Should have failed")
+          case Failure(ex) => assertThrows[RequiredOptionNotFound](throw ex.squash)
+        }
       }
     }
 
     "should fail - unknonw option" in {
-      runtime.unsafeRunSync(for {
-        arg <- Task(Arguments(Seq("--abc", "foo")))
-        a   <- Arguments.get(_.test.toOption).provideLayer(arg)
-      } yield a) match {
-        case Success(_)  => fail("Should have failed")
-        case Failure(ex) => assertThrows[UnknownOption](throw ex.squash)
+      Unsafe.unsafe {implicit unsafe =>
+        runtime.unsafe.run(for {
+          arg <- ZIO.attempt(Arguments(Seq("--abc", "foo")))
+          a <- Arguments.get(_.test.toOption).provideLayer(arg)
+        } yield a) match {
+          case Success(_) => fail("Should have failed")
+          case Failure(ex) => assertThrows[UnknownOption](throw ex.squash)
+        }
       }
     }
 
@@ -93,11 +103,14 @@ class CommandLineArgumentScallopTest extends AnyFreeSpec {
         addSubcommand(sub)
       }
       val arg = new Argument(List("--help"))
-      runtime.unsafeRunSync(
-        arg.checkValidity().tapError { case h: HelpHandlerException => h.printHelpMessage }
-      ) match {
-        case Success(a)  => assert(a.verified)
-        case Failure(ex) => assertThrows[HelpHandlerException](throw ex.squash)
+      Unsafe.unsafe { implicit unsafe =>
+        runtime.unsafe.run(
+
+          arg.checkValidity().tapError { case h: HelpHandlerException => h.printHelpMessage }
+        ) match {
+          case Success(a) => assert(a.verified)
+          case Failure(ex) => assertThrows[HelpHandlerException](throw ex.squash)
+        }
       }
     }
   }
