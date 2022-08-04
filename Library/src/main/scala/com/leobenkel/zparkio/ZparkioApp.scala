@@ -6,7 +6,6 @@ import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import com.leobenkel.zparkio.ZparkioApp.BaseEnv
 import zio.{Clock, Console, DefaultServices, Duration, FiberRefs, Random, Runtime, RuntimeFlags, System, ZIO, ZLayer}
-import izumi.reflect.Tag
 
 //scalastyle:off number.of.methods
 trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
@@ -20,8 +19,8 @@ trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
   final protected type ERROR_HANDLER = CLA.ConfigErrorParser
 
   // Tag for user env
-  implicit def tagC:   Tag[C]
-  implicit def tagEnv: Tag[ENV]
+  implicit def tagC:   zio.Tag[C]
+  implicit def tagEnv: zio.Tag[ENV]
   // Build ZPARKIO environment
   protected def sparkFactory:          FACTORY_SPARK
   protected def loggerFactory:         FACTORY_LOG

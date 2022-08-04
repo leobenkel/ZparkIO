@@ -2,7 +2,6 @@ package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Services.Logger.Logger
 import zio.{Console, ZIO, ZLayer}
-import izumi.reflect.Tag
 
 object CommandLineArguments {
   import Helper._
@@ -42,7 +41,7 @@ object CommandLineArguments {
     final def assembleCliBuilder(
         args: C
     )(implicit
-        t:    Tag[C]
+        t:    zio.Tag[C]
     ): ZLayer[Logger, Throwable, CommandLineArguments[C]] =
       ZLayer.fromZIO(createCliSafely(args).tapError(handleErrors(_)))
   }
@@ -57,15 +56,15 @@ object CommandLineArguments {
 
   def apply[C <: CommandLineArguments.Service[C]](
   )(implicit
-      t: Tag[C]
+      t: zio.Tag[C]
   ): ZIO[CommandLineArguments[C], Throwable, C] = {
     ZIO.service[C]
   }
 
-  def get[C <: CommandLineArguments.Service[C] : Tag]: ZIO_CONFIG_SERVICE[C] =
+  def get[C <: CommandLineArguments.Service[C] : zio.Tag]: ZIO_CONFIG_SERVICE[C] =
     apply[C]().flatMap(_.checkValidity()).map(YourConfigWrapper[C])
 
-  def displayCommandLines[C <: CommandLineArguments.Service[C] : Tag](
+  def displayCommandLines[C <: CommandLineArguments.Service[C] : zio.Tag](
   ): ZIO[CommandLineArguments[C] with Logger, Throwable, Unit] =
     for {
       conf <- apply[C]()

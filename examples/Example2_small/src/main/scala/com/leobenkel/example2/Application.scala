@@ -13,8 +13,8 @@ import org.apache.spark.SparkException
 import zio.{ZIO, ZLayer}
 
 trait Application extends ZparkioApp[Arguments, APP_ENV, Unit] {
-  implicit lazy final override val tagC:   Tag[Arguments] = Tag.tagFromTagMacro
-  implicit lazy final override val tagEnv: Tag[APP_ENV]   = Tag.tagFromTagMacro
+  implicit lazy final override val tagC:   zio.Tag[Arguments] = zio.Tag(Tag.tagFromTagMacro)
+  implicit lazy final override val tagEnv: zio.Tag[APP_ENV]   = zio.Tag(Tag.tagFromTagMacro)
 
   override protected def env: ZLayer[ZPARKIO_ENV, Throwable, APP_ENV] = FileIO.Live ++ Database.Live
 
