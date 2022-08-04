@@ -1,9 +1,10 @@
 package com.leobenkel.example1
 
+import com.leobenkel.zparkio.ZparkioApp.ZIOEnv
 import com.leobenkel.zparkiotest.TestWithSpark
 import org.scalatest.freespec.AnyFreeSpec
 import zio.Exit.{Failure, Success}
-import zio.{Clock, Console, Random, Runtime, System, Unsafe, ZIO}
+import zio.{Runtime, Unsafe, ZIO}
 
 class ApplicationTest extends AnyFreeSpec with TestWithSpark {
   "Full application - Example 1" - {
@@ -53,9 +54,9 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
 }
 
 object TestApp extends Application {
-  def runTest(args: List[String]): ZIO[Clock with Console with System with Random, Throwable, Int] =
+  def runTest(args: List[String]): ZIO[ZIOEnv, Throwable, Int] =
     super.run(args)
 
-  lazy final override val makeRuntime: Runtime[Clock with Console with System with Random] =
+  lazy final override val makeRuntime: Runtime[ZIOEnv] =
     super.makeRuntime
 }

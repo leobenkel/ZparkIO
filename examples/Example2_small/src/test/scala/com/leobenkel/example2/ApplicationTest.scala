@@ -4,11 +4,12 @@ import com.leobenkel.example2.Application.APP_ENV
 import com.leobenkel.example2.Items.{Post, User}
 import com.leobenkel.example2.Services.{Database, FileIO}
 import com.leobenkel.zparkio.Services.Logger
+import com.leobenkel.zparkio.ZparkioApp.ZIOEnv
 import com.leobenkel.zparkiotest.{LoggerService, TestWithSpark}
 import org.apache.spark.sql._
 import org.scalatest.freespec.AnyFreeSpec
 import zio.Exit.{Failure, Success}
-import zio.{Clock, Console, Random, Runtime, System, Unsafe, ZIO, ZLayer}
+import zio.{Console, Runtime, Unsafe, ZIO, ZLayer}
 
 class ApplicationTest extends AnyFreeSpec with TestWithSpark {
   "Full application - Example 2" - {
@@ -62,10 +63,10 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
 }
 
 case class TestApp(s: SparkSession) extends Application {
-  def runTest(args: List[String]): ZIO[Clock with Console with System with Random, Nothing, Int] =
+  def runTest(args: List[String]): ZIO[ZIOEnv, Nothing, Int] =
     super.run(args)
 
-  override def makeRuntime: Runtime[Clock with Console with System with Random] = super.makeRuntime
+  override def makeRuntime: Runtime[ZIOEnv] = super.makeRuntime
 
   override protected def sparkFactory: FACTORY_SPARK =
     new FACTORY_SPARK {

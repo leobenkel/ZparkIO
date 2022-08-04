@@ -4,7 +4,7 @@ import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerExc
 import com.leobenkel.zparkio.Services.Logger.Logger
 import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
-import com.leobenkel.zparkio.ZparkioApp.BaseEnv
+import com.leobenkel.zparkio.ZparkioApp.{BaseEnv, ZIOEnv}
 import zio.{Clock, Console, DefaultServices, Duration, FiberRefs, Random, Runtime, RuntimeFlags, System, ZIO, ZLayer}
 
 //scalastyle:off number.of.methods
@@ -30,7 +30,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
 
   final protected def buildEnv(
       args: C
-  ): ZLayer[Clock with Console with System with Random, Throwable, BaseEnv[C]] =
+  ): ZLayer[ZIOEnv, Throwable, BaseEnv[C]] =
     loggerFactory.assembleLogger >+> cliFactory.assembleCliBuilder(args) >+>
       sparkFactory.assembleSparkModule
 
@@ -52,7 +52,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
   protected def timedApplication:  Duration = Duration.Infinity
   protected def stopSparkAtTheEnd: Boolean  = true
 
-  protected def makeRuntime: Runtime[Clock with Console with System with Random] =
+  protected def makeRuntime: Runtime[ZIOEnv] =
     zio.Runtime(
       DefaultServices.live,
       FiberRefs.empty,
@@ -85,11 +85,11 @@ trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
     }
   }
 
-  protected def run(args: List[String]): ZIO[Clock with Console with System with Random , Nothing, Int] =
+  protected def run(args: List[String]): ZIO[ZIOEnv, Nothing, Int] =
     ZIO.attempt(makeCli(args))
       .map(buildEnv)
       .flatMap { baseEnv =>
-        app.provideSomeLayer[Clock with Console with System with Random with BaseEnv[C]](env)
+        app.provideSomeLayer[ZIOEnv with BaseEnv[C]](env)
           .provideSomeLayer(baseEnv)
       }
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
@@ -107,5 +107,6 @@ trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
 
 object ZparkioApp {
   type BaseEnv[C <: CLA.Service[C]] = CLA.CommandLineArguments[C] with Logger with SparkModule
-  type ZPEnv[C <: CLA.Service[C]]   = Clock with Console with System with Random with BaseEnv[C]
+  type ZIOEnv = Clock with Console with System with Random
+  type ZPEnv[C <: CLA.Service[C]]   = ZIOEnv with BaseEnv[C]
 }
