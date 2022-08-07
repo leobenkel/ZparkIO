@@ -44,7 +44,7 @@ class ModuleFailTest extends AnyFreeSpec {
             a <- Module("bar")
             b <- Module("foo")
           } yield s"$a - $b")
-            .provideEnvironment(ZEnvironment.apply(ModuleIpml(false)))
+            .provideEnvironment(ZEnvironment(ModuleIpml(false)))
         }} match {
           case a @ Exit.Success(value) =>
             println(s"Intern: $value")

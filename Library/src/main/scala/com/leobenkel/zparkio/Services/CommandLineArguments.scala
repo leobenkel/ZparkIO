@@ -1,7 +1,7 @@
 package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Services.Logger.Logger
-import zio.{Console, ZIO, ZLayer}
+import zio.{Console, ZEnvironment, ZIO, ZLayer}
 
 object CommandLineArguments {
   import Helper._
@@ -43,7 +43,9 @@ object CommandLineArguments {
     )(implicit
         t:    zio.Tag[C]
     ): ZLayer[Logger, Throwable, CommandLineArguments[C]] =
-      ZLayer.fromZIO(createCliSafely(args).tapError(handleErrors(_)))
+      ZLayer.fromZIO(
+        ZIO.serviceWithZIO[Logger](logger => createCliSafely(args).provideEnvironment(ZEnvironment(logger)))
+      )
   }
 
   trait ConfigErrorParser {
@@ -57,9 +59,7 @@ object CommandLineArguments {
   def apply[C <: CommandLineArguments.Service[C]](
   )(implicit
       t: zio.Tag[C]
-  ): ZIO[CommandLineArguments[C], Throwable, C] = {
-    ZIO.service[C]
-  }
+  ): ZIO[CommandLineArguments[C], Throwable, C] = ZIO.service[C]
 
   def get[C <: CommandLineArguments.Service[C] : zio.Tag]: ZIO_CONFIG_SERVICE[C] =
     apply[C]().flatMap(_.checkValidity()).map(YourConfigWrapper[C])
