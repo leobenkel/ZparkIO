@@ -5,10 +5,9 @@ import com.leobenkel.zparkio.Services.SparkModule.SparkModule
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
-import zio.{FiberRefs, RuntimeFlags, Unsafe, ZEnvironment, ZIO}
-
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+import zio.{FiberRefs, RuntimeFlags, Unsafe, ZEnvironment, ZIO}
 
 // scalastyle:off object.name
 object implicits {
@@ -65,16 +64,14 @@ object implicits {
         zds.map { ds =>
           ds.map { a =>
             val zB      = f(a)
-            val runtime = zio.Runtime(
-              ZEnvironment.empty,
-              FiberRefs.empty,
-              RuntimeFlags.default
-            )
+            val runtime =
+              zio.Runtime(
+                ZEnvironment.empty,
+                FiberRefs.empty,
+                RuntimeFlags.default
+              )
 
-            Unsafe.unsafe { implicit u =>
-              runtime.unsafe.run(zB)
-                .getOrThrowFiberFailure()
-            }
+            Unsafe.unsafe(implicit u => runtime.unsafe.run(zB).getOrThrowFiberFailure())
           }
         }
       }

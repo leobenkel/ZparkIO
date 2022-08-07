@@ -2,9 +2,8 @@ package com.leobenkel.zparkio.Services
 
 import com.leobenkel.zparkio.Services.CommandLineArguments.CommandLineArguments
 import org.apache.spark.sql.SparkSession
-import zio.{ZIO, ZLayer}
-
 import scala.util.Try
+import zio.{ZIO, ZLayer}
 
 object SparkModule {
   type SparkModule = SparkModule.Service
@@ -57,9 +56,10 @@ object SparkModule {
       ZIO.attempt(makeSparkService(readyToBuildSparkBuilder(arguments)))
 
     private[zparkio] def assembleSparkModule(implicit
-        t: zio.Tag[C]): ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
+        t: zio.Tag[C]
+    ): ZLayer[CommandLineArguments[C], Throwable, SparkModule] =
       ZLayer.fromZIO(
-      ZIO.serviceWithZIO[CommandLineArguments[C]](c => createSpark(c))
-    )
+        ZIO.serviceWithZIO[CommandLineArguments[C]](c => createSpark(c))
+      )
   }
 }

@@ -1,8 +1,7 @@
 package com.leobenkel.example1
 
-import zio.ZIO
-
 import scala.io.Source
+import zio.ZIO
 
 trait FileIO {
   def fileIO: FileIO.Service

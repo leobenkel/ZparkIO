@@ -47,9 +47,8 @@ object Database {
     }
   }
 
-  val Live: ZLayer[CommandLineArguments[Arguments], Throwable, Database] = {
+  val Live: ZLayer[CommandLineArguments[Arguments], Throwable, Database] =
     ZLayer.fromZIO(ZIO.serviceWith[Arguments](args => LiveService(args.credentials)))
-  }
 
   def apply[A : Encoder](query: String): ZDS_R[Database, A] =
     ZIO.environment[Database].flatMap(_.get.query(query))

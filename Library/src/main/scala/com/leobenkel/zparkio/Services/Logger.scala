@@ -15,6 +15,7 @@ object Logger {
     protected def makeLogger(
         console: zio.Console
     ): ZIO[Any, Throwable, Logger.Service]
+
     private[zparkio] def assembleLogger: ZLayer[Console, Throwable, Logger] =
       ZLayer.fromZIO(ZIO.consoleWith(console => makeLogger(console)))
   }
@@ -36,13 +37,17 @@ object Logger {
     } yield ()
 
   val Live: ZLayer[Console, Throwable, Logger] =
-    ZLayer.fromZIO(ZIO.console.map{ console =>
-      new Logger.Service {
-        override def info(txt: => String):  Task[Unit] = console.printLine(s"[INFO] $txt")
-        override def error(txt: => String): Task[Unit] = console.printLine(s"[ERROR] $txt")
-        override def debug(txt: => String): Task[Unit] = console.printLine(s"[DEBUG] $txt")
-      }
-    })
+    ZLayer.fromZIO(
+      ZIO
+        .console
+        .map { console =>
+          new Logger.Service {
+            override def info(txt: => String):  Task[Unit] = console.printLine(s"[INFO] $txt")
+            override def error(txt: => String): Task[Unit] = console.printLine(s"[ERROR] $txt")
+            override def debug(txt: => String): Task[Unit] = console.printLine(s"[DEBUG] $txt")
+          }
+        }
+    )
 
   def info(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.serviceWithZIO[Logger](_.info(txt))
 

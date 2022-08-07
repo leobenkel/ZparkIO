@@ -1,8 +1,7 @@
 package com.leobenkel.example2.Services
 
-import zio.{ZIO, ZLayer}
-
 import scala.io.Source
+import zio.{ZIO, ZLayer}
 
 object FileIO {
   type FileIO = Service

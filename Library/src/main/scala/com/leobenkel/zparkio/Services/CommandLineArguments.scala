@@ -44,7 +44,9 @@ object CommandLineArguments {
         t:    zio.Tag[C]
     ): ZLayer[Logger, Throwable, CommandLineArguments[C]] =
       ZLayer.fromZIO(
-        ZIO.serviceWithZIO[Logger](logger => createCliSafely(args).provideEnvironment(ZEnvironment(logger)))
+        ZIO.serviceWithZIO[Logger](logger =>
+          createCliSafely(args).provideEnvironment(ZEnvironment(logger))
+        )
       )
   }
 
