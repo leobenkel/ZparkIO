@@ -1,9 +1,8 @@
 package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{Exit, FiberRefs, RuntimeFlags, Task, Unsafe, ZEnvironment, ZIO}
-
 import scala.util.Try
+import zio.{Exit, FiberRefs, RuntimeFlags, Task, Unsafe, ZEnvironment, ZIO}
 
 class ModuleFailZIOTest extends AnyFreeSpec {
   "Module" ignore {
@@ -29,8 +28,7 @@ class ModuleFailZIOTest extends AnyFreeSpec {
     }
 
     object ModuleServiceBuilder {
-      def create(dead: Boolean): Task[Module.Service] =
-        ZIO.attempt(ModuleServiceIpml(dead))
+      def create(dead: Boolean): Task[Module.Service] = ZIO.attempt(ModuleServiceIpml(dead))
     }
 
     case class ModuleIpml(s: Module.Service) extends Module {
@@ -38,11 +36,12 @@ class ModuleFailZIOTest extends AnyFreeSpec {
     }
 
     "Might fail" in {
-      val runtime = zio.Runtime(
-        ZEnvironment.empty,
-        FiberRefs.empty,
-        RuntimeFlags.default
-      )
+      val runtime =
+        zio.Runtime(
+          ZEnvironment.empty,
+          FiberRefs.empty,
+          RuntimeFlags.default
+        )
 
       def jobRun: ZIO[Module, Throwable, String] =
         for {
@@ -52,20 +51,23 @@ class ModuleFailZIOTest extends AnyFreeSpec {
 
       Try {
         Unsafe.unsafe { implicit unsafe =>
-        runtime.unsafe.run {
-          for {
-            s <- ModuleServiceBuilder.create(true)
-            a <- jobRun.provideEnvironment(ZEnvironment(ModuleIpml(s)))
-          } yield a
-        } match {
-          case a @ Exit.Success(value) =>
-            println(s"Intern: $value")
-            a
-          case Exit.Failure(cause)     =>
-            println(s"Failed inside with: $cause")
-            fail(cause.prettyPrint)
+          runtime
+            .unsafe
+            .run {
+              for {
+                s <- ModuleServiceBuilder.create(true)
+                a <- jobRun.provideEnvironment(ZEnvironment(ModuleIpml(s)))
+              } yield a
+            } match {
+            case a @ Exit.Success(value) =>
+              println(s"Intern: $value")
+              a
+            case Exit.Failure(cause)     =>
+              println(s"Failed inside with: $cause")
+              fail(cause.prettyPrint)
+          }
         }
-      }} match {
+      } match {
         case scala.util.Success(value)     => println(s"Outside: $value")
         case scala.util.Failure(exception) =>
           println(s"Failed outside with : $exception")

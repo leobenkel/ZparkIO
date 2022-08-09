@@ -8,18 +8,15 @@ import com.leobenkel.zparkio.ZparkioApp.ZIOEnv
 import com.leobenkel.zparkiotest.{LoggerService, TestWithSpark}
 import org.apache.spark.sql._
 import org.scalatest.freespec.AnyFreeSpec
-import zio.Exit.{Failure, Success}
 import zio.{Console, Runtime, Unsafe, ZIO, ZLayer}
+import zio.Exit.{Failure, Success}
 
 class ApplicationTest extends AnyFreeSpec with TestWithSpark {
   "Full application - Example 2" - {
     "Run" in {
       val testApp = TestApp(spark)
-      Unsafe.unsafe {implicit unsafe =>
-        testApp
-          .makeRuntime
-          .unsafe
-          .run(testApp.runTest(Nil)) match {
+      Unsafe.unsafe { implicit unsafe =>
+        testApp.makeRuntime.unsafe.run(testApp.runTest(Nil)) match {
           case Success(value) =>
             println(s"Read exit code: $value")
             assertResult(0)(value)
@@ -48,10 +45,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
     "Help" in {
       val testApp = TestApp(spark)
       Unsafe.unsafe { implicit unsafe =>
-        testApp
-          .makeRuntime
-          .unsafe
-          .run(testApp.runTest("--help" :: Nil)) match {
+        testApp.makeRuntime.unsafe.run(testApp.runTest("--help" :: Nil)) match {
           case Success(value) =>
             println(s"Read exit code: $value")
             assertResult(0)(value)
@@ -63,8 +57,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
 }
 
 case class TestApp(s: SparkSession) extends Application {
-  def runTest(args: List[String]): ZIO[ZIOEnv, Nothing, Int] =
-    super.run(args)
+  def runTest(args: List[String]): ZIO[ZIOEnv, Nothing, Int] = super.run(args)
 
   override def makeRuntime: Runtime[ZIOEnv] = super.makeRuntime
 

@@ -3,13 +3,13 @@ package com.leobenkel.example1
 import com.leobenkel.zparkio.ZparkioApp.ZIOEnv
 import com.leobenkel.zparkiotest.TestWithSpark
 import org.scalatest.freespec.AnyFreeSpec
-import zio.Exit.{Failure, Success}
 import zio.{Runtime, Unsafe, ZIO}
+import zio.Exit.{Failure, Success}
 
 class ApplicationTest extends AnyFreeSpec with TestWithSpark {
   "Full application - Example 1" - {
-    "Run" in {
-      Unsafe.unsafe {implicit unsafe =>
+    "Run" in
+      Unsafe.unsafe { implicit unsafe =>
         TestApp
           .makeRuntime
           .unsafe
@@ -22,9 +22,8 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Failure(cause) => fail(cause.prettyPrint)
         }
       }
-    }
 
-    "Wrong argument" in {
+    "Wrong argument" in
       Unsafe.unsafe { implicit unsafe =>
         TestApp
           .makeRuntime
@@ -38,10 +37,9 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Failure(cause) => fail(cause.prettyPrint)
         }
       }
-    }
 
-    "Help" in {
-      Unsafe.unsafe {implicit unsafe =>
+    "Help" in
+      Unsafe.unsafe { implicit unsafe =>
         TestApp.makeRuntime.unsafe.run(TestApp.runTest("--help" :: Nil)) match {
           case Success(value) =>
             println(s"Read: $value")
@@ -49,14 +47,11 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Failure(cause) => fail(cause.prettyPrint)
         }
       }
-    }
   }
 }
 
 object TestApp extends Application {
-  def runTest(args: List[String]): ZIO[ZIOEnv, Throwable, Int] =
-    super.run(args)
+  def runTest(args: List[String]): ZIO[ZIOEnv, Throwable, Int] = super.run(args)
 
-  lazy final override val makeRuntime: Runtime[ZIOEnv] =
-    super.makeRuntime
+  lazy final override val makeRuntime: Runtime[ZIOEnv] = super.makeRuntime
 }

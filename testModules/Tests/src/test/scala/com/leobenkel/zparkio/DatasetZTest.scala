@@ -29,21 +29,24 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
           TestClass(a = 3, b = "three")
         ).zMap { case TestClass(a, b) => ZIO.attempt(TestClassAfter(a + b.length)) }
 
-      val r = zio.Runtime(
-        ZEnvironment.empty,
-        FiberRefs.empty,
-        RuntimeFlags.default
-      )
+      val r =
+        zio.Runtime(
+          ZEnvironment.empty,
+          FiberRefs.empty,
+          RuntimeFlags.default
+        )
 
-      val result = Unsafe.unsafe {implicit unsafe =>
-        r.unsafe.run(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
-          override def spark: SparkSession = s
-        })))
-          .getOrThrowFiberFailure()
-          .collect()
-          .sortBy(_.a)
-          .toList
-      }
+      val result =
+        Unsafe.unsafe { implicit unsafe =>
+          r.unsafe
+            .run(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
+              override def spark: SparkSession = s
+            })))
+            .getOrThrowFiberFailure()
+            .collect()
+            .sortBy(_.a)
+            .toList
+        }
       assert(
         List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) == result
       )
@@ -59,21 +62,24 @@ class DatasetZTest extends AnyFreeSpec with TestWithSpark {
           TestClass(a = 3, b = "three")
         ).mapDS { case TestClass(a, b) => TestClassAfter(a + b.length) }
 
-      val r = zio.Runtime(
-        ZEnvironment.empty,
-        FiberRefs.empty,
-        RuntimeFlags.default
-      )
+      val r =
+        zio.Runtime(
+          ZEnvironment.empty,
+          FiberRefs.empty,
+          RuntimeFlags.default
+        )
 
-      val result = Unsafe.unsafe { implicit unsafe =>
-        r.unsafe.run(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
-          override def spark: SparkSession = s
-        })))
-          .getOrThrowFiberFailure()
-          .collect()
-          .sortBy(_.a)
-          .toList
-      }
+      val result =
+        Unsafe.unsafe { implicit unsafe =>
+          r.unsafe
+            .run(d.provideLayer(ZLayer.succeed(new SparkModule.Service {
+              override def spark: SparkSession = s
+            })))
+            .getOrThrowFiberFailure()
+            .collect()
+            .sortBy(_.a)
+            .toList
+        }
       assert(
         List(TestClassAfter(4), TestClassAfter(5), TestClassAfter(8)) == result
       )
