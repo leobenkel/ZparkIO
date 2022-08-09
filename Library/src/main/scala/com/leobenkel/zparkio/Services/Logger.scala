@@ -17,7 +17,7 @@ object Logger {
     ): ZIO[Any, Throwable, Logger.Service]
 
     private[zparkio] def assembleLogger: ZLayer[Console, Throwable, Logger] =
-      ZLayer.fromZIO(ZIO.consoleWith(console => makeLogger(console)))
+      ZLayer.fromZIO(ZIO.consoleWith(makeLogger(_)))
   }
 
   object Factory {

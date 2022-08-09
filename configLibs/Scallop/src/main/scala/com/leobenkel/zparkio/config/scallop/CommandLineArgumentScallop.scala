@@ -60,7 +60,7 @@ object CommandLineArgumentScallop {
   ) extends Throwable
       with CommandLineArguments.Helper.HelpHandlerException {
     private def print(msg: String): ZIO[Console, Throwable, Unit] =
-      ZIO.consoleWith(console => console.printLine(msg))
+      ZIO.consoleWith(_.printLine(msg))
 
     lazy private val header: String =
       subCommand match {
