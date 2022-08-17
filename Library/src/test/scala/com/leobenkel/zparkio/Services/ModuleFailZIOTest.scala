@@ -2,7 +2,7 @@ package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
 import scala.util.Try
-import zio.{BootstrapRuntime, Exit, Task, ZIO}
+import zio.{Exit, FiberRefs, RuntimeFlags, Task, Unsafe, ZEnvironment, ZIO}
 
 class ModuleFailZIOTest extends AnyFreeSpec {
   "Module" ignore {
@@ -14,7 +14,8 @@ class ModuleFailZIOTest extends AnyFreeSpec {
         def foo(bar: String): String
       }
 
-      def apply(b: String): ZIO[Module, Throwable, String] = ZIO.access[Module](_.service.foo(b))
+      def apply(b: String): ZIO[Module, Throwable, String] =
+        ZIO.serviceWith[Module](_.service.foo(b))
     }
 
     case class ModuleServiceIpml(dead: Boolean) extends Module.Service {
@@ -27,7 +28,7 @@ class ModuleFailZIOTest extends AnyFreeSpec {
     }
 
     object ModuleServiceBuilder {
-      def create(dead: Boolean): Task[Module.Service] = Task(ModuleServiceIpml(dead))
+      def create(dead: Boolean): Task[Module.Service] = ZIO.attempt(ModuleServiceIpml(dead))
     }
 
     case class ModuleIpml(s: Module.Service) extends Module {
@@ -35,7 +36,12 @@ class ModuleFailZIOTest extends AnyFreeSpec {
     }
 
     "Might fail" in {
-      val runtime = new BootstrapRuntime {}
+      val runtime =
+        zio.Runtime(
+          ZEnvironment.empty,
+          FiberRefs.empty,
+          RuntimeFlags.default
+        )
 
       def jobRun: ZIO[Module, Throwable, String] =
         for {
@@ -44,18 +50,22 @@ class ModuleFailZIOTest extends AnyFreeSpec {
         } yield s"$a - $b"
 
       Try {
-        runtime.unsafeRunSync {
-          for {
-            s <- ModuleServiceBuilder.create(true)
-            a <- jobRun.provide(ModuleIpml(s))
-          } yield a
-        } match {
-          case a @ Exit.Success(value) =>
-            println(s"Intern: $value")
-            a
-          case Exit.Failure(cause)     =>
-            println(s"Failed inside with: $cause")
-            fail(cause.prettyPrint)
+        Unsafe.unsafe { implicit unsafe =>
+          runtime
+            .unsafe
+            .run {
+              for {
+                s <- ModuleServiceBuilder.create(true)
+                a <- jobRun.provideEnvironment(ZEnvironment(ModuleIpml(s)))
+              } yield a
+            } match {
+            case a @ Exit.Success(value) =>
+              println(s"Intern: $value")
+              a
+            case Exit.Failure(cause)     =>
+              println(s"Failed inside with: $cause")
+              fail(cause.prettyPrint)
+          }
         }
       } match {
         case scala.util.Success(value)     => println(s"Outside: $value")

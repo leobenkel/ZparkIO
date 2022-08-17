@@ -4,13 +4,23 @@ import com.leobenkel.zparkio.Services.{CommandLineArguments => CLA, _}
 import com.leobenkel.zparkio.Services.CommandLineArguments.Helper.HelpHandlerException
 import com.leobenkel.zparkio.Services.Logger.Logger
 import com.leobenkel.zparkio.Services.SparkModule.SparkModule
-import com.leobenkel.zparkio.ZparkioApp.BaseEnv
-import zio.{BootstrapRuntime, Has, Tag, Task, UIO, ZIO, ZLayer}
-import zio.duration.Duration
-import zio.internal.Platform
+import com.leobenkel.zparkio.ZparkioApp.{BaseEnv, ZIOEnv}
+import zio.{
+  Clock,
+  Console,
+  DefaultServices,
+  Duration,
+  FiberRefs,
+  Random,
+  Runtime,
+  RuntimeFlags,
+  System,
+  ZIO,
+  ZLayer
+}
 
 //scalastyle:off number.of.methods
-trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
+trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
 
   // Shortcut types
   final protected type COMPLETE_ENV  = ENV with ZparkioApp.ZPEnv[C]
@@ -21,9 +31,8 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   final protected type ERROR_HANDLER = CLA.ConfigErrorParser
 
   // Tag for user env
-  implicit def tagC:   Tag[C]
-  implicit def tagEnv: Tag[ENV]
-
+  implicit def tagC:                   zio.Tag[C]
+  implicit def tagEnv:                 zio.Tag[ENV]
   // Build ZPARKIO environment
   protected def sparkFactory:          FACTORY_SPARK
   protected def loggerFactory:         FACTORY_LOG
@@ -33,7 +42,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
 
   final protected def buildEnv(
       args: C
-  ): ZLayer[zio.ZEnv, Throwable, BaseEnv[C]] =
+  ): ZLayer[ZIOEnv, Throwable, BaseEnv[C]] =
     loggerFactory.assembleLogger >+> cliFactory.assembleCliBuilder(args) >+>
       sparkFactory.assembleSparkModule
 
@@ -55,14 +64,12 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   protected def timedApplication:  Duration = Duration.Infinity
   protected def stopSparkAtTheEnd: Boolean  = true
 
-  // RUNTIME
-  protected def makePlatform: Platform =
-    Platform.default.withReportFailure(cause => if(cause.died) println(cause.prettyPrint))
-
-  protected def makeRuntime: BootstrapRuntime =
-    new BootstrapRuntime {
-      override val platform: Platform = makePlatform
-    }
+  protected def makeRuntime: Runtime[ZIOEnv] =
+    zio.Runtime(
+      DefaultServices.live,
+      FiberRefs.empty,
+      RuntimeFlags.default
+    )
 
   private object ErrorProcessing {
     def unapply(e: Throwable): Option[Int] = processErrors(e)
@@ -70,7 +77,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
 
   protected def app: ZIO[COMPLETE_ENV, Throwable, OUTPUT] =
     for {
-      _      <- if(displayCommandLines) CLA.displayCommandLines[C]() else UIO(())
+      _      <- if(displayCommandLines) CLA.displayCommandLines[C]() else ZIO.succeed(())
       output <- runApp().timeoutFail(ZparkioApplicationTimeoutException())(timedApplication)
       _      <-
         if(stopSparkAtTheEnd) SparkModule().map { s =>
@@ -78,7 +85,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
           s.stop()
           ()
         }
-        else Task(())
+        else ZIO.attempt(())
     } yield output
 
   private def handleErrors(e: Throwable): Int = {
@@ -90,11 +97,12 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
     }
   }
 
-  protected def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] =
-    Task(makeCli(args))
+  protected def run(args: List[String]): ZIO[ZIOEnv, Nothing, Int] =
+    ZIO
+      .attempt(makeCli(args))
       .map(buildEnv)
       .flatMap { baseEnv =>
-        app.provideSomeLayer[zio.ZEnv with BaseEnv[C]](env).provideCustomLayer(baseEnv)
+        app.provideSomeLayer[ZIOEnv with BaseEnv[C]](env).provideSomeLayer(baseEnv)
       }
       .catchSome { case h: HelpHandlerException => h.printHelpMessage }
       .fold(handleErrors, _ => 0)
@@ -102,7 +110,7 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
   // $COVERAGE-OFF$ Bootstrap to `Unit`
   final def main(args: Array[String]): Unit = {
     val runtime  = makeRuntime
-    val exitCode = runtime.unsafeRun(run(args.toList))
+    val exitCode = runtime.run(run(args.toList))
     println(s"ExitCode: $exitCode")
   }
   // $COVERAGE-ON$
@@ -111,5 +119,6 @@ trait ZparkioApp[C <: CLA.Service[C], ENV <: Has[_], OUTPUT] {
 
 object ZparkioApp {
   type BaseEnv[C <: CLA.Service[C]] = CLA.CommandLineArguments[C] with Logger with SparkModule
-  type ZPEnv[C <: CLA.Service[C]]   = zio.ZEnv with BaseEnv[C]
+  type ZIOEnv                       = Clock with Console with System with Random
+  type ZPEnv[C <: CLA.Service[C]]   = ZIOEnv with BaseEnv[C]
 }

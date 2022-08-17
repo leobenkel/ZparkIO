@@ -1,10 +1,9 @@
 package com.leobenkel.zparkio.Services
 
-import zio.{Has, Task, ZIO, ZLayer}
-import zio.console.Console
+import zio.{Console, Task, ZIO, ZLayer}
 
 object Logger {
-  type Logger = Has[Logger.Service]
+  type Logger = Logger.Service
 
   trait Service {
     def info(txt:  => String): Task[Unit]
@@ -14,19 +13,19 @@ object Logger {
 
   trait Factory {
     protected def makeLogger(
-        console: zio.console.Console.Service
+        console: zio.Console
     ): ZIO[Any, Throwable, Logger.Service]
 
     private[zparkio] def assembleLogger: ZLayer[Console, Throwable, Logger] =
-      ZLayer.fromServiceM(makeLogger)
+      ZLayer.fromZIO(ZIO.consoleWith(makeLogger(_)))
   }
 
   object Factory {
-    def apply(make: Console.Service => Service): Factory =
+    def apply(make: Console => Service): Factory =
       new Factory {
         override protected def makeLogger(
-            console: Console.Service
-        ): ZIO[Any, Throwable, Service] = Task(make(console))
+            console: Console
+        ): ZIO[Any, Throwable, Service] = ZIO.attempt(make(console))
       }
   }
 
@@ -34,21 +33,25 @@ object Logger {
     for {
       _ <- Logger.error(s"!!! Error: ${ex.toString}:")
       _ <- ZIO.foreach(ex.getStackTrace.toList)(st => Logger.error(s"  -   $st"))
-      _ <- Option(ex.getCause).fold[ZIO[Logger, Throwable, Unit]](Task(()))(displayAllErrors)
+      _ <- Option(ex.getCause).fold[ZIO[Logger, Throwable, Unit]](ZIO.attempt(()))(displayAllErrors)
     } yield ()
 
   val Live: ZLayer[Console, Throwable, Logger] =
-    ZLayer.fromService { console =>
-      new Logger.Service {
-        override def info(txt: => String):  Task[Unit] = console.putStrLn(s"[INFO] $txt")
-        override def error(txt: => String): Task[Unit] = console.putStrLn(s"[ERROR] $txt")
-        override def debug(txt: => String): Task[Unit] = console.putStrLn(s"[DEBUG] $txt")
-      }
-    }
+    ZLayer.fromZIO(
+      ZIO
+        .console
+        .map { console =>
+          new Logger.Service {
+            override def info(txt: => String):  Task[Unit] = console.printLine(s"[INFO] $txt")
+            override def error(txt: => String): Task[Unit] = console.printLine(s"[ERROR] $txt")
+            override def debug(txt: => String): Task[Unit] = console.printLine(s"[DEBUG] $txt")
+          }
+        }
+    )
 
-  def info(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.accessM[Logger](_.get.info(txt))
+  def info(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.serviceWithZIO[Logger](_.info(txt))
 
-  def error(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.accessM[Logger](_.get.error(txt))
+  def error(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.serviceWithZIO[Logger](_.error(txt))
 
-  def debug(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.accessM[Logger](_.get.debug(txt))
+  def debug(txt: => String): ZIO[Logger, Throwable, Unit] = ZIO.serviceWithZIO[Logger](_.debug(txt))
 }

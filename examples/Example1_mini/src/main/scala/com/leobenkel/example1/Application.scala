@@ -5,11 +5,11 @@ import com.leobenkel.zparkio.Services._
 import com.leobenkel.zparkio.ZparkioApp
 import com.leobenkel.zparkio.config.scallop.CommandLineArgumentScallop
 import izumi.reflect.Tag
-import zio.{Has, Task, UIO, ZIO, ZLayer}
+import zio.{ZIO, ZLayer}
 
 trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
-  implicit lazy final override val tagC:   Tag[Arguments]  = Tag.tagFromTagMacro
-  implicit lazy final override val tagEnv: Tag[RuntimeEnv] = Tag.tagFromTagMacro
+  implicit lazy final override val tagC:   zio.Tag[Arguments]  = zio.Tag(Tag.tagFromTagMacro)
+  implicit lazy final override val tagEnv: zio.Tag[RuntimeEnv] = zio.Tag(Tag.tagFromTagMacro)
 
   lazy final override protected val env: ZLayer[ZPARKIO_ENV, Throwable, RuntimeEnv] =
     ZLayer.succeed(())
@@ -23,11 +23,11 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
 
   override def runApp(): ZIO[COMPLETE_ENV, Throwable, String] =
     for {
-      s     <- UIO("hello")
+      s     <- ZIO.succeed("hello")
       _     <- Logger.info(s"Got: $s")
       a     <- Arguments(_.inputId())
       spark <- SparkModule()
-      df    <- Task(spark.sparkContext.parallelize((0 until a).toSeq))
+      df    <- ZIO.attempt(spark.sparkContext.parallelize((0 until a).toSeq))
       _     <- Logger.info(s"Count: ${df.count()}")
     } yield s
 
@@ -39,5 +39,5 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
 }
 
 object Application {
-  type RuntimeEnv = Has[Unit]
+  type RuntimeEnv = Unit
 }

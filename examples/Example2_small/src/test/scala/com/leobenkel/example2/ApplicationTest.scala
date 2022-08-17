@@ -4,55 +4,62 @@ import com.leobenkel.example2.Application.APP_ENV
 import com.leobenkel.example2.Items.{Post, User}
 import com.leobenkel.example2.Services.{Database, FileIO}
 import com.leobenkel.zparkio.Services.Logger
+import com.leobenkel.zparkio.ZparkioApp.ZIOEnv
 import com.leobenkel.zparkiotest.{LoggerService, TestWithSpark}
 import org.apache.spark.sql._
 import org.scalatest.freespec.AnyFreeSpec
-import zio.{BootstrapRuntime, Task, ZIO, ZLayer}
+import zio.{Console, Runtime, Unsafe, ZIO, ZLayer}
 import zio.Exit.{Failure, Success}
-import zio.console.Console
 
 class ApplicationTest extends AnyFreeSpec with TestWithSpark {
   "Full application - Example 2" - {
     "Run" in {
       val testApp = TestApp(spark)
-      testApp.makeRuntime.unsafeRunSync(testApp.runTest(Nil)) match {
-        case Success(value) =>
-          println(s"Read exit code: $value")
-          assertResult(0)(value)
-        case Failure(cause) => fail(cause.prettyPrint)
+      Unsafe.unsafe { implicit unsafe =>
+        testApp.makeRuntime.unsafe.run(testApp.runTest(Nil)) match {
+          case Success(value) =>
+            println(s"Read exit code: $value")
+            assertResult(0)(value)
+          case Failure(cause) => fail(cause.prettyPrint)
+        }
       }
     }
 
     "Wrong argument" in {
       val testApp = TestApp(spark)
-      testApp
-        .makeRuntime
-        .unsafeRunSync(
-          testApp.runTest("--bar" :: "foo" :: Nil)
-        ) match {
-        case Success(value) =>
-          println(s"Read: $value")
-          assertResult(1)(value)
-        case Failure(cause) => fail(cause.prettyPrint)
+      Unsafe.unsafe { implicit unsafe =>
+        testApp
+          .makeRuntime
+          .unsafe
+          .run(
+            testApp.runTest("--bar" :: "foo" :: Nil)
+          ) match {
+          case Success(value) =>
+            println(s"Read: $value")
+            assertResult(1)(value)
+          case Failure(cause) => fail(cause.prettyPrint)
+        }
       }
     }
 
     "Help" in {
       val testApp = TestApp(spark)
-      testApp.makeRuntime.unsafeRunSync(testApp.runTest("--help" :: Nil)) match {
-        case Success(value) =>
-          println(s"Read exit code: $value")
-          assertResult(0)(value)
-        case Failure(cause) => fail(cause.prettyPrint)
+      Unsafe.unsafe { implicit unsafe =>
+        testApp.makeRuntime.unsafe.run(testApp.runTest("--help" :: Nil)) match {
+          case Success(value) =>
+            println(s"Read exit code: $value")
+            assertResult(0)(value)
+          case Failure(cause) => fail(cause.prettyPrint)
+        }
       }
     }
   }
 }
 
 case class TestApp(s: SparkSession) extends Application {
-  def runTest(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = super.run(args)
+  def runTest(args: List[String]): ZIO[ZIOEnv, Nothing, Int] = super.run(args)
 
-  override def makeRuntime: BootstrapRuntime = super.makeRuntime
+  override def makeRuntime: Runtime[ZIOEnv] = super.makeRuntime
 
   override protected def sparkFactory: FACTORY_SPARK =
     new FACTORY_SPARK {
@@ -66,8 +73,8 @@ case class TestApp(s: SparkSession) extends Application {
   override protected def loggerFactory: FACTORY_LOG =
     new FACTORY_LOG {
       override protected def makeLogger(
-          console: Console.Service
-      ): ZIO[Any, Throwable, Logger.Service] = Task(new LoggerService {})
+          console: Console
+      ): ZIO[Any, Throwable, Logger.Service] = ZIO.attempt(new LoggerService {})
     }
 
   lazy final override protected val env: ZLayer[ZPARKIO_ENV, Throwable, APP_ENV] = {

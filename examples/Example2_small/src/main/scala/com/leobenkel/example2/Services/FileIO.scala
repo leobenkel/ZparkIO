@@ -1,16 +1,16 @@
 package com.leobenkel.example2.Services
 
 import scala.io.Source
-import zio.{Has, Task, ZIO, ZLayer}
+import zio.{ZIO, ZLayer}
 
 object FileIO {
-  type FileIO = Has[Service]
+  type FileIO = Service
 
   trait Service {
     protected def readFileContent(path: String): Seq[String]
 
     final def getFileContent(path: String): ZIO[Any, Throwable, Seq[String]] =
-      Task(readFileContent(path))
+      ZIO.attempt(readFileContent(path))
   }
 
   trait LiveService extends FileIO.Service {
@@ -25,5 +25,5 @@ object FileIO {
   val Live: ZLayer[Any, Throwable, FileIO] = ZLayer.succeed(new LiveService {})
 
   def apply(path: String): ZIO[FileIO, Throwable, Seq[String]] =
-    ZIO.accessM[FileIO](_.get.getFileContent(path))
+    ZIO.serviceWithZIO[FileIO](_.getFileContent(path))
 }

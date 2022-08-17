@@ -2,7 +2,7 @@ package com.leobenkel.zparkio.Services
 
 import org.scalatest.freespec.AnyFreeSpec
 import scala.util.Try
-import zio.{BootstrapRuntime, Exit, ZIO}
+import zio.{Exit, FiberRefs, RuntimeFlags, Unsafe, ZEnvironment, ZIO}
 
 class ModuleFailTest extends AnyFreeSpec {
   "Module" ignore {
@@ -14,7 +14,7 @@ class ModuleFailTest extends AnyFreeSpec {
         def foo(bar: String): String
       }
 
-      def apply(b: String): ZIO[Module, Nothing, String] = ZIO.access[Module](_.service.foo(b))
+      def apply(b: String): ZIO[Module, Nothing, String] = ZIO.serviceWith[Module](_.service.foo(b))
     }
 
     case class ModuleServiceIpml(dead: Boolean) extends Module.Service {
@@ -30,14 +30,23 @@ class ModuleFailTest extends AnyFreeSpec {
     }
 
     "Might fail" in {
-      val runtime = new BootstrapRuntime {}
+      val runtime =
+        zio.Runtime(
+          ZEnvironment.empty,
+          FiberRefs.empty,
+          RuntimeFlags.default
+        )
 
       Try {
-        runtime.unsafeRunSync {
-          (for {
-            a <- Module("bar")
-            b <- Module("foo")
-          } yield s"$a - $b").provide(ModuleIpml(false))
+        Unsafe.unsafe { implicit unsafe =>
+          runtime
+            .unsafe
+            .run {
+              (for {
+                a <- Module("bar")
+                b <- Module("foo")
+              } yield s"$a - $b").provideEnvironment(ZEnvironment(ModuleIpml(false)))
+            }
         } match {
           case a @ Exit.Success(value) =>
             println(s"Intern: $value")
