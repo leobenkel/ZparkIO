@@ -54,7 +54,7 @@ lazy val commonSettings =
           "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided,
           // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
           "org.apache.spark" %% "spark-sql"  % sparkVersion.value % Provided,
-          "org.scalatest"    %% "scalatest"  % "3.2.13"           % Test
+          "org.scalatest"    %% "scalatest"  % "3.2.14"           % Test
         ),
       updateOptions          := updateOptions.value.withGigahorse(false),
       Test / publishArtifact := false,
