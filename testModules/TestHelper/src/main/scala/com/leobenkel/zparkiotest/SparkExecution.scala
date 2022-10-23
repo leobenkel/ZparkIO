@@ -38,9 +38,9 @@ case class SparkExecution(
     val command = makeCommand
     println(s"Execute:\n${command.mkString("\n")}")
     Process(command, None, "SPARK_LOCAL_IP" -> "127.0.0.1").!(new ProcessLogger {
-      override def out(s: => String):  Unit = System.out.println(s)
-      override def err(s: => String):  Unit = System.err.println(s)
-      override def buffer[T](f: => T): T    = f
+      override def out(s:       => String): Unit = System.out.println(s)
+      override def err(s:       => String): Unit = System.err.println(s)
+      override def buffer[T](f: => T):      T    = f
     })
   }
 }

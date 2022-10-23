@@ -18,9 +18,9 @@ trait Application extends ZparkioApp[Arguments, APP_ENV, Unit] {
 
   override protected def env: ZLayer[ZPARKIO_ENV, Throwable, APP_ENV] = FileIO.Live ++ Database.Live
 
-  override protected def sparkFactory:                     FACTORY_SPARK = SparkBuilder
-  override protected def loggerFactory:                    FACTORY_LOG   = Logger.Factory(Log)
-  override protected def makeCli(args: List[String]):      Arguments     = Arguments(args)
+  override protected def sparkFactory:  FACTORY_SPARK = SparkBuilder
+  override protected def loggerFactory: FACTORY_LOG   = Logger.Factory(Log)
+  override protected def makeCli(args: List[String]): Arguments = Arguments(args)
   lazy final override protected val cliFactory:            FACTORY_CLI   = CommandLineArgumentScallop.Factory()
   lazy final override protected val makeConfigErrorParser: ERROR_HANDLER =
     CommandLineArgumentScallop.ErrorParser

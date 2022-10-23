@@ -6,9 +6,8 @@ import com.leobenkel.zparkio.Services.CommandLineArguments.ConfigErrorParser
 import com.leobenkel.zparkio.Services.Logger.Logger
 import org.rogach.scallop.{Scallop, ScallopConf, ScallopOption}
 import org.rogach.scallop.exceptions.{Help, ScallopException}
-import zio.{Console, Task, ZIO}
-
 import scala.util.Try
+import zio.{Console, Task, ZIO}
 
 object CommandLineArgumentScallop {
   trait Service[C <: CommandLineArguments.Service[C]]
