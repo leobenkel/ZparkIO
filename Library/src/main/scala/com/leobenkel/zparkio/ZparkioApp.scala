@@ -15,10 +15,10 @@ import zio.{
   Runtime,
   RuntimeFlags,
   System,
+  Unsafe,
   ZIO,
   ZLayer
 }
-import zio.Unsafe
 
 //scalastyle:off number.of.methods
 trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
