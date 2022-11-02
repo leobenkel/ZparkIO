@@ -18,6 +18,7 @@ import zio.{
   ZIO,
   ZLayer
 }
+import zio.Unsafe
 
 //scalastyle:off number.of.methods
 trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
@@ -110,7 +111,10 @@ trait ZparkioApp[C <: CLA.Service[C], ENV, OUTPUT] {
   // $COVERAGE-OFF$ Bootstrap to `Unit`
   final def main(args: Array[String]): Unit = {
     val runtime  = makeRuntime
-    val exitCode = runtime.run(run(args.toList))
+    val exitCode =
+      Unsafe.unsafe { implicit unsafe =>
+        runtime.unsafe.run(run(args.toList)).getOrThrowFiberFailure()
+      }
     println(s"ExitCode: $exitCode")
   }
   // $COVERAGE-ON$
