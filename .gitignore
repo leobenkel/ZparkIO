@@ -6,3 +6,10 @@ target
 .metals
 spark-warehouse
 .bsp
+.bloop
+.idea
+.bsp
+.metals
+.vscode
+project/plugins/project/
+project/
