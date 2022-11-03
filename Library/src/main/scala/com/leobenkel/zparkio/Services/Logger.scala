@@ -42,7 +42,7 @@ object Logger {
         .console
         .map { console =>
           new Logger.Service {
-            override def info(txt: => String):  Task[Unit] = console.printLine(s"[INFO] $txt")
+            override def info(txt:  => String): Task[Unit] = console.printLine(s"[INFO] $txt")
             override def error(txt: => String): Task[Unit] = console.printLine(s"[ERROR] $txt")
             override def debug(txt: => String): Task[Unit] = console.printLine(s"[DEBUG] $txt")
           }

@@ -19,7 +19,7 @@ trait Application extends ZparkioApp[Arguments, RuntimeEnv, String] {
   lazy final override protected val cliFactory:            FACTORY_CLI   = CommandLineArgumentScallop.Factory()
   lazy final override protected val makeConfigErrorParser: ERROR_HANDLER =
     CommandLineArgumentScallop.ErrorParser
-  override protected def makeCli(args: List[String]):      Arguments     = Arguments(args)
+  override protected def makeCli(args: List[String]): Arguments = Arguments(args)
 
   override def runApp(): ZIO[COMPLETE_ENV, Throwable, String] =
     for {
