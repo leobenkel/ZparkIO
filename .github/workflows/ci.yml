@@ -1,6 +1,8 @@
-name: CI
+name: CI-CD
 on:
   push:
+    branches: [ main ]
+    tags: [ "*" ]
     paths-ignore:
       - ".gitignore"
       - ".bettercodehub.yml"
@@ -26,15 +28,11 @@ on:
 jobs:
   build:
     strategy:
-      fail-fast: false
+      fail-fast: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
-      - name: Setup Scala
-        uses: olafurpg/setup-scala@v10
-      - name: Coursier cache
-        uses: coursier/cache-action@v5
+        uses: actions/checkout@v2
 
       - name: clean
         run: make deep_clean
@@ -50,7 +48,7 @@ jobs:
       - name: unit-test-coverage
         run: make test_coverage
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
       - name: clean-up
         run: |
@@ -58,4 +56,41 @@ jobs:
           find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
           find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
           find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
-          find $HOME/.sbt                              -name "*.lock"               -delete || true
+          find $HOME/.sbt
+
+  release:
+    needs: build
+    strategy:
+      fail-fast: true
+    runs-on: ubuntu-latest
+    env:
+      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: release-staging
+        run: |
+          ./scripts/spark-cross-publish.sh library true
+          ./scripts/spark-cross-publish.sh testHelper true
+          ./scripts/spark-cross-publish.sh libraryConfigsScallop true
+        if: startsWith(github.ref, 'refs/tags/') != true && github.ref == 'refs/heads/main'
+
+      - name: release-production
+        run: |
+          ./scripts/spark-cross-publish.sh library
+          ./scripts/spark-cross-publish.sh testHelper
+          ./scripts/spark-cross-publish.sh libraryConfigsScallop
+        if: startsWith(github.ref, 'refs/tags/v')
+
+      - name: clean-up
+        run: |
+          rm -rf "$HOME/.ivy2/local" || true
+          find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+          find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+          find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+          find $HOME/.sbt
