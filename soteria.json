@@ -164,7 +164,6 @@
     "-feature",
     "-Yrangepos",
     "-Ywarn-dead-code",
-    "-Ywarn-inaccessible",
     "-Ywarn-unused",
     "-Ywarn-unused-import",
     "-Ywarn-value-discard",
