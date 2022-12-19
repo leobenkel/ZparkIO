@@ -177,3 +177,7 @@ This is a WIP and more will be added as I go.
 * [![leobenkel-linkedin-badge][]][leobenkel-linkedin-link]
 * [![leobenkel-personal-badge][]][leobenkel-personal-link]
 * [![leobenkel-patreon-badge][]][leobenkel-patreon-link]
+
+## Alternatives
+
+* [univalence/zio-spark](https://github.com/univalence/zio-spark)
