@@ -165,7 +165,6 @@
     "-Yrangepos",
     "-Ywarn-dead-code",
     "-Ywarn-unused",
-    "-Ywarn-unused-import",
     "-Ywarn-value-discard",
     "-deprecation",
     "-encoding",
