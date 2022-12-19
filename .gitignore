@@ -13,3 +13,4 @@ spark-warehouse
 .vscode
 project/plugins/project/
 project/
+logs/
