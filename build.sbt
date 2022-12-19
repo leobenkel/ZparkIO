@@ -83,9 +83,19 @@ lazy val commonSettings =
             )
           case Scala13           => Seq.empty
           case s                 => throw new Exception(s"scalacOptions: Unknown mapping for scala version $s")
-
         }
       }
+      // Can be needed in the future
+//      Compile / unmanagedSourceDirectories ++= {
+//        val pathWith: String => File = (p: String) => baseDirectory.value / "src" / "main" / p
+//        scalaVersion.value match {
+//          case Scala13           => Seq(pathWith("scala2.13"))
+//          case Scala11 | Scala12 => Seq(pathWith("scala2"))
+//          case s                 => throw new Exception(
+//              s"unmanagedSourceDirectories: Unknown mapping for scala version $s"
+//            )
+//        }
+//      }
     )
 
 lazy val root = (project in file("."))
@@ -100,7 +110,7 @@ lazy val library = (project in file("Library")).settings(
   name := projectName
 )
 
-lazy val sparkTestingBaseVersion =
+lazy val sparkTestingBaseVersion: String =
   sparkVersionSystem match {
     // https://mvnrepository.com/artifact/com.holdenkarau/spark-testing-base
     case Spark23 => "2.3.3_0.14.0"

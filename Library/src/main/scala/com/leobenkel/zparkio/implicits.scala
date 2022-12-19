@@ -30,13 +30,13 @@ object implicits {
 
     def apply[A](f: SparkSession => Dataset[A]): ZDS[A] = ZDS.map(f)
 
-    def make[A <: Product : TypeTag : ClassTag, B <: Product : TypeTag : ClassTag](
+    def make[A <: Product, B <: Product : TypeTag](
         input: Dataset[A]
     )(
         f:     Dataset[A] => Encoder[B] => Dataset[B]
     ): ZDS[B] = ZDS(spark => f(input)(spark.implicits.newProductEncoder[B]))
 
-    def apply[A <: Product : TypeTag : ClassTag](data: A*): ZDS[A] =
+    def apply[A <: Product : TypeTag](data: A*): ZDS[A] =
       apply { spark =>
         import spark.implicits._
         data.toDS()
@@ -53,10 +53,10 @@ object implicits {
   }
 
   implicit class DatasetZ[R, A](zds: => ZIO[R, Throwable, Dataset[A]]) extends Serializable {
-    def mapDS[B <: Product : TypeTag : ClassTag](f: A => B): ZDS_R[R, B] =
+    def mapDS[B <: Product : TypeTag](f: A => B): ZDS_R[R, B] =
       SparkModule().flatMap(spark => zds.map(_.map(f)(spark.implicits.newProductEncoder[B])))
 
-    def zMap[B <: Product : TypeTag : ClassTag](
+    def zMap[B <: Product : TypeTag](
         f: A => ZIO[Any, Throwable, B]
     ): ZDS_R[R, B] =
       ZDS.flatMapR[R, B] { spark =>
