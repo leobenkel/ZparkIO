@@ -2,6 +2,7 @@ package com.leobenkel.example1
 
 import com.leobenkel.zparkio.ZparkioApp.ZIOEnv
 import com.leobenkel.zparkiotest.TestWithSpark
+import org.scalatest.Assertions
 import org.scalatest.freespec.AnyFreeSpec
 import zio.{Runtime, Unsafe, ZIO}
 import zio.Exit.{Failure, Success}
@@ -19,7 +20,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Success(value) =>
             println(s"Read: $value")
             assertResult(0)(value)
-          case Failure(cause) => fail(cause.prettyPrint)
+          case Failure(cause) => Assertions.fail(cause.prettyPrint)
         }
       }
 
@@ -34,7 +35,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Success(value) =>
             println(s"Read: $value")
             assertResult(1)(value)
-          case Failure(cause) => fail(cause.prettyPrint)
+          case Failure(cause) => Assertions.fail(cause.prettyPrint)
         }
       }
 
@@ -44,7 +45,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Success(value) =>
             println(s"Read: $value")
             assertResult(0)(value)
-          case Failure(cause) => fail(cause.prettyPrint)
+          case Failure(cause) => Assertions.fail(cause.prettyPrint)
         }
       }
   }
@@ -55,3 +56,5 @@ object TestApp extends Application {
 
   lazy final override val makeRuntime: Runtime[ZIOEnv] = super.makeRuntime
 }
+
+
