@@ -34,6 +34,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Cache SBT
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+
       - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
@@ -79,6 +87,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Cache SBT
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
 
       - uses: actions/setup-java@v3
         with:
