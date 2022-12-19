@@ -18,7 +18,7 @@ object SparkModule {
   }
 
   trait Factory[C <: CommandLineArguments.Service[C]] {
-    lazy private val sparkBuilder:         SparkSession.Builder = SparkSession.builder
+    lazy private val sparkBuilder:         SparkSession.Builder = SparkSession.builder()
     lazy private val sparkBuilderWithName: SparkSession.Builder = sparkBuilder.appName(appName)
 
     protected def appName: String

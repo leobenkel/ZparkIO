@@ -43,7 +43,7 @@ object Database {
        * }}}
        * would go.
        */
-      Seq[A]().toDS
+      Seq[A]().toDS()
     }
   }
 

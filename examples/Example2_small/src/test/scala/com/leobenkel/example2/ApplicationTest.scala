@@ -7,6 +7,7 @@ import com.leobenkel.zparkio.Services.Logger
 import com.leobenkel.zparkio.ZparkioApp.ZIOEnv
 import com.leobenkel.zparkiotest.{LoggerService, TestWithSpark}
 import org.apache.spark.sql._
+import org.scalatest.Assertions
 import org.scalatest.freespec.AnyFreeSpec
 import zio.{Console, Runtime, Unsafe, ZIO, ZLayer}
 import zio.Exit.{Failure, Success}
@@ -20,7 +21,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Success(value) =>
             println(s"Read exit code: $value")
             assertResult(0)(value)
-          case Failure(cause) => fail(cause.prettyPrint)
+          case Failure(cause) => Assertions.fail(cause.prettyPrint)
         }
       }
     }
@@ -37,7 +38,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Success(value) =>
             println(s"Read: $value")
             assertResult(1)(value)
-          case Failure(cause) => fail(cause.prettyPrint)
+          case Failure(cause) => Assertions.fail(cause.prettyPrint)
         }
       }
     }
@@ -49,7 +50,7 @@ class ApplicationTest extends AnyFreeSpec with TestWithSpark {
           case Success(value) =>
             println(s"Read exit code: $value")
             assertResult(0)(value)
-          case Failure(cause) => fail(cause.prettyPrint)
+          case Failure(cause) => Assertions.fail(cause.prettyPrint)
         }
       }
     }
@@ -107,7 +108,7 @@ case class TestApp(s: SparkSession) extends Application {
               }
 
             import spark.implicits._
-            rawSeq.map(_.asInstanceOf[A]).toDS
+            rawSeq.map(_.asInstanceOf[A]).toDS()
           }
         }
       }
