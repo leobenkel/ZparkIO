@@ -142,7 +142,6 @@
           "org.codehaus.jackson | jackson-mapper-asl"
         ],
         "exactName": false,
-        "shouldBeProvided": true,
         "version": "none"
       }
     },

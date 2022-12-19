@@ -56,20 +56,31 @@ lazy val commonSettings =
       libraryDependencies ++=
         Seq(
           // https://zio.dev/docs/getting_started.html
-          "dev.zio"          %% "zio"        % zioVersion,
-          // https://mvnrepository.com/artifact/org.apache.spark/spark-core
-          "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided,
-          // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
-          "org.apache.spark" %% "spark-sql"  % sparkVersion.value % Provided,
-          "org.scalatest"    %% "scalatest"  % "3.2.14"           % Test
+          "dev.zio"          %% "zio"             % zioVersion,
+
+          // SPARK
+          "org.apache.spark" %% "spark-core"      % sparkVersion.value,
+          "org.apache.spark" %% "spark-streaming" % sparkVersion.value,
+          "org.apache.spark" %% "spark-sql"       % sparkVersion.value,
+          "org.apache.spark" %% "spark-hive"      % sparkVersion.value,
+          "org.apache.spark" %% "spark-catalyst"  % sparkVersion.value,
+          "org.apache.spark" %% "spark-yarn"      % sparkVersion.value,
+          "org.apache.spark" %% "spark-mllib"     % sparkVersion.value,
+
+          // TEST
+          "org.scalatest"    %% "scalatest"       % "3.2.14" % Test
         ),
       libraryDependencies ++= {
         sparkVersion.value match {
-          case Spark32 => Seq(
-              "io.netty" % "netty-all"    % "4.1.68.Final",
-              "io.netty" % "netty-buffer" % "4.1.68.Final"
+          case Spark23 | Spark24           => Seq(
+              "org.apache.xbean" % "xbean-asm6-shaded" % "4.10"
             )
-          case _       => Seq.empty
+          case Spark31 | Spark32 | Spark33 => Seq(
+              "io.netty" % "netty-all"              % "4.1.77.Final",
+              "io.netty" % "netty-buffer"           % "4.1.77.Final",
+              "io.netty" % "netty-tcnative-classes" % "2.0.52.Final"
+            )
+          case _                           => Seq.empty
         }
       },
       updateOptions          := updateOptions.value.withGigahorse(false),
