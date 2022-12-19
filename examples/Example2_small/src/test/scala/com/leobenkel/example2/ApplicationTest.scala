@@ -108,7 +108,7 @@ case class TestApp(s: SparkSession) extends Application {
               }
 
             import spark.implicits._
-            rawSeq.map(_.asInstanceOf[A]).toDS
+            rawSeq.map(_.asInstanceOf[A]).toDS()
           }
         }
       }

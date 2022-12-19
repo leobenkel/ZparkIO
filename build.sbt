@@ -33,10 +33,10 @@ lazy val rootSettings =
     crossScalaVersions := {
       sparkVersion.value match {
         case Spark23 => Seq(Scala11)
-        case Spark24 => Seq(Scala11, Scala12)
+        case Spark24 => Seq(Scala12, Scala11)
         case Spark31 => Seq(Scala12)
-        case Spark32 => Seq(Scala12, Scala13)
-        case Spark33 => Seq(Scala12, Scala13)
+        case Spark32 => Seq(Scala13, Scala12)
+        case Spark33 => Seq(Scala13, Scala12)
         case s       =>
           throw new Exception(s"crossScalaVersions: Do not know what to do with spark version $s")
       }

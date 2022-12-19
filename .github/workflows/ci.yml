@@ -40,6 +40,7 @@ jobs:
       - name: build
         run: |
           ./scripts/spark-cross-compile.sh
+
       - name: test
         run: |
           ./scripts/spark-cross-fmt.sh

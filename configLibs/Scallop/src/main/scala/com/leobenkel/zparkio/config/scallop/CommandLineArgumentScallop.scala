@@ -30,7 +30,7 @@ object CommandLineArgumentScallop {
       val (active, inactive) =
         filteredSummary(Set.empty).split('\n').partition(_.trim.startsWith("*"))
 
-      val a: Seq[String] = active.sorted :+ ""
+      val a: Seq[String] = active.sorted.toSeq :+ ""
       a ++ inactive.sorted
     }
 

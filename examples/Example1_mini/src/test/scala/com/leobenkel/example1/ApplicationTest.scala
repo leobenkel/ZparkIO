@@ -56,5 +56,3 @@ object TestApp extends Application {
 
   lazy final override val makeRuntime: Runtime[ZIOEnv] = super.makeRuntime
 }
-
-

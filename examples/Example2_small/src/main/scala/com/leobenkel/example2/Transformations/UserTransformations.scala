@@ -20,7 +20,7 @@ object UserTransformations {
       authorIds <-
         ZDS.broadcast { spark =>
           import spark.implicits._
-          posts.map(_.authorId).distinct.collect
+          posts.map(_.authorId).distinct().collect()
         }
       authors   <- ZDS(_ => users.filter(u => authorIds.value.contains(u.userId)))
     } yield authors
