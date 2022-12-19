@@ -2,9 +2,9 @@ val projectName = IO.readLines(new File("PROJECT_NAME")).head
 val v           = IO.readLines(new File("VERSION")).head
 val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.trim)
 
-val scala11 = "2.11.12"
-val scala12 = "2.12.17"
-val scala13 = "2.13.10"
+val Scala11 = "2.11.12"
+val Scala12 = "2.12.17"
+val Scala13 = "2.13.10"
 
 val Spark23 = "2.3.4"
 val Spark24 = "2.4.8"
@@ -32,11 +32,11 @@ lazy val rootSettings =
     sparkVersion       := sparkVersionSystem,
     crossScalaVersions := {
       sparkVersion.value match {
-        case Spark23 => Seq(scala11)
-        case Spark24 => Seq(scala11, scala12)
-        case Spark31 => Seq(scala12)
-        case Spark32 => Seq(scala12, scala13)
-        case Spark33 => Seq(scala12, scala13)
+        case Spark23 => Seq(Scala11)
+        case Spark24 => Seq(Scala11, Scala12)
+        case Spark31 => Seq(Scala12)
+        case Spark32 => Seq(Scala12, Scala13)
+        case Spark33 => Seq(Scala12, Scala13)
         case s       =>
           throw new Exception(s"crossScalaVersions: Do not know what to do with spark version $s")
       }
@@ -74,7 +74,18 @@ lazy val commonSettings =
       },
       updateOptions          := updateOptions.value.withGigahorse(false),
       Test / publishArtifact := false,
-      pomIncludeRepository   := (_ => false)
+      pomIncludeRepository   := (_ => false),
+      scalacOptions ++= {
+        scalaVersion.value match {
+          case Scala11 | Scala12 => Seq(
+              "-Ywarn-inaccessible",
+              "-Ywarn-unused-import"
+            )
+          case Scala13           => Seq.empty
+          case s                 => throw new Exception(s"scalacOptions: Unknown mapping for scala version $s")
+
+        }
+      }
     )
 
 lazy val root = (project in file("."))
