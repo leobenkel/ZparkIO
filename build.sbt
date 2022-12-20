@@ -56,7 +56,7 @@ lazy val commonSettings =
       libraryDependencies ++=
         Seq(
           // https://zio.dev/docs/getting_started.html
-          "dev.zio"          %% "zio"             % zioVersion,
+          "dev.zio" %% "zio" % zioVersion,
 
           // SPARK
           "org.apache.spark" %% "spark-core"      % sparkVersion.value,
@@ -68,7 +68,7 @@ lazy val commonSettings =
           "org.apache.spark" %% "spark-mllib"     % sparkVersion.value,
 
           // TEST
-          "org.scalatest"    %% "scalatest"       % "3.2.14" % Test
+          "org.scalatest" %% "scalatest" % "3.2.14" % Test
         ),
       libraryDependencies ++= {
         sparkVersion.value match {
@@ -76,8 +76,8 @@ lazy val commonSettings =
               "org.apache.xbean" % "xbean-asm6-shaded" % "4.10"
             )
           case Spark31 | Spark32 | Spark33 => Seq(
-              "io.netty" % "netty-all"              % "4.1.77.Final",
-              "io.netty" % "netty-buffer"           % "4.1.77.Final",
+              "io.netty" % "netty-all"              % "4.1.86.Final",
+              "io.netty" % "netty-buffer"           % "4.1.86.Final",
               "io.netty" % "netty-tcnative-classes" % "2.0.52.Final"
             )
           case _                           => Seq.empty
