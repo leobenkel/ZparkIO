@@ -76,8 +76,8 @@ lazy val commonSettings =
               "org.apache.xbean" % "xbean-asm6-shaded" % "4.10"
             )
           case Spark31 | Spark32 | Spark33 => Seq(
-              "io.netty" % "netty-all"              % "4.1.77.Final",
-              "io.netty" % "netty-buffer"           % "4.1.77.Final",
+              "io.netty" % "netty-all"              % "4.1.86.Final",
+              "io.netty" % "netty-buffer"           % "4.1.86.Final",
               "io.netty" % "netty-tcnative-classes" % "2.0.54.Final"
             )
           case _                           => Seq.empty
