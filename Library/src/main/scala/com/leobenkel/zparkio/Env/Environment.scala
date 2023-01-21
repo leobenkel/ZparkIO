@@ -2,7 +2,7 @@ package com.leobenkel.zparkio.Env
 
 sealed trait Environment {
   protected def getValidStrings: Seq[String]
-  lazy final val validStrings: Seq[String] = getValidStrings.map(_.trim.toLowerCase)
+  lazy final val validStrings:   Seq[String] = getValidStrings.map(_.trim.toLowerCase)
 }
 
 object Environment {
