@@ -9,6 +9,7 @@
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fleobenkel%2FZparkIO%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/leobenkel/ZparkIO/main)
 
 
+
 [release]:              https://github.com/leobenkel/zparkio/releases
 [release-badge]:        https://img.shields.io/github/tag/leobenkel/zparkio.svg?label=version&color=blue
 [maven-search]:         https://search.maven.org/search?q=g:com.leobenkel%20a:zparkio*
