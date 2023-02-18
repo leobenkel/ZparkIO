@@ -48,7 +48,7 @@ lazy val rootSettings =
     dynver ~= (v => s"${sparkVersionSystem}_$v")
   )
 
-lazy val zioVersion = "2.0.7"
+lazy val zioVersion = "2.0.9"
 
 lazy val commonSettings =
   rootSettings ++
@@ -76,8 +76,8 @@ lazy val commonSettings =
               "org.apache.xbean" % "xbean-asm6-shaded" % "4.10"
             )
           case Spark31 | Spark32 | Spark33 => Seq(
-              "io.netty" % "netty-all"              % "4.1.87.Final",
-              "io.netty" % "netty-buffer"           % "4.1.87.Final",
+              "io.netty" % "netty-all"              % "4.1.89.Final",
+              "io.netty" % "netty-buffer"           % "4.1.89.Final",
               "io.netty" % "netty-tcnative-classes" % "2.0.57.Final"
             )
           case _                           => Seq.empty
