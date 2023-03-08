@@ -48,7 +48,7 @@ lazy val rootSettings =
     dynver ~= (v => s"${sparkVersionSystem}_$v")
   )
 
-lazy val zioVersion = "2.0.9"
+lazy val zioVersion = "2.0.10"
 
 lazy val commonSettings =
   rootSettings ++
