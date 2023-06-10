@@ -4,7 +4,7 @@ val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.
 
 val Scala11 = "2.11.12"
 val Scala12 = "2.12.17"
-val Scala13 = "2.13.10"
+val Scala13 = "2.13.11"
 
 val Spark23 = "2.3.4"
 val Spark24 = "2.4.8"
