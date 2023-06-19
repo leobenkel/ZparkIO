@@ -68,7 +68,7 @@ lazy val commonSettings =
           "org.apache.spark" %% "spark-mllib"     % sparkVersion.value,
 
           // TEST
-          "org.scalatest" %% "scalatest" % "3.2.15" % Test
+          "org.scalatest" %% "scalatest" % "3.2.16" % Test
         ),
       libraryDependencies ++= {
         sparkVersion.value match {
