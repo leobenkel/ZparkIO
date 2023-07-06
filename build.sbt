@@ -68,7 +68,7 @@ lazy val commonSettings =
           "org.apache.spark" %% "spark-mllib"     % sparkVersion.value,
 
           // TEST
-          "org.scalatest" %% "scalatest" % "3.2.15" % Test
+          "org.scalatest" %% "scalatest" % "3.2.16" % Test
         ),
       libraryDependencies ++= {
         sparkVersion.value match {
@@ -76,9 +76,9 @@ lazy val commonSettings =
               "org.apache.xbean" % "xbean-asm6-shaded" % "4.10"
             )
           case Spark31 | Spark32 | Spark33 => Seq(
-              "io.netty" % "netty-all"              % "4.1.91.Final",
-              "io.netty" % "netty-buffer"           % "4.1.91.Final",
-              "io.netty" % "netty-tcnative-classes" % "2.0.59.Final"
+              "io.netty" % "netty-all"              % "4.1.94.Final",
+              "io.netty" % "netty-buffer"           % "4.1.94.Final",
+              "io.netty" % "netty-tcnative-classes" % "2.0.61.Final"
             )
           case _                           => Seq.empty
         }
@@ -128,7 +128,7 @@ lazy val sparkTestingBaseVersion: String =
     case Spark24 => "2.4.8_1.3.0"
     case Spark31 => "3.1.2_1.3.0"
     case Spark32 => "3.2.2_1.3.0"
-    case Spark33 => "3.3.1_1.4.3"
+    case Spark33 => "3.4.0_1.4.3"
     case s       => throw new Exception(s"sparkTestingBaseVersion: Unknown mapping for spark version $s")
   }
 

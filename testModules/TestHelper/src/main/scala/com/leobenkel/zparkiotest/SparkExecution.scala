@@ -18,8 +18,7 @@ case class SparkExecution(
     sparkFile.map { case (k, v) => s"--files $k#$v" }.mkString("\n")
 
   /**
-   * --conf spark.driver.bindAddress=127.0.0.1
-   * --conf spark.driver.port=46879
+   * --conf spark.driver.bindAddress=127.0.0.1 --conf spark.driver.port=46879
    *
    * @return
    */
