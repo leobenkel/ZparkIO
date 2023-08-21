@@ -10,7 +10,7 @@ val Spark23 = "2.3.4"
 val Spark24 = "2.4.8"
 val Spark31 = "3.1.3"
 val Spark32 = "3.2.3"
-val Spark33 = "3.3.1"
+val Spark33 = "3.3.3"
 
 val sparkVersionSystem = System.getProperty("sparkVersion", sparkVersions.head)
 val sparkVersion       = settingKey[String]("Spark version")
