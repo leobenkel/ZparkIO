@@ -128,7 +128,7 @@ lazy val sparkTestingBaseVersion: String =
     case Spark24 => "2.4.8_1.3.0"
     case Spark31 => "3.1.2_1.3.0"
     case Spark32 => "3.2.2_1.3.0"
-    case Spark33 => "3.4.0_1.4.3"
+    case Spark33 => "3.4.0_1.4.4"
     case s       => throw new Exception(s"sparkTestingBaseVersion: Unknown mapping for spark version $s")
   }
 
