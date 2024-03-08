@@ -78,7 +78,7 @@ lazy val commonSettings =
           case Spark31 | Spark32 | Spark33 => Seq(
               "io.netty" % "netty-all"              % "4.1.94.Final",
               "io.netty" % "netty-buffer"           % "4.1.94.Final",
-              "io.netty" % "netty-tcnative-classes" % "2.0.61.Final"
+              "io.netty" % "netty-tcnative-classes" % "2.0.65.Final"
             )
           case _                           => Seq.empty
         }
