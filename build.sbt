@@ -3,14 +3,16 @@ val v           = IO.readLines(new File("VERSION")).head
 val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.trim)
 
 val Scala11 = "2.11.12"
-val Scala12 = "2.12.17"
-val Scala13 = "2.13.10"
+val Scala12 = "2.12.20"
+val Scala13 = "2.13.17"
 
 val Spark23 = "2.3.4"
 val Spark24 = "2.4.8"
 val Spark31 = "3.1.3"
-val Spark32 = "3.2.3"
-val Spark33 = "3.3.1"
+val Spark32 = "3.2.4"
+val Spark33 = "3.3.4"
+val Spark34 = "3.4.4"
+val Spark35 = "3.5.6"
 
 val sparkVersionSystem = System.getProperty("sparkVersion", sparkVersions.head)
 val sparkVersion       = settingKey[String]("Spark version")
@@ -37,6 +39,8 @@ lazy val rootSettings =
         case Spark31 => Seq(Scala12)
         case Spark32 => Seq(Scala13, Scala12)
         case Spark33 => Seq(Scala13, Scala12)
+        case Spark34 => Seq(Scala13, Scala12)
+        case Spark35 => Seq(Scala13, Scala12)
         case s       =>
           throw new Exception(s"crossScalaVersions: Do not know what to do with spark version $s")
       }
@@ -48,7 +52,7 @@ lazy val rootSettings =
     dynver ~= (v => s"${sparkVersionSystem}_$v")
   )
 
-lazy val zioVersion = "2.0.10"
+lazy val zioVersion = "2.1.9"
 
 lazy val commonSettings =
   rootSettings ++
@@ -68,19 +72,19 @@ lazy val commonSettings =
           "org.apache.spark" %% "spark-mllib"     % sparkVersion.value,
 
           // TEST
-          "org.scalatest" %% "scalatest" % "3.2.16" % Test
+          "org.scalatest" %% "scalatest" % "3.2.19" % Test
         ),
       libraryDependencies ++= {
         sparkVersion.value match {
-          case Spark23 | Spark24           => Seq(
+          case Spark23 | Spark24                     => Seq(
               "org.apache.xbean" % "xbean-asm6-shaded" % "4.10"
             )
-          case Spark31 | Spark32 | Spark33 => Seq(
-              "io.netty" % "netty-all"              % "4.1.94.Final",
-              "io.netty" % "netty-buffer"           % "4.1.94.Final",
-              "io.netty" % "netty-tcnative-classes" % "2.0.61.Final"
+          case Spark31 | Spark32 | Spark33 | Spark34 | Spark35 => Seq(
+              "io.netty" % "netty-all"              % "4.1.115.Final",
+              "io.netty" % "netty-buffer"           % "4.1.115.Final",
+              "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
             )
-          case _                           => Seq.empty
+          case _                                     => Seq.empty
         }
       },
       updateOptions          := updateOptions.value.withGigahorse(false),
@@ -126,9 +130,11 @@ lazy val sparkTestingBaseVersion: String =
     // https://mvnrepository.com/artifact/com.holdenkarau/spark-testing-base
     case Spark23 => "2.3.3_0.14.0"
     case Spark24 => "2.4.8_1.3.0"
-    case Spark31 => "3.1.2_1.3.0"
-    case Spark32 => "3.2.2_1.3.0"
-    case Spark33 => "3.4.0_1.4.3"
+    case Spark31 => "3.1.3_2.0.1"
+    case Spark32 => "3.2.4_2.0.1"
+    case Spark33 => "3.3.4_2.0.1"
+    case Spark34 => "3.4.4_2.0.1"
+    case Spark35 => "3.5.6_2.0.1"
     case s       => throw new Exception(s"sparkTestingBaseVersion: Unknown mapping for spark version $s")
   }
 
@@ -162,7 +168,7 @@ lazy val libraryConfigsScallop = (project in file("configLibs/Scallop"))
     libraryDependencies ++=
       Seq(
         // https://github.com/scallop/scallop
-        "org.rogach" %% "scallop" % "4.1.0"
+        "org.rogach" %% "scallop" % "5.2.0"
       )
   )
   .dependsOn(library)
