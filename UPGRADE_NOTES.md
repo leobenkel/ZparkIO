@@ -54,9 +54,16 @@ The project now supports the following Spark versions:
 
 ### ZIO
 - **Previous:** 2.0.10
-- **Updated to:** 2.1.9
-- **Reason:** Latest stable version with new features and bug fixes
-- **Breaking Changes:** Minimal - mostly backward compatible, but review ZIO migration guide if issues arise
+- **Updated to:**
+  - **Scala 2.11:** 1.0.18 (ZIO 2.x dropped Scala 2.11 support)
+  - **Scala 2.12+:** 2.1.9 (latest stable version)
+- **Reason:**
+  - ZIO 2.x provides latest features and bug fixes for Scala 2.12+
+  - ZIO 1.0.18 is the last version supporting Scala 2.11
+- **Breaking Changes:**
+  - For Scala 2.11 projects: Using ZIO 1.x API (different from ZIO 2.x)
+  - For Scala 2.12+ projects: Minimal changes from 2.0.10 to 2.1.9
+  - Review ZIO migration guides if upgrading code from ZIO 1.x to 2.x
 
 ### ScalaTest
 - **Previous:** 3.2.16
@@ -78,14 +85,16 @@ The project now supports the following Spark versions:
 - **Reason:** Latest stable versions with security fixes and performance improvements
 
 ### spark-testing-base
-Updated to use the 2.0.1 release for all Spark 3.x versions:
-- **Spark 3.1:** 3.1.2_1.3.0 → 3.1.3_2.0.1
-- **Spark 3.2:** 3.2.2_1.3.0 → 3.2.4_2.0.1
-- **Spark 3.3:** 3.4.0_1.4.3 → 3.3.4_2.0.1
-- **Spark 3.4:** 3.4.4_2.0.1 (NEW)
-- **Spark 3.5:** 3.5.6_2.0.1 (NEW)
+Updated to use compatible versions (spark-testing-base doesn't release for every Spark patch version):
+- **Spark 3.1:** 3.1.2_1.3.0 (unchanged)
+- **Spark 3.2:** 3.2.2_1.3.0 → 3.2.1_1.3.0
+- **Spark 3.3:** 3.4.0_1.4.3 → 3.3.0_1.3.4
+- **Spark 3.4:** 3.4.0_1.4.4 (NEW)
+- **Spark 3.5:** 3.5.3_2.0.1 (NEW)
 
-**Note:** Spark 2.x versions remain unchanged (using older spark-testing-base versions)
+**Note:**
+- spark-testing-base versions are compatible across patch releases (e.g., 3.5.3 works with Spark 3.5.6)
+- Spark 2.x versions remain unchanged (using older spark-testing-base versions)
 
 ## SBT Plugin Updates
 
