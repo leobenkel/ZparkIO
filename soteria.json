@@ -1,5 +1,5 @@
 {
-  "dockerImage": "openjdk:8-jre",
+  "dockerImage": "eclipse-temurin:11-jre",
   "modules": {
     "com.databricks": {
       "spark-avro_2.11": {
@@ -154,11 +154,11 @@
     "org.rogach": {
       "scallop": {
         "needDoublePercent": true,
-        "version": "4.1.0"
+        "version": "5.2.0"
       }
     }
   },
-  "sbtVersion": "1.8.2",
+  "sbtVersion": "1.10.11",
   "scalaCFlags": [
     "-feature",
     "-Yrangepos",
@@ -172,6 +172,8 @@
   "scalaVersions": [
     "2.11.12",
     "2.12.17",
-    "2.13.10"
+    "2.12.20",
+    "2.13.10",
+    "2.13.17"
   ]
 }
