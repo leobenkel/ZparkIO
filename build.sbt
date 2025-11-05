@@ -128,13 +128,15 @@ lazy val library = (project in file("Library")).settings(
 lazy val sparkTestingBaseVersion: String =
   sparkVersionSystem match {
     // https://mvnrepository.com/artifact/com.holdenkarau/spark-testing-base
+    // Note: spark-testing-base doesn't release for every Spark patch version
+    // Using the closest available version which is compatible
     case Spark23 => "2.3.3_0.14.0"
     case Spark24 => "2.4.8_1.3.0"
-    case Spark31 => "3.1.3_2.0.1"
-    case Spark32 => "3.2.4_2.0.1"
-    case Spark33 => "3.3.4_2.0.1"
-    case Spark34 => "3.4.4_2.0.1"
-    case Spark35 => "3.5.6_2.0.1"
+    case Spark31 => "3.1.2_1.3.0"
+    case Spark32 => "3.2.1_1.3.0"
+    case Spark33 => "3.3.0_1.3.4"
+    case Spark34 => "3.4.0_1.4.4"
+    case Spark35 => "3.5.3_2.0.1"
     case s       => throw new Exception(s"sparkTestingBaseVersion: Unknown mapping for spark version $s")
   }
 
