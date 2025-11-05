@@ -52,15 +52,14 @@ lazy val rootSettings =
     dynver ~= (v => s"${sparkVersionSystem}_$v")
   )
 
-lazy val zioVersion = "2.1.9"
-
 lazy val commonSettings =
   rootSettings ++
     Seq(
       libraryDependencies ++=
         Seq(
           // https://zio.dev/docs/getting_started.html
-          "dev.zio" %% "zio" % zioVersion,
+          // ZIO 2.x dropped support for Scala 2.11, so use ZIO 1.x for 2.11
+          "dev.zio" %% "zio" % (if (scalaVersion.value.startsWith("2.11")) "1.0.18" else "2.1.9"),
 
           // SPARK
           "org.apache.spark" %% "spark-core"      % sparkVersion.value,
