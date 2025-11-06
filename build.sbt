@@ -2,12 +2,9 @@ val projectName = IO.readLines(new File("PROJECT_NAME")).head
 val v           = IO.readLines(new File("VERSION")).head
 val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.trim)
 
-val Scala11 = "2.11.12"
 val Scala12 = "2.12.20"
 val Scala13 = "2.13.17"
 
-val Spark23 = "2.3.4"
-val Spark24 = "2.4.8"
 val Spark31 = "3.1.3"
 val Spark32 = "3.2.4"
 val Spark33 = "3.3.4"
@@ -34,8 +31,6 @@ lazy val rootSettings =
     sparkVersion       := sparkVersionSystem,
     crossScalaVersions := {
       sparkVersion.value match {
-        case Spark23 => Seq(Scala11)
-        case Spark24 => Seq(Scala12, Scala11)
         case Spark31 => Seq(Scala12)
         case Spark32 => Seq(Scala13, Scala12)
         case Spark33 => Seq(Scala13, Scala12)
@@ -58,8 +53,7 @@ lazy val commonSettings =
       libraryDependencies ++=
         Seq(
           // https://zio.dev/docs/getting_started.html
-          // ZIO 2.x dropped support for Scala 2.11, so use ZIO 1.x for 2.11
-          "dev.zio" %% "zio" % (if (scalaVersion.value.startsWith("2.11")) "1.0.18" else "2.1.9"),
+          "dev.zio" %% "zio" % "2.1.9",
 
           // SPARK
           "org.apache.spark" %% "spark-core"      % sparkVersion.value,
@@ -73,30 +67,22 @@ lazy val commonSettings =
           // TEST
           "org.scalatest" %% "scalatest" % "3.2.19" % Test
         ),
-      libraryDependencies ++= {
-        sparkVersion.value match {
-          case Spark23 | Spark24                     => Seq(
-              "org.apache.xbean" % "xbean-asm6-shaded" % "4.10"
-            )
-          case Spark31 | Spark32 | Spark33 | Spark34 | Spark35 => Seq(
-              "io.netty" % "netty-all"              % "4.1.115.Final",
-              "io.netty" % "netty-buffer"           % "4.1.115.Final",
-              "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
-            )
-          case _                                     => Seq.empty
-        }
-      },
+      libraryDependencies ++= Seq(
+        "io.netty" % "netty-all"              % "4.1.115.Final",
+        "io.netty" % "netty-buffer"           % "4.1.115.Final",
+        "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
+      ),
       updateOptions          := updateOptions.value.withGigahorse(false),
       Test / publishArtifact := false,
       pomIncludeRepository   := (_ => false),
       scalacOptions ++= {
         scalaVersion.value match {
-          case Scala11 | Scala12 => Seq(
+          case s if s.startsWith("2.12") => Seq(
               "-Ywarn-inaccessible",
               "-Ywarn-unused-import"
             )
-          case Scala13           => Seq.empty
-          case s                 => throw new Exception(s"scalacOptions: Unknown mapping for scala version $s")
+          case s if s.startsWith("2.13") => Seq.empty
+          case s                         => throw new Exception(s"scalacOptions: Unknown mapping for scala version $s")
         }
       }
       // Can be needed in the future
