@@ -67,17 +67,19 @@ lazy val commonSettings =
           // TEST
           "org.scalatest" %% "scalatest" % "3.2.19" % Test
         ),
-      libraryDependencies ++= Seq(
-        "io.netty" % "netty-all"              % "4.1.115.Final",
-        "io.netty" % "netty-buffer"           % "4.1.115.Final",
-        "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
-      ),
+      libraryDependencies ++=
+        Seq(
+          "io.netty" % "netty-all"              % "4.1.115.Final",
+          "io.netty" % "netty-buffer"           % "4.1.115.Final",
+          "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
+        ),
       updateOptions          := updateOptions.value.withGigahorse(false),
       Test / publishArtifact := false,
       pomIncludeRepository   := (_ => false),
       scalacOptions ++= {
         scalaVersion.value match {
-          case s if s.startsWith("2.12") => Seq(
+          case s if s.startsWith("2.12") =>
+            Seq(
               "-Ywarn-inaccessible",
               "-Ywarn-unused-import"
             )
@@ -119,7 +121,7 @@ lazy val sparkTestingBaseVersion: String =
     case Spark32 => "3.2.1_1.3.0"
     case Spark33 => "3.3.0_1.3.4"
     case Spark34 => "3.4.0_1.4.4"
-    case Spark35 => "3.5.3_2.0.1"
+    case Spark35 => "3.5.3_2.1.3"
     case s       => throw new Exception(s"sparkTestingBaseVersion: Unknown mapping for spark version $s")
   }
 
