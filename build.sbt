@@ -115,8 +115,6 @@ lazy val sparkTestingBaseVersion: String =
     // https://mvnrepository.com/artifact/com.holdenkarau/spark-testing-base
     // Note: spark-testing-base doesn't release for every Spark patch version
     // Using the closest available version which is compatible
-    case Spark23 => "2.3.3_0.14.0"
-    case Spark24 => "2.4.8_1.3.0"
     case Spark31 => "3.1.2_1.3.0"
     case Spark32 => "3.2.1_1.3.0"
     case Spark33 => "3.3.0_1.3.4"
