@@ -1,3 +1,6 @@
+// Code coverage
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.2.2")
+
 // To publish
 addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.11.0")
 
