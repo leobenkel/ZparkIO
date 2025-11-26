@@ -3,7 +3,7 @@ val v           = IO.readLines(new File("VERSION")).head
 val sparkVersions: List[String] = IO.readLines(new File("sparkVersions")).map(_.trim)
 
 val Scala12 = "2.12.20"
-val Scala13 = "2.13.15"
+val Scala13 = "2.13.18"
 
 val Spark31 = "3.1.3"
 val Spark32 = "3.2.4"
@@ -67,17 +67,19 @@ lazy val commonSettings =
           // TEST
           "org.scalatest" %% "scalatest" % "3.2.19" % Test
         ),
-      libraryDependencies ++= Seq(
-        "io.netty" % "netty-all"              % "4.1.115.Final",
-        "io.netty" % "netty-buffer"           % "4.1.115.Final",
-        "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
-      ),
+      libraryDependencies ++=
+        Seq(
+          "io.netty" % "netty-all"              % "4.1.115.Final",
+          "io.netty" % "netty-buffer"           % "4.1.115.Final",
+          "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
+        ),
       updateOptions          := updateOptions.value.withGigahorse(false),
       Test / publishArtifact := false,
       pomIncludeRepository   := (_ => false),
       scalacOptions ++= {
         scalaVersion.value match {
-          case s if s.startsWith("2.12") => Seq(
+          case s if s.startsWith("2.12") =>
+            Seq(
               "-Ywarn-inaccessible",
               "-Ywarn-unused-import"
             )
