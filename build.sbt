@@ -67,17 +67,19 @@ lazy val commonSettings =
           // TEST
           "org.scalatest" %% "scalatest" % "3.2.19" % Test
         ),
-      libraryDependencies ++= Seq(
-        "io.netty" % "netty-all"              % "4.1.115.Final",
-        "io.netty" % "netty-buffer"           % "4.1.115.Final",
-        "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
-      ),
+      libraryDependencies ++=
+        Seq(
+          "io.netty" % "netty-all"              % "4.1.131.Final",
+          "io.netty" % "netty-buffer"           % "4.1.131.Final",
+          "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
+        ),
       updateOptions          := updateOptions.value.withGigahorse(false),
       Test / publishArtifact := false,
       pomIncludeRepository   := (_ => false),
       scalacOptions ++= {
         scalaVersion.value match {
-          case s if s.startsWith("2.12") => Seq(
+          case s if s.startsWith("2.12") =>
+            Seq(
               "-Ywarn-inaccessible",
               "-Ywarn-unused-import"
             )
