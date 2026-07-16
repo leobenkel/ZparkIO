@@ -9,7 +9,7 @@ val Spark31 = "3.1.3"
 val Spark32 = "3.2.4"
 val Spark33 = "3.3.4"
 val Spark34 = "3.4.4"
-val Spark35 = "3.5.6"
+val Spark35 = "3.5.9"
 
 val sparkVersionSystem = System.getProperty("sparkVersion", sparkVersions.head)
 val sparkVersion       = settingKey[String]("Spark version")
@@ -67,17 +67,19 @@ lazy val commonSettings =
           // TEST
           "org.scalatest" %% "scalatest" % "3.2.19" % Test
         ),
-      libraryDependencies ++= Seq(
-        "io.netty" % "netty-all"              % "4.1.115.Final",
-        "io.netty" % "netty-buffer"           % "4.1.115.Final",
-        "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
-      ),
+      libraryDependencies ++=
+        Seq(
+          "io.netty" % "netty-all"              % "4.1.115.Final",
+          "io.netty" % "netty-buffer"           % "4.1.115.Final",
+          "io.netty" % "netty-tcnative-classes" % "2.0.67.Final"
+        ),
       updateOptions          := updateOptions.value.withGigahorse(false),
       Test / publishArtifact := false,
       pomIncludeRepository   := (_ => false),
       scalacOptions ++= {
         scalaVersion.value match {
-          case s if s.startsWith("2.12") => Seq(
+          case s if s.startsWith("2.12") =>
+            Seq(
               "-Ywarn-inaccessible",
               "-Ywarn-unused-import"
             )
